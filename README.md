@@ -20,36 +20,46 @@ Si tu equipo cuenta con una tarjeta gráfica NVIDIA, instala CUDA para mejorar s
 TFG-BCI/
 │
 ├── data/
-│   ├── Grabaciones casco/# .db originales del casco , .fif, .npy, .csv limpios, anotaciones y sesiones
-|   └──  BCICIV_2a_gdf
-│   
+│ ├── Grabaciones casco/
+│ │ - Archivos .db originales del casco
+│ │ - .fif, .npy, .csv procesados
+│ │ - Anotaciones y sesiones
+│ └── BCICIV_2a_gdf/
+│ - Dataset público para validación
+│
 ├── env/
-│   ├──  mirepnet_env.yml 
+│ └── mirepnet_env.yml
+│ - Entorno Conda para MIRepNet + MNE + PyTorch
 │
 ├── src/
-│   ├── brainaccess/
-│   │   └── brainaccess.py   # Lectura del casco en tiempor real
-│   │
-│   ├── preprocessing/
-│   │
-│   ├── mirepnet/
-│   │   ├── mirepnetest.py   # Test lectura de casco + MIRepNet
-│   │   └── tests/    # carpeta de srcipts de prueba
-│   │
-│   ├── utils/
-│   │   ├── distance_2d.py
-│   │   ├── distance_3d.py
-│   │
-│   └── pipelines/
-│       ├── Conversor.py  # .db → MNE/CSV/fif/npy
-│       └── Grabaciones.py      # pruebas de ñectura archivos db (lo borraremos seguramente)
-│
+│ ├── brainaccess/
+│ │ └── brainaccess.py
+│ │ - Lectura del casco en tiempo real
+│ │
+│ ├── preprocessing/
+│ │ - (Filtros, alineación, proyectores, normalización...)
+│ │
+│ ├── mirepnet/
+│ │ ├── mirepnetest.py
+│ │ │ - Test de lectura del casco + inferencia MIRepNet
+│ │ └── tests/
+│ │ - Scripts de prueba y experimentos
+│ │
+│ ├── utils/
+│ │ ├── distance_2d.py
+│ │ ├── distance_3d.py
+│ │ - Cálculo de distancias Euclídeas 2D/3D entre plantillas
+│ │
+│ └── pipelines/
+│ ├── Conversor.py
+│ │ - Conversor .db → .fif, .csv, .npy
+│ └── Grabaciones.py
+│ - Pruebas de lectura de archivos .db (probablemente se eliminará)
 │
 ├── Modelos/
-│   └── MIRepNet/     # tu repo clonado como submódulo
+│ └── MIRepNet/
+│ - Repositorio clonado como submódulo (modelo + pesos)
 │
 └── README.md
-
- 
  📜 mirepnet_env.yml      ← Archivo del entorno Conda
 ---
