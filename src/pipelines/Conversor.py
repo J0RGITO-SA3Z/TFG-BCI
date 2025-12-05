@@ -1,5 +1,6 @@
 import sqlite3
 import io
+import os
 import numpy as np
 import pandas as pd
 import mne
@@ -166,8 +167,17 @@ def to_fif(raw, out_fif):
     return out_fif
 
 
-db_path = r"C:\Users\JORGE\OneDrive\Documents\GitHub\TFG-BCI\Grabaciones casco\db\subj-1_ses-S001_task-_run-001_20251114_164813_eeg.db"
+# Ruta absoluta a la raíz del proyecto
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
+# Ruta a la carpeta de grabaciones
+DATA_DIR = os.path.join(PROJECT_ROOT, "data", "Grabaciones casco","Prueba_grabación_1","db")
+
+
+# Archivo .db concreto
+db_path = os.path.join(DATA_DIR, "subj-1_ses-S001_task-_run-001_20251114_164813_eeg.db")
+print("db_path =", db_path)
+print("Existe?", os.path.isfile(db_path))
 # 1) Leer .db
 raw_dict = load_brainaccess_db(db_path)
 
@@ -175,6 +185,24 @@ raw_dict = load_brainaccess_db(db_path)
 raw = to_mne(raw_dict)
 
 # 4) Exportar formatos
-to_csv(raw_dict, "eeg_data.csv")
-to_numpy(raw_dict, "eeg_data.npy")
-to_fif(raw, "eeg_data_raw.fif")
+#to_csv(raw_dict, "eeg_data.csv")
+#to_numpy(raw_dict, "eeg_data.npy")
+#to_fif(raw, "eeg_data_raw.fif")
+
+# Lectura y plot de datos mne (prueba de lectura)
+DATA_FIF_DIR = os.path.join(PROJECT_ROOT,"data", "Grabaciones casco","Prueba_grabación_1")
+raw_file = os.path.join(DATA_FIF_DIR,"eeg_data_raw.fif")
+
+raw = mne.io.read_raw_fif(raw_file)
+print(raw)
+print(raw.info)
+
+raw.compute_psd(fmax=50).plot(picks="data", exclude="bads", amplitude=False)
+raw.plot(duration=5, n_channels=30)
+# set up and fit the ICA
+#ica = mne.preprocessing.ICA(n_components=16, random_state=97, max_iter=800)
+#ica.fit(raw)
+#ica.exclude = [1, 2]  # details on how we picked these are omitted here
+#ica.plot_properties(raw, picks=ica.exclude)
+
+input("Pulsa ENTER para cerrar...")
