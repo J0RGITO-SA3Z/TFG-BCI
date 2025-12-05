@@ -15,21 +15,10 @@ git clone https://github.com/yourusername/MIRepNet.git
 Si tu equipo cuenta con una tarjeta gráfica NVIDIA, instala CUDA para mejorar significativamente el rendimiento.
 
 ---
-## 4️⃣ Abrir el proyecto en PyCharm
-Dentro del directorio scripts/MIRepNet encontrarás una carpeta llamada EEG.
-Esta carpeta contiene el proyecto de PyCharm, que puedes abrir y ejecutar asegurándote de que esté seleccionado el entorno virtual mirepnet_env.
+## 4️⃣ Abrir el proyecto en VS con entorno virtual -> ctrl +shift + p  -> Python select interpreter -> mirepnet_env
 
-📦 Modelos/
+<img width="619" height="636" alt="image" src="https://github.com/user-attachments/assets/714e6ba3-1b81-4e0c-9eab-2a4e73d5fae8" />
 
- ┣ 📂 MIRepNet/
- 
- ┃ ┣ 📂 scripts/
- 
- ┃ ┃ ┣ 📂 EEG/   ← Proyecto PyCharm
- 
- ┃ ┃ ┣ 📜 test_mirepnet.py
- 
- ┃ ┃ ┗ 📜 train_mirepnet.py
- 
+
  📜 mirepnet_env.yml      ← Archivo del entorno Conda
 ---
