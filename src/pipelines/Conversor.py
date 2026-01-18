@@ -197,6 +197,14 @@ raw = mne.io.read_raw_fif(raw_file)
 print(raw)
 print(raw.info)
 
+raw.load_data() # Cargar los datos en RAM par aplicar el filtro
+
+raw_data = raw.get_data()
+print(raw_data[0, :10])
+
+raw_filtered = raw.copy().filter(1., 40., fir_design='firwin')
+raw_filtered.plot()
+
 raw.compute_psd(fmax=50).plot(picks="data", exclude="bads", amplitude=False)
 raw.plot(duration=5, n_channels=30)
 # set up and fit the ICA
