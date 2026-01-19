@@ -98,7 +98,6 @@ dependencies:
   - zstd=1.5.7=h56299aa_0
   - pip:
       - annotated-types==0.7.0
-      - brainaccess==2.3.0
       - click==8.3.0
       - colorama==0.4.6
       - contourpy==1.3.2
