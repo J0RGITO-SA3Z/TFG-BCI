@@ -1,3 +1,6 @@
+import sys
+print(sys.executable)
+
 import os, sys, time, torch, numpy as np
 import torch.nn as nn
 from collections import deque

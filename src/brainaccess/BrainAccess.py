@@ -17,7 +17,7 @@ bacore.init(bacore.Version(2, 0, 0))
 print(bacore.get_version())
 
 # Como estamos en windows asignamos el puerto
-port = "COM3" # NOTA: cambiar el puerto al q indique la interfaz del casco
+port = "COM4" # NOTA: cambiar el puerto al q indique la interfaz del casco
 
 # Start manager
 with EEGManager() as mgr:
