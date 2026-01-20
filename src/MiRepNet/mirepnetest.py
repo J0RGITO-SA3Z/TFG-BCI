@@ -1,6 +1,5 @@
 import sys
-print(sys.executable)
-
+import json
 import os, sys, time, torch, numpy as np
 import torch.nn as nn
 from collections import deque
@@ -16,8 +15,33 @@ from model.mlm import mlm_mask, PatchEmbedding
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"🚀 Usando dispositivo: {device}")
 
+# === 2️⃣ Canales ===
+# Open our JSON file and load it into python
+SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+CONFIG_DIR = os.path.join(SRC_ROOT, "Disposition", "configs")
+HEADSET_DIR = os.path.join(CONFIG_DIR, "channels_headset_15.json")
+TEMPLATE_DIR = os.path.join(CONFIG_DIR, "channels_template_45.json")
+headset_file = open (HEADSET_DIR)
+template_file = open (TEMPLATE_DIR)
+
+with open(HEADSET_DIR, "r") as f:
+    cfg = json.load(f)
+
+HEADSET_CHANNELS_15 = cfg["channels"]
+
+with open(TEMPLATE_DIR, "r") as d:
+    cfg = json.load(d)
+
+TEMPLATE_45 = cfg["channels"]
+# json_array = json.load(input_file)
+
+print(HEADSET_CHANNELS_15)
+print(TEMPLATE_45)
+
+
+'''
 # === 2️⃣ Canales === Usando la primera configuración valida para motor imagery
-YOUR_HEADSET_CHANNELS_15 = ["F4","FCZ","FZ","FC3","F3","CZ","FC4",
+HEADSET_CHANNELS_15 = ["F4","FCZ","FZ","FC3","F3","CZ","FC4",
                             "C4","CP4","P4","C3","CP3","PZ","CPZ","P3"]
 
 TEMPLATE_45 = [
@@ -27,6 +51,7 @@ TEMPLATE_45 = [
     'TP7', 'CP5', 'CP3', 'CP1', 'CPZ', 'CP2', 'CP4', 'CP6', 'TP8',
     'P7', 'P5', 'P3', 'P1', 'PZ', 'P2', 'P4', 'P6', 'P8'
 ]
+'''
 
 # === 3️⃣ Proyector 14→45 ===
 class ChannelProjector(nn.Module):
@@ -38,7 +63,7 @@ class ChannelProjector(nn.Module):
     def reset_projection(self):
         with torch.no_grad():
             self.proj.weight.zero_()
-            for i, ch in enumerate(YOUR_HEADSET_CHANNELS_15):
+            for i, ch in enumerate(HEADSET_CHANNELS_15):
                 if ch.upper() in [c.upper() for c in TEMPLATE_45]:
                     j = [c.upper() for c in TEMPLATE_45].index(ch.upper())
                     self.proj.weight[j, i, 0] = 1.0
