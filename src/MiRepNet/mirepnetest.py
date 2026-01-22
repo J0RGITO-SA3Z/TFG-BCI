@@ -16,7 +16,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"🚀 Usando dispositivo: {device}")
 
 # === 2️⃣ Canales ===
-# Open our JSON file and load it into python
+# Cargamos el array de canales desde los archivos JSON en la carpeta Disposition
 SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 CONFIG_DIR = os.path.join(SRC_ROOT, "Disposition", "configs")
 HEADSET_DIR = os.path.join(CONFIG_DIR, "channels_headset_15.json")
@@ -33,26 +33,12 @@ with open(TEMPLATE_DIR, "r") as d:
     cfg = json.load(d)
 
 TEMPLATE_45 = cfg["channels"]
-# json_array = json.load(input_file)
 
 print(HEADSET_CHANNELS_15)
 print(TEMPLATE_45)
 
 
-'''
-# === 2️⃣ Canales === Usando la primera configuración valida para motor imagery
-HEADSET_CHANNELS_15 = ["F4","FCZ","FZ","FC3","F3","CZ","FC4",
-                            "C4","CP4","P4","C3","CP3","PZ","CPZ","P3"]
-
-TEMPLATE_45 = [
-    'F7', 'F5', 'F3', 'F1', 'FZ', 'F2', 'F4', 'F6', 'F8',
-    'FT7', 'FC5', 'FC3', 'FC1', 'FCZ', 'FC2', 'FC4', 'FC6', 'FT8',
-    'T7', 'C5', 'C3', 'C1', 'CZ', 'C2', 'C4', 'C6', 'T8',
-    'TP7', 'CP5', 'CP3', 'CP1', 'CPZ', 'CP2', 'CP4', 'CP6', 'TP8',
-    'P7', 'P5', 'P3', 'P1', 'PZ', 'P2', 'P4', 'P6', 'P8'
-]
-'''
-
+# ESTA PARTE ES TEMPORAL, HASTA TENER EL INTERPOLADOR ========================
 # === 3️⃣ Proyector 14→45 ===
 class ChannelProjector(nn.Module):
     def __init__(self, in_ch=15, out_ch=45):
@@ -72,8 +58,12 @@ class ChannelProjector(nn.Module):
         return self.proj(x)  # [B,45,T]
 
 # === 4️⃣ Modelo MIRepNet ===
+# Cargamos el modelo MIRepNet 
+# emb_size (tamaño de los vectores de embedding para cada segmento temporal) = 256, depth (profundidad de capas del transformer)=6, n_classes=3 (ajusta n_classes según tu tarea)
 model = mlm_mask(emb_size=256, depth=6, n_classes=3)
+# embed_dim == embed_size y 45 canales de entrada
 model.embedding = PatchEmbedding(embed_dim=256, num_channels=45)
+# EXTRA: Selección del dispositivo (CUDA(GPU)/CPU)
 model.to(device)
 
 if os.path.isfile(WEIGHT_PATH):

@@ -4,6 +4,8 @@ and the 45-channel MIRepNet template using the standard 10-20 montage (MNE).
 Author: Jorge + ChatGPT (2025)
 """
 
+import os
+import json
 import numpy as np
 from scipy.spatial.distance import cdist
 import mne
@@ -13,24 +15,34 @@ matplotlib.use('TkAgg')  # o 'Qt5Agg' si tienes PyQt5 instalado
 import matplotlib.pyplot as plt
 
 
-# ------------------------------------------------------------
-# 1. Your headset (BrainAccess Cap)
-# ------------------------------------------------------------
-your_channels = [
-    "F4","FCZ","FZ","FC3","F3","CZ","FC4",
-    "C4","CP4","P4","C3","CP3","PZ","CPZ","P3"
-]
+# Cargamos el array de canales desde los archivos JSON en la carpeta Disposition
+
+SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+CONFIG_DIR = os.path.join(SRC_ROOT, "Disposition", "configs")
 
 # ------------------------------------------------------------
-# 2. MIRepNet 45-channel template (from paper)
+# 1. Your headset (BrainAccess Cap or similar)
 # ------------------------------------------------------------
-template_45 = [
-    'F7', 'F5', 'F3', 'F1', 'FZ', 'F2', 'F4', 'F6', 'F8',
-    'FT7', 'FC5', 'FC3', 'FC1', 'FCZ', 'FC2', 'FC4', 'FC6', 'FT8',
-    'T7', 'C5', 'C3', 'C1', 'CZ', 'C2', 'C4', 'C6', 'T8',
-    'TP7', 'CP5', 'CP3', 'CP1', 'CPZ', 'CP2', 'CP4', 'CP6', 'TP8',
-    'P7', 'P5', 'P3', 'P1', 'PZ', 'P2', 'P4', 'P6', 'P8'
-]
+
+HEADSET_DIR = os.path.join(CONFIG_DIR, "channels_headset_15.json")
+headset_file = open (HEADSET_DIR)
+with open(HEADSET_DIR, "r") as f:
+    cfg = json.load(f)
+
+your_channels = cfg["channels"]
+
+# ------------------------------------------------------------
+# 2. MIRepNet 45-channel template (regions FC, C, CP, T)
+# ------------------------------------------------------------
+
+TEMPLATE_DIR = os.path.join(CONFIG_DIR, "channels_template_45.json")
+headset_file = open (HEADSET_DIR)
+template_file = open (TEMPLATE_DIR)
+
+with open(TEMPLATE_DIR, "r") as d:
+    cfg = json.load(d)
+
+template_45 = cfg["channels"]
 
 # ------------------------------------------------------------
 # 3. Load 10-20 montage from MNE (3D coordinates)
