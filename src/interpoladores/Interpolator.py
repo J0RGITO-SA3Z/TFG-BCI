@@ -6,7 +6,7 @@ class Interpolator(ABC):
     Interpolador abstracto para datos EEG.
     """
 
-    def interpolate(self, data):
+    def interpolate_bads(self, data):
         """
         Método público genérico.
         Decide qué interpolación aplicar según el tipo de entrada.
@@ -23,15 +23,29 @@ class Interpolator(ABC):
             )
 
     @abstractmethod
-    def interpolate_epochs(self, epochs: mne.Epochs):
+    def interpolate_bad_epochs(self, epochs: mne.Epochs):
         """
-        Interpola datos a nivel de Epochs.
+        Interpola datos marcados como bad a nivel de Epochs.
         """
         pass
 
     @abstractmethod
-    def interpolate_raw(self, raw: mne.io.BaseRaw):
+    def interpolate_bad_raw(self, raw: mne.io.BaseRaw):
         """
-        Interpola datos a nivel de Raw.
+        Interpola datos marcados como bad a nivel de Raw.
+        """
+        pass
+
+    @abstractmethod
+    def interpolate_to_Raw(self, raw: mne.io.BaseRaw):
+        """
+        Interpola datos marcados como bad a nivel de Raw.
+        """
+        pass
+
+    @abstractmethod
+    def interpolate_to_epochs(self, raw: mne.io.BaseRaw):
+        """
+        Interpola datos marcados como bad a nivel de Raw.
         """
         pass

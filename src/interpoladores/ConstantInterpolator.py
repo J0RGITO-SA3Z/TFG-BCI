@@ -11,7 +11,7 @@ class ConstantInterpolator(Interpolator):
     def __init__(self, value: float = 0.0):
         self.value = value
 
-    def interpolate_epochs(self, epochs: mne.Epochs):
+    def interpolate_bad_epochs(self, epochs: mne.Epochs):
         epochs = epochs.copy()
 
         bads = epochs.info['bads']
@@ -26,7 +26,7 @@ class ConstantInterpolator(Interpolator):
 
         return epochs
 
-    def interpolate_raw(self, raw: mne.io.BaseRaw):
+    def interpolate_bad_raw(self, raw: mne.io.BaseRaw):
         raw = raw.copy()
 
         bads = raw.info['bads']

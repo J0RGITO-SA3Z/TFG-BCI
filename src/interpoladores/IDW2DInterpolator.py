@@ -15,7 +15,7 @@ class IDW2DInterpolator(Interpolator):
     def __init__(self, value: float = 0.0):
         self.value = value
 
-    def interpolate_epochs(self, epochs: mne.Epochs):
+    def interpolate_bad_epochs(self, epochs: mne.Epochs):
         if not epochs.info['bads']:
             return epochs
 
@@ -62,7 +62,7 @@ class IDW2DInterpolator(Interpolator):
 
         return epochs_new
 
-    def interpolate_raw(self, raw: mne.io.BaseRaw):
+    def interpolate_bad_raw(self, raw: mne.io.BaseRaw):
         if not raw.info['bads']:
             return raw
         
