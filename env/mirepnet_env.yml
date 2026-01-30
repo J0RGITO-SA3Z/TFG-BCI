@@ -154,4 +154,4 @@ dependencies:
       - typing-inspection==0.4.2
       - urllib3==1.26.20
       - wandb==0.22.2
-prefix: C:\Users\JORGE\anaconda3\envs\mirepnet_env
+      - rich==14.3.1
