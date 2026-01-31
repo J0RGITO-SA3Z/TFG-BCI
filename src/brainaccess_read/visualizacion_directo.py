@@ -12,4 +12,7 @@ def chunk_callback(chunk, chunk_size):
         # for i in range(chunk_size):
         #     print(chunk[mgr.get_channel_index(eeg_channel.ELECTRODE_MEASUREMENT+0)][i])
 
-def imprimir_menu
+def imprimir_menu(channels):
+    """Aqui configuramos el dispositivo con los datos que llegan en channels, empezamos a escuchar y mostramos los datos en tiempo real con una actualización de 5HZ"""
+    """He visto que podemos usar pyqtgraph"""
+    return
