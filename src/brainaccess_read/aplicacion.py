@@ -12,7 +12,8 @@ import brainaccess.core.eeg_channel as eeg_channel
 import asyncio
 import serial.tools.list_ports
 
-from visualizacion_directo import EEGVisualizer
+from visualizacion_directo import EEGVisualizacionDirecto
+from grabacion import EEGRecorder
 
 """
 Configuración para la lectura de BCI
@@ -208,13 +209,14 @@ async def main_menu(eeg_state,console):
                 console.input("[dim]Pulse Enter para continuar...[/dim]")
 
             case "3":
-                console.print("[yellow]Grabación (no implementado)[/yellow]")
-                console.input("[dim]Pulse Enter para continuar...[/dim]")
+                with EEGManager() as mgr:
+                    recorder = EEGRecorder(mgr, console)
+                    await recorder.start(channels)
 
             case "4":
                 with EEGManager() as mgr:
-                    visualizador = EEGVisualizer(mgr, console)
-                    visualizador.start(channels)
+                    visualizador = EEGVisualizacionDirecto(mgr, console)
+                    await visualizador.start(channels)
 
             case "5":
                 console.print("[bold green]Saliendo del sistema BCI[/bold green]")

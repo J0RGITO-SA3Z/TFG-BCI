@@ -96,12 +96,13 @@ class EEGVisualizacionDirecto:
         return
     
     async def start(self,channelsConfig):
-        self._conectar()
+        await self._conectar()
         self._configurar_EEG(channelsConfig)
 
         await self.mgr.start_stream()
-        await asyncio.sleep(10)
+        await asyncio.sleep(3)
         await self.mgr.stop_stream()
+        self.mgr.disconnect()
 
         return
     
@@ -128,9 +129,9 @@ class EEGVisualizacionDirecto:
     def _configurar_EEG(self, channelsConfig):
         for ch in channelsConfig:
             self.mgr.set_channel_enabled(eeg_channel.ELECTRODE_MEASUREMENT + ch.index, ch.enabled)
-            self.mgr.set_channel_bias(eeg_channel.ELECTRODE_MEASUREMENT + ch.index, ch.bias)
+            self.mgr.set_channel_bias(eeg_channel.ELECTRODE_MEASUREMENT + ch.index, ch.is_bias)
         
         self.mgr.set_callback_chunk(self._chunk_callback)
 
-    def _chunk_callback(chunk, chunk_size):
-        print(chunk)
+    def _chunk_callback(self, chunk, chunk_size):
+        self.console.print(chunk)

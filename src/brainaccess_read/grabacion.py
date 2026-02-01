@@ -1,8 +1,8 @@
 import time
 import mne
-from brainaccess import EEG, EEGManager, eeg_channel
-from rich.console import Console
-
+from brainaccess.utils.acquisition import EEG
+from brainaccess.core.eeg_manager import EEGManager
+import brainaccess.core.eeg_channel as eeg_channel
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
@@ -15,7 +15,7 @@ import serial.tools.list_ports
 
 import numpy as np
 
-class EEGRecording:
+class EEGRecorder:
 
     def __init__(self,mgr: EEGManager, console: Console):
         self.mgr = mgr
@@ -23,11 +23,9 @@ class EEGRecording:
         return
     
 
-    async def record_eeg(
+    async def start(
         self,
-        port: str,
-        sfreq: int,
-        ch_names: list[str]
+        channelsConfig: list
     ) -> mne.io.RawArray:
         """
         Graba EEG desde BrainAccess MIDI y devuelve un RawArray de MNE.
@@ -51,7 +49,7 @@ class EEGRecording:
         # -----------------------------
         # Configuración de canales
         # -----------------------------
-        bias = [ch.index for ch in channelsConfig if ch.bias]
+        bias = [ch.index for ch in channelsConfig if ch.is_bias]
         electrodes = {ch.index: ch.electrode for ch in channelsConfig if ch.enabled}
         cap_15 = eeg_channel.EEGCap(electrodes=electrodes)
 
@@ -87,3 +85,5 @@ class EEGRecording:
         self.console.print(f"💾 EEG grabado y guardado en [green]{out_fif}[/green]")
 
         return raw
+    
+    
