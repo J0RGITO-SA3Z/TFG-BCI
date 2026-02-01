@@ -9,10 +9,10 @@ from dataclasses import dataclass
 from brainaccess.core.eeg_manager import EEGManager
 import brainaccess.core as bacore
 import brainaccess.core.eeg_channel as eeg_channel
-
 import asyncio
-
 import serial.tools.list_ports
+
+from visualizacion_directo import EEGVisualizer
 
 """
 Configuración para la lectura de BCI
@@ -146,70 +146,6 @@ def channels_menu(channels, console):
                 console.print("[red]Opción no válida[/red]")
                 console.input("[dim]Pulse Enter para continuar...[/dim]")
 
-"""FUNCIONES PARA CONECTAR EEG"""
-def seleccionarPuertoCOM(console):
-    """
-    Función para seleccionar el puerto COM al que está conectado el dispositivo BCI.
-    Muestra una tabla con los puertos disponibles y permite al usuario seleccionar uno.
-    """
-
-    ports = serial.tools.list_ports.comports()
-
-    table = Table(title="Puertos COM disponibles")
-    table.add_column("Índice", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Puerto", style="magenta")
-    table.add_column("Descripción", style="green")
-
-    for i, port in enumerate(ports):
-        table.add_row(str(i), port.device, port.description)
-
-    console.print(table)
-
-    indice = lee_indice(console.input("\nSeleccione puerto COM del dispositivo [dim](-1 para cancelar)[/dim]: "))
-
-    while(indice != -1 and ( indice >= len(ports) or indice < -1 )):
-        indice = lee_indice(console.input("[red]Índice inválido. Intente de nuevo:[/red]"))
-
-    if (indice == -1):
-        return None
-
-    return ports[indice].device
-
-async def conectar_eeg(eeg_state,eeg_mgr,console):
-    console.clear()
-
-    if eeg_state.connected:
-        eeg_mgr.disconnect()
-        eeg_state.connected = False
-        console.print("[green]EEG desconectado correctamente[/green]")
-        console.input("[dim]Pulse Enter para continuar...[/dim]")
-    else:
-        puerto_COM = seleccionarPuertoCOM(console)
-
-        if puerto_COM == None:
-            return
-        
-        console.print(f"[yellow]Intentando conectar EEG en {puerto_COM}...[/yellow]")
-
-        try:
-            ok = await eeg_mgr.connect(puerto_COM)
-            if not ok:
-                console.clear()
-                console.print(f"[red]Error al conectar EEG: {e}[/red]")
-                console.input("[dim]Pulse Enter para continuar...[/dim]")
-                await eeg_mgr.disconnect()
-                
-            else:
-                eeg_state.connected = True
-                console.clear()
-                console.print("[green]EEG conectado correctamente[/green]")
-                console.input("[dim]Pulse Enter para continuar...[/dim]")
-
-        except Exception as e:
-            console.clear()
-            console.print(f"[red]Error al conectar EEG: {e}[/red]")
-            console.input("[dim]Pulse Enter para continuar...[/dim]")
-
 """FUNCIONES DEL MENU PRINCIPAL DE LA APLICACION"""
 
 def build_root_menu(eeg_state):
@@ -232,16 +168,11 @@ def build_root_menu(eeg_state):
     # ---- Opciones ----
     menu = Text()
 
-    if eeg_state.connected:
-        menu.append("  1) Desconectar EEG\n")
-    else:
-        menu.append("  1) Conectar EEG\n")
-
-    menu.append("  2) Ver / editar configuración de canales\n")
-    menu.append("  3) Test impedancias\n")
-    menu.append("  4) Grabar\n")
-    menu.append("  5) Visualizar\n")
-    menu.append("  6) Salir\n")
+    menu.append("  1) Ver / editar configuración de canales\n")
+    menu.append("  2) Test impedancias\n")
+    menu.append("  3) Grabar\n")
+    menu.append("  4) Visualizar\n")
+    menu.append("  5) Salir\n")
 
     content = Group(
         header,
@@ -256,7 +187,7 @@ def build_root_menu(eeg_state):
         padding=(1, 2)
     )
 
-async def main_menu(eeg_mgr, eeg_state,console):
+async def main_menu(eeg_state,console):
     channels = [
         ChannelConfig(i, f"CH{i+1}", True, False, "C3")
         for i in range(16)
@@ -270,24 +201,22 @@ async def main_menu(eeg_mgr, eeg_state,console):
 
         match choice:
             case "1":
-                await conectar_eeg(eeg_state, eeg_mgr, console)
-
-            case "2":
                 channels_menu(channels, console)
 
-            case "3":
+            case "2":
                 console.print("[yellow]Test de impedancias (no implementado)[/yellow]")
                 console.input("[dim]Pulse Enter para continuar...[/dim]")
 
-            case "4":
+            case "3":
                 console.print("[yellow]Grabación (no implementado)[/yellow]")
                 console.input("[dim]Pulse Enter para continuar...[/dim]")
 
-            case "5":
-                console.print("[yellow]Visualización (no implementado)[/yellow]")
-                console.input("[dim]Pulse Enter para continuar...[/dim]")
+            case "4":
+                with EEGManager() as mgr:
+                    visualizador = EEGVisualizer(mgr, console)
+                    visualizador.start(channels)
 
-            case "6":
+            case "5":
                 console.print("[bold green]Saliendo del sistema BCI[/bold green]")
                 break
 
@@ -301,8 +230,7 @@ async def main():
 
     bacore.init(bacore.Version(2, 0, 0))
 
-    with EEGManager() as mgr:
-        await main_menu(mgr,eeg_state,console)
+    await main_menu(eeg_state,console)
     
 
 if __name__ == "__main__":
