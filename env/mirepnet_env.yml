@@ -117,13 +117,10 @@ dependencies:
       - joblib==1.5.2
       - kiwisolver==1.4.9
       - lazy-loader==0.4
-      - matplotlib==3.10.7
       - memory-profiler==0.61.0
-      - mne==1.6.1
       - mne-bids==0.13
       - moabb==1.0.0
       - multimethod==2.0
-      - numpy==1.26.4
       - packaging==25.0
       - pandas==1.5.3
       - platformdirs==4.5.0
@@ -156,3 +153,8 @@ dependencies:
       - wandb==0.22.2
       - rich==14.3.1
       - pyserial==3.5
+      - pyqtgraph==0.14.0
+      - PyQt5==5.15.11
+      - matplotlib==3.10.7
+      - mne==1.6.1
+      - numpy==1.26.4

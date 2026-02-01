@@ -209,9 +209,8 @@ async def main_menu(eeg_state,console):
                 console.input("[dim]Pulse Enter para continuar...[/dim]")
 
             case "3":
-                with EEGManager() as mgr:
                     recorder = EEGRecorder(mgr, console)
-                    await recorder.start(channels)
+                    recorder.start(channels)
 
             case "4":
                 with EEGManager() as mgr:

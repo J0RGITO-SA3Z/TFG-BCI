@@ -9,6 +9,7 @@ from rich.panel import Panel
 from rich.console import Group
 from rich.text import Text
 from rich.columns import Columns
+from UI_utils import seleccionarPuertoCOM
 
 
 import serial.tools.list_ports
@@ -23,67 +24,52 @@ class EEGRecorder:
         return
     
 
-    async def start(
-        self,
-        channelsConfig: list
-    ) -> mne.io.RawArray:
+    def start(self,channelsConfig):
         """
         Graba EEG desde BrainAccess MIDI y devuelve un RawArray de MNE.
         La duración se pide por consola.
         """
 
-        # -----------------------------
-        # Pedir duración por consola
-        # -----------------------------
+        bias = [ch.index for ch in channelsConfig if ch.is_bias]
+        electrodes = {ch.index: ch.electrode for ch in channelsConfig if ch.enabled}
+        puerto_COM = seleccionarPuertoCOM(self.console)
+
+        eeg = EEG(mode="accumulate") 
+        eeg.setup(
+            mgr=self.mgr,
+            port=puerto_COM,
+            cap=electrodes,
+            gain=12,
+            bias=bias
+        )
+
+        self.console.print("[green]EEG configurado correctamente[/green]\n")
+
         while True:
             try:
-                record_sec = int(input("Introduce la duración de la grabación (en segundos): "))
+                record_sec = int(self.console.input("Introduce la duración de la grabación (en segundos): "))
                 if record_sec <= 0:
                     raise ValueError
                 break
             except ValueError:
                 self.console.print("[red]Introduce un número entero válido (> 0)[/red]")
+        
+        fileOutput = time.strftime("%Y%m%d_%H%M%S") + "_brainaccess_midi_15ch_raw.fif"
+        fileOutput = self.console.input("Introduce el nombre del archivo de salida (sin extensión): ")
 
-        self.console.print(f"🟢 Grabando EEG durante [bold]{record_sec}[/bold] segundos...")
+        self.console.print(f"Grabando EEG durante [bold]{record_sec}[/bold] segundos...")
 
-        # -----------------------------
-        # Configuración de canales
-        # -----------------------------
-        bias = [ch.index for ch in channelsConfig if ch.is_bias]
-        electrodes = {ch.index: ch.electrode for ch in channelsConfig if ch.enabled}
-        cap_15 = eeg_channel.EEGCap(electrodes=electrodes)
-
-        # -----------------------------
-        # Setup EEG
-        # -----------------------------
-        eeg = EEG(mode="accumulate")  # usa "roll" si luego quieres streaming
-        eeg.setup(
-            mgr=self.mgr,
-            device_name=port,
-            cap=cap_15,
-            sfreq=sfreq,
-            gain=8,
-            bias=bias
-        )
-
-        # -----------------------------
-        # Grabación
-        # -----------------------------
         eeg.start_acquisition()
         time.sleep(record_sec)
         eeg.stop_acquisition()
         eeg.close()
 
-        # -----------------------------
-        # Exportar a MNE
-        # -----------------------------
         raw = eeg.get_mne()
+        raw.save(fileOutput, overwrite=True)
+        
 
-        out_fif = time.strftime("%Y%m%d_%H%M%S") + "_brainaccess_midi_15ch_raw.fif"
-        raw.save(out_fif, overwrite=True)
-
-        self.console.print(f"💾 EEG grabado y guardado en [green]{out_fif}[/green]")
+        self.console.print(f"EEG grabado y guardado en [green]{fileOutput}[/green]")
+        eeg.data.mne_raw.filter(1, 40).plot(scalings='auto', verbose=False)
+        self.console.input("[dim]Pulse Enter para continuar...[/dim]")
 
         return raw
-    
-    
