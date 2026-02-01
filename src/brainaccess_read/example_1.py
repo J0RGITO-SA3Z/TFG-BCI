@@ -26,7 +26,7 @@ from brainaccess.core.eeg_manager import EEGManager
 # -----------------------------
 # Configuración
 # -----------------------------
-PORT = "COM4"          # <-- CAMBIA ESTO al COM real
+PORT = "COM3"          # <-- CAMBIA ESTO al COM real
 SFREQ = 250            # <-- AJUSTA si tu stream va a otra fs
 RECORD_SEC = 10        # segundos a grabar
 

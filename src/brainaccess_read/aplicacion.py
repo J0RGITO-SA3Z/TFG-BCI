@@ -10,6 +10,8 @@ from brainaccess.core.eeg_manager import EEGManager
 import brainaccess.core as bacore
 import brainaccess.core.eeg_channel as eeg_channel
 
+import asyncio
+
 import serial.tools.list_ports
 
 """
@@ -187,16 +189,20 @@ async def conectar_eeg(eeg_state,eeg_mgr,console):
         if puerto_COM == None:
             return
         
+        console.print(f"[yellow]Intentando conectar EEG en {puerto_COM}...[/yellow]")
+
         try:
-            if await eeg_mgr.connect(puerto_COM):
+            ok = await eeg_mgr.connect(puerto_COM)
+            if not ok:
+                console.clear()
+                console.print(f"[red]Error al conectar EEG: {e}[/red]")
+                console.input("[dim]Pulse Enter para continuar...[/dim]")
+                await eeg_mgr.disconnect()
+                
+            else:
                 eeg_state.connected = True
                 console.clear()
                 console.print("[green]EEG conectado correctamente[/green]")
-                console.input("[dim]Pulse Enter para continuar...[/dim]")
-            else:
-                await eeg_mgr.disconnect()
-                console.clear()
-                console.print("[red]EEG incompatible[/red]")
                 console.input("[dim]Pulse Enter para continuar...[/dim]")
 
         except Exception as e:
@@ -289,13 +295,15 @@ async def main_menu(eeg_mgr, eeg_state,console):
                 console.print("[red]Opción no válida[/red]")
                 console.input("[dim]Pulse Enter para continuar...[/dim]")
 
-def main():
+async def main():
     console = Console()
     eeg_state = EEGState()
 
+    bacore.init(bacore.Version(2, 0, 0))
+
     with EEGManager() as mgr:
-        seleccionarPuertoCOM(mgr,EEGState,console)
+        await main_menu(mgr,eeg_state,console)
     
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
