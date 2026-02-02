@@ -5,6 +5,7 @@ from rich.console import Group
 from rich.text import Text
 from rich.columns import Columns
 from dataclasses import dataclass
+import json
 
 from brainaccess.core.eeg_manager import EEGManager
 import brainaccess.core as bacore
@@ -31,6 +32,39 @@ class EEGState:
     connected: bool = False
 
 """FUNCIONES PARA LA CONFIGURACIÓN DE CANALES EEG"""
+
+def cargarConfiguracionCanales(json_path):
+    with open(json_path, "r", encoding="utf-8") as f:
+        cfg = json.load(f)
+        electrodes = cfg["electrodes"]
+    channels = []
+    for ch in electrodes:
+        channel = ChannelConfig(
+            index=ch["index"],
+            name= ch.get("electrode", f"CH{ch['index']+1}"),
+            enabled=ch["active"],
+            is_bias=ch["bias"],
+            electrode= ch["name"]
+        )
+        channels.append(channel)
+    return channels
+
+
+def guardarConfiguracionCanales(channels, json_path):
+    electrodes = []
+    for ch in channels:
+        electrode = {
+            "index": ch.index,
+            "name": ch.name,
+            "active": ch.enabled,
+            "bias": ch.is_bias,
+            "electrode": ch.electrode
+        }
+        electrodes.append(electrode)
+    cfg = {"electrodes": electrodes}
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, indent=4)
+
 
 def lee_indice(texto):
     try:
@@ -189,11 +223,9 @@ def build_root_menu(eeg_state):
     )
 
 async def main_menu(eeg_state,console):
-    channels = [
-        ChannelConfig(i, f"CH{i+1}", True, False, "C3")
-        for i in range(16)
-    ]
 
+    ruta_json = "src/Disposition/configs/channels_headset_15.json"
+    channels = cargarConfiguracionCanales(ruta_json)
     while True:
         console.clear()
         console.print(build_root_menu(eeg_state))
@@ -203,6 +235,8 @@ async def main_menu(eeg_state,console):
         match choice:
             case "1":
                 channels_menu(channels, console)
+                guardarConfiguracionCanales(channels,ruta_json)
+                console.print("[bold green]Configuración guardada correctamente[/bold green]")
 
             case "2":
                 console.print("[yellow]Test de impedancias (no implementado)[/yellow]")

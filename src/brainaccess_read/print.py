@@ -2,18 +2,17 @@ import mne
 import matplotlib.pyplot as plt
 import numpy as np
 
-raw = mne.io.read_raw_fif("20260129_215029_brainaccess_midi_15ch_raw.fif", preload=True, verbose=False)
+NAME = "data/20260129_214203_brainaccess_midi_15ch_raw.fif"
+raw = mne.io.read_raw_fif(NAME, preload=True, verbose=False)
 
 raw.compute_psd(fmin=1, fmax=60, method="welch").plot()
-plt.show()
 
-raw = mne.io.read_raw_fif("20260129_215029_brainaccess_midi_15ch_raw.fif", preload=True, verbose=False)
+raw.notch_filter(50)
 raw.filter(1, 40, verbose=False)
 
 data = raw.get_data(picks="eeg")   # 👈 YA está en µV
 sfreq = raw.info["sfreq"]
 t = np.arange(data.shape[1]) / sfreq
-
 plt.figure(figsize=(14, 6))
 
 for i, ch in enumerate(raw.ch_names):
