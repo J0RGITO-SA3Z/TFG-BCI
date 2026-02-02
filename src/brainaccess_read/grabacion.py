@@ -1,8 +1,10 @@
 import time
 import mne
+
 from brainaccess.utils.acquisition import EEG
 from brainaccess.core.eeg_manager import EEGManager
 import brainaccess.core.eeg_channel as eeg_channel
+
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
@@ -10,11 +12,42 @@ from rich.console import Group
 from rich.text import Text
 from rich.columns import Columns
 from UI_utils import seleccionarPuertoCOM
+from UI_utils import lee_indice
 
+def build_recording_panel():
+    header = Columns()
+    title = "MENÚ DE GRABACIÓN"
+    status = Text("EEG GRABANDO", style="bold green")
+    status.justify = "right"
 
-import serial.tools.list_ports
+    header = Columns(
+        [title, status],
+        expand=True
+    )
+    
+    subtitle = Text("Permite el control de la grabación y la inserción de eventos.", style="dim")
 
-import numpy as np
+    body = Text()
+    body.append("1) Acabar grabación\n\n", style="bold")
+    body.append("Eventos:\n", style="bold cyan")
+    body.append("  2) MI izquierda\n")
+    body.append("  3) MI derecha\n")
+    body.append("  4) Descanso\n")
+    body.append("  5) Parpadeo\n")
+    body.append("  6) Artefacto\n")
+
+    content = Group(
+        header,
+        subtitle,
+        Text(""),
+        body
+    )
+
+    return Panel(
+        content,
+        border_style="green",
+        padding=(1, 2),
+    )
 
 class EEGRecorder:
 
@@ -60,15 +93,36 @@ class EEGRecorder:
         self.console.print(f"Grabando EEG durante [bold]{record_sec}[/bold] segundos...")
 
         eeg.start_acquisition()
-        time.sleep(record_sec)
+        entrada = -2
+        
+        while entrada != 1:
+            self.console.clear()
+            self.console.print(build_recording_panel())
+            
+            entrada = lee_indice(self.console, prompt="[cyan]Introduce indice de opcióna: [/cyan]")
+            while entrada <0 or entrada >6:
+                entrada = lee_indice(self.console, prompt="[red]Índice inválido. Intente de nuevo:[/red]")
+                
+            match entrada:
+                case 2:
+                    eeg.annotate("MI_IZQUIERDA")
+                case 3:
+                    eeg.annotate("MI_DERECHA")
+                case 4:
+                    eeg.annotate("DESCANSO")
+                case 5:
+                    eeg.annotate("PARPADEO")
+                case 6:
+                    eeg.annotate("ARTEFACTO")
+            
+            
         eeg.stop_acquisition()
         eeg.close()
 
         raw = eeg.get_mne()
         raw.save(fileOutput, overwrite=True)
-        
 
-        self.console.print(f"EEG grabado y guardado en [green]{fileOutput}[/green]")
+        self.console.print(f"\nEEG grabado y guardado en [green]{fileOutput}[/green]")
         eeg.data.mne_raw.filter(1, 40).plot(scalings='auto', verbose=False)
         self.console.input("[dim]Pulse Enter para continuar...[/dim]")
 
