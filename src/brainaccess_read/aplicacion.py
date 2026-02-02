@@ -172,7 +172,7 @@ def build_root_menu(eeg_state):
     menu.append("  1) Ver / editar configuración de canales\n")
     menu.append("  2) Test impedancias\n")
     menu.append("  3) Grabar\n")
-    menu.append("  4) Visualizar\n")
+    menu.append("  4) Tiempo real\n")
     menu.append("  5) Salir\n")
 
     content = Group(
@@ -209,8 +209,8 @@ async def main_menu(eeg_state,console):
                 console.input("[dim]Pulse Enter para continuar...[/dim]")
 
             case "3":
-                    recorder = EEGRecorder(mgr, console)
-                    recorder.start(channels)
+                recorder = EEGRecorder(mgr, console)
+                recorder.start(channels)
 
             case "4":
                 with EEGManager() as mgr:
