@@ -1,5 +1,6 @@
 from rich.table import Table
 from rich.console import Console
+from rich.prompt import Prompt
 
 import serial.tools.list_ports
 
@@ -38,3 +39,10 @@ def seleccionarPuertoCOM(console):
         return None
 
     return ports[indice].device
+
+def ask_validated(console, prompt_text, validate_fn):
+    while True:
+        value = Prompt.ask(prompt_text)
+        if validate_fn(value):
+            return value
+        console.print("[red]❌ Valor inválido[/]")
