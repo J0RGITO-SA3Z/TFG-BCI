@@ -1,0 +1,116 @@
+{
+    "electrodes": [
+        {
+            "index": 0,
+            "name": "P8",
+            "active": true,
+            "bias": false,
+            "electrode": "CH1"
+        },
+        {
+            "index": 1,
+            "name": "O2",
+            "active": true,
+            "bias": false,
+            "electrode": "CH2"
+        },
+        {
+            "index": 2,
+            "name": "FZ",
+            "active": true,
+            "bias": false,
+            "electrode": "CH3"
+        },
+        {
+            "index": 3,
+            "name": "FC3",
+            "active": true,
+            "bias": false,
+            "electrode": "CH4"
+        },
+        {
+            "index": 4,
+            "name": "F3",
+            "active": true,
+            "bias": false,
+            "electrode": "CH5"
+        },
+        {
+            "index": 5,
+            "name": "CZ",
+            "active": true,
+            "bias": false,
+            "electrode": "CH6"
+        },
+        {
+            "index": 6,
+            "name": "FC4",
+            "active": true,
+            "bias": false,
+            "electrode": "CH7"
+        },
+        {
+            "index": 7,
+            "name": "C4",
+            "active": true,
+            "bias": false,
+            "electrode": "CH8"
+        },
+        {
+            "index": 8,
+            "name": "CP4",
+            "active": false,
+            "bias": false,
+            "electrode": "CH9"
+        },
+        {
+            "index": 9,
+            "name": "P4",
+            "active": true,
+            "bias": false,
+            "electrode": "CH10"
+        },
+        {
+            "index": 10,
+            "name": "C3",
+            "active": true,
+            "bias": false,
+            "electrode": "CH11"
+        },
+        {
+            "index": 11,
+            "name": "CP3",
+            "active": true,
+            "bias": false,
+            "electrode": "CH12"
+        },
+        {
+            "index": 12,
+            "name": "PZ",
+            "active": true,
+            "bias": false,
+            "electrode": "CH13"
+        },
+        {
+            "index": 13,
+            "name": "CPZ",
+            "active": true,
+            "bias": false,
+            "electrode": "CH14"
+        },
+        {
+            "index": 14,
+            "name": "P3",
+            "active": true,
+            "bias": false,
+            "electrode": "CH15"
+        },
+        {
+            "index": 14,
+            "name": "P3",
+            "active": true,
+            "bias": false,
+            "electrode": "CH15"
+        }
+    ]
+}

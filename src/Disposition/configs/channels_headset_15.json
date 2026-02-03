@@ -1,116 +1,94 @@
 {
     "electrodes": [
-        {
-            "index": 0,
-            "name": "CH1",
-            "active": true,
-            "bias": false,
-            "electrode": "P8"
-        },
-        {
-            "index": 1,
-            "name": "CH2",
-            "active": true,
-            "bias": false,
-            "electrode": "O2"
-        },
-        {
-            "index": 2,
-            "name": "CH3",
-            "active": true,
-            "bias": false,
-            "electrode": "FZ"
-        },
-        {
-            "index": 3,
-            "name": "CH4",
-            "active": true,
-            "bias": false,
-            "electrode": "FC3"
-        },
-        {
-            "index": 4,
-            "name": "CH5",
-            "active": true,
-            "bias": false,
-            "electrode": "F3"
-        },
-        {
-            "index": 5,
-            "name": "CH6",
-            "active": true,
-            "bias": false,
-            "electrode": "CZ"
-        },
-        {
-            "index": 6,
-            "name": "CH7",
-            "active": true,
-            "bias": false,
-            "electrode": "FC4"
-        },
-        {
-            "index": 7,
-            "name": "CH8",
-            "active": true,
-            "bias": false,
-            "electrode": "C4"
-        },
-        {
-            "index": 8,
-            "name": "CH9",
-            "active": false,
-            "bias": false,
-            "electrode": "CP4"
-        },
-        {
-            "index": 9,
-            "name": "CH10",
-            "active": true,
-            "bias": false,
-            "electrode": "P4"
-        },
-        {
-            "index": 10,
-            "name": "CH11",
-            "active": true,
-            "bias": false,
-            "electrode": "C3"
-        },
-        {
-            "index": 11,
-            "name": "CH12",
-            "active": true,
-            "bias": false,
-            "electrode": "CP3"
-        },
-        {
-            "index": 12,
-            "name": "CH13",
-            "active": true,
-            "bias": false,
-            "electrode": "PZ"
-        },
-        {
-            "index": 13,
-            "name": "CH14",
-            "active": true,
-            "bias": false,
-            "electrode": "CPZ"
-        },
-        {
-            "index": 14,
-            "name": "CH15",
-            "active": true,
-            "bias": false,
-            "electrode": "P3"
-        },
-        {
-            "index": 14,
-            "name": "CH15",
-            "active": true,
-            "bias": false,
-            "electrode": "P3"
-        }
-    ]
+    {
+      "name": "F4",
+      "index": 0,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "FCZ",
+      "index": 1,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "FZ",
+      "index": 2,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "FC3",
+      "index": 3,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "F3",
+      "index": 4,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "CZ",
+      "index": 5,
+      "active": true,
+      "bias": true
+    },
+    {
+      "name": "FC4",
+      "index": 6,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "C4",
+      "index": 7,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "CP4",
+      "index": 8,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "P4",
+      "index": 9,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "C3",
+      "index": 10,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "CP3",
+      "index": 11,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "PZ",
+      "index": 12,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "CPZ",
+      "index": 13,
+      "active": true,
+      "bias": false
+    },
+    {
+      "name": "P3",
+      "index": 14,
+      "active": true,
+      "bias": false
+    }
+  ]
 }
