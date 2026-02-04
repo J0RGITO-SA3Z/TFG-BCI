@@ -25,6 +25,7 @@ from UI_utils import ask_validated
 
 from visualizacion_directo import EEGVisualizacionDirecto
 from grabacion import EEGRecorder
+from medicion_impedancias import medir_impedancias
 
 @dataclass
 class ChannelConfig:
@@ -525,8 +526,7 @@ async def main_menu(console):
                 menu_acciones(console,acciones)
         
             case "3":
-                console.print("[yellow]Test de impedancias (no implementado)[/yellow]")
-                console.input("[dim]Pulse Enter para continuar...[/dim]")
+                medir_impedancias(console, channels)
 
             case "4":
                 recorder = EEGRecorder(mgr, console)
