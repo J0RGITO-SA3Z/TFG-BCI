@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from channel_list import *
 import mne
 
-montage = mne.channels.make_standard_montage("standard_1020")
+montage = mne.channels.make_standard_montage("standard_1005")
 channel_names = montage.ch_names
 
 info = mne.create_info(
