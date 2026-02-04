@@ -68,6 +68,8 @@ def medir_impedancias(console, canales):
         return None
     opcion = ""
 
+    imp = None
+    
     while opcion != "2":
         eeg = acquisition.EEG()
         
@@ -81,6 +83,7 @@ def medir_impedancias(console, canales):
                 bias=bias
             )
             
+            """
             eeg.start_impedance_measurement()
             
             with Progress() as progress:
@@ -90,9 +93,23 @@ def medir_impedancias(console, canales):
                     time.sleep(0.05)  # 100 * 0.05 = 5 segundos
                     progress.update(tarea, advance=1)
             
-            
             imp = eeg.calc_impedances(4)
             eeg.stop_impedance_measurement()
+            mgr.disconnect()
+            """
+
+            eeg.start_impedance_measurement()
+            # Print impedances
+            start_time = time.time()
+            while time.time()-start_time < 20:
+                time.sleep(1)
+                imp = eeg.calc_impedances()
+                print(imp)
+
+            # Stop measuring impedance
+            eeg.stop_impedance_measurement()
+            mgr.disconnect()
+           
         
         tabla = build_channels_table(canales, imp)
         console.print(tabla)
