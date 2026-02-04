@@ -62,15 +62,14 @@ def medir_impedancias(console, canales):
         return None
     
     puerto_com = seleccionarPuertoCOM(console)
-    console.clear()
     
     if puerto_com is None:
         return None
     opcion = ""
 
     imp = None
-
     while opcion != "2":
+        console.clear()
         eeg = acquisition.EEG()
         
         with EEGManager() as mgr:
@@ -84,19 +83,17 @@ def medir_impedancias(console, canales):
             )
 
             eeg.start_impedance_measurement()
-            
-            with Progress() as progress:
-                tarea = progress.add_task("Cargando...", total=100)
-
-                for _ in range(20):
-                    time.sleep(1) 
-                    progress.update(tarea, advance=5)
-                    imp = eeg.calc_impedances()
+            # Print impedances
+            start_time = time.time()
+            while time.time()-start_time < 20:
+                time.sleep(1)
+                imp = eeg.calc_impedances()
+                print(imp)
 
             # Stop measuring impedance
             eeg.stop_impedance_measurement()
             mgr.disconnect()
-        
+           
         tabla = build_channels_table(canales, imp)
         console.print(tabla)
         opcion = menu_post_impedancias(console)
