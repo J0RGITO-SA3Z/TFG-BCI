@@ -33,6 +33,23 @@ def build_channels_table(canales, lecturas) -> Table:
 
     return table
 
+def menu_post_impedancias(console):
+    console.print("Seleccione una opción:")
+    console.print("  1) Repetir medición")
+    console.print("  2) Volver al menú principal\n")
+
+    opcion = ""
+
+    while opcion not in ["1", "2"]:
+        opcion = console.input("Seleccione una opción: ").strip()
+
+        if opcion == "1":
+            return opcion
+        elif opcion == "2":
+            return opcion
+        else:
+            console.print("[red]Opción no válida[/red]")
+
 def medir_impedancias(console, canales):
     console.clear()
     
@@ -49,33 +66,34 @@ def medir_impedancias(console, canales):
     
     if puerto_com is None:
         return None
-    
-    eeg = acquisition.EEG()
-    
-    with EEGManager() as mgr:
-        
-        eeg.setup(
-            mgr=mgr,
-            port=puerto_com,
-            cap=electrodes,
-            gain=12,
-            bias=bias
-        )
-        
-        eeg.start_impedance_measurement()
-        
-        with Progress() as progress:
-            tarea = progress.add_task("Cargando...", total=100)
+    opcion = ""
 
-            for _ in range(100):
-                time.sleep(0.05)  # 100 * 0.05 = 5 segundos
-                progress.update(tarea, advance=1)
+    while opcion != "2":
+        eeg = acquisition.EEG()
         
+        with EEGManager() as mgr:
+            
+            eeg.setup(
+                mgr=mgr,
+                port=puerto_com,
+                cap=electrodes,
+                gain=12,
+                bias=bias
+            )
+            
+            eeg.start_impedance_measurement()
+            
+            with Progress() as progress:
+                tarea = progress.add_task("Cargando...", total=100)
+
+                for _ in range(100):
+                    time.sleep(0.05)  # 100 * 0.05 = 5 segundos
+                    progress.update(tarea, advance=1)
+            
+            
+            imp = eeg.calc_impedances(4)
+            eeg.stop_impedance_measurement()
         
-        imp = eeg.calc_impedances(4)
-        eeg.stop_impedance_measurement()
-    
-    tabla = build_channels_table(canales, imp)
-    console.print(tabla)
-    pulse
-        
+        tabla = build_channels_table(canales, imp)
+        console.print(tabla)
+        opcion = menu_post_impedancias(console)
