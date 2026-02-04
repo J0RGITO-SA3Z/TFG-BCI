@@ -503,7 +503,7 @@ def build_root_menu():
         padding=(1, 2)
     )
 
-async def main_menu(console):
+def main_menu(console):
 
     json_file = "channels_headset_15.json"
     route_json = "src/Disposition/configs/" + json_file
@@ -535,7 +535,7 @@ async def main_menu(console):
             case "5":
                 with EEGManager() as mgr:
                     visualizador = EEGVisualizacionDirecto(mgr, console)
-                    await visualizador.start(channels)
+                    asyncio.run(visualizador.start(channels)) 
 
             case "6":
                 console.print("[bold green]Saliendo del sistema BCI[/bold green]")
@@ -545,12 +545,12 @@ async def main_menu(console):
                 console.print("[red]Opción no válida[/red]")
                 console.input("[dim]Pulse Enter para continuar...[/dim]")
 
-async def main():
+def main():
     console = Console()
 
     bacore.init(bacore.Version(2, 0, 0))
 
-    await main_menu(console)
+    main_menu(console)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
