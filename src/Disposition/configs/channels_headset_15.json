@@ -1,94 +1,100 @@
 {
     "electrodes": [
-    {
-      "name": "F4",
-      "index": 0,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "FCZ",
-      "index": 1,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "FZ",
-      "index": 2,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "FC3",
-      "index": 3,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "F3",
-      "index": 4,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "CZ",
-      "index": 5,
-      "active": true,
-      "bias": true
-    },
-    {
-      "name": "FC4",
-      "index": 6,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "C4",
-      "index": 7,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "CP4",
-      "index": 8,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "P4",
-      "index": 9,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "C3",
-      "index": 10,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "CP3",
-      "index": 11,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "PZ",
-      "index": 12,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "CPZ",
-      "index": 13,
-      "active": true,
-      "bias": false
-    },
-    {
-      "name": "P3",
-      "index": 14,
-      "active": true,
-      "bias": false
-    }
-  ]
+        {
+            "name": "C4",
+            "index": 0,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "F4",
+            "index": 1,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "FC2",
+            "index": 2,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "Fp2",
+            "index": 3,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "Fz",
+            "index": 4,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "Cz",
+            "index": 5,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "FC1",
+            "index": 6,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "F3",
+            "index": 7,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "P4",
+            "index": 8,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "M1",
+            "index": 9,
+            "active": false,
+            "bias": false
+        },
+        {
+            "name": "CP6",
+            "index": 10,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "CP1",
+            "index": 11,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "C3",
+            "index": 12,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "Pz",
+            "index": 13,
+            "active": true,
+            "bias": true
+        },
+        {
+            "name": "CP5",
+            "index": 14,
+            "active": true,
+            "bias": false
+        },
+        {
+            "name": "P3",
+            "index": 15,
+            "active": true,
+            "bias": false
+        }
+    ]
 }
