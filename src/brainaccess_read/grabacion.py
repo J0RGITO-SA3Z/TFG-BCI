@@ -14,7 +14,7 @@ from rich.columns import Columns
 from UI_utils import seleccionarPuertoCOM
 from UI_utils import lee_indice
 
-def build_recording_panel():
+def build_recording_panel(acciones):
     header = Columns()
     title = "MENÚ DE GRABACIÓN"
     status = Text("EEG GRABANDO", style="bold green")
@@ -30,11 +30,9 @@ def build_recording_panel():
     body = Text()
     body.append("1) Acabar grabación\n\n", style="bold")
     body.append("Eventos:\n", style="bold cyan")
-    body.append("  2) MI izquierda\n")
-    body.append("  3) MI derecha\n")
-    body.append("  4) Descanso\n")
-    body.append("  5) Parpadeo\n")
-    body.append("  6) Artefacto\n")
+    
+    for i, accion in enumerate(acciones, start=2):
+        body.append(f"  {i}) {accion}\n")
 
     content = Group(
         header,
@@ -57,7 +55,7 @@ class EEGRecorder:
         return
     
 
-    def start(self,channelsConfig):
+    def start(self,channelsConfig,acciones):
         """
         Graba EEG desde BrainAccess MIDI y devuelve un RawArray de MNE.
         La duración se pide por consola.
@@ -97,24 +95,14 @@ class EEGRecorder:
         
         while entrada != 1:
             self.console.clear()
-            self.console.print(build_recording_panel())
+            self.console.print(build_recording_panel(acciones))
             
             entrada = lee_indice(self.console, prompt="[cyan]Introduce indice de opcióna: [/cyan]")
-            while entrada <0 or entrada >6:
+            while entrada <0 or entrada >len(acciones)+1:
                 entrada = lee_indice(self.console, prompt="[red]Índice inválido. Intente de nuevo:[/red]")
                 
-            match entrada:
-                case 2:
-                    eeg.annotate("MI_IZQUIERDA")
-                case 3:
-                    eeg.annotate("MI_DERECHA")
-                case 4:
-                    eeg.annotate("DESCANSO")
-                case 5:
-                    eeg.annotate("PARPADEO")
-                case 6:
-                    eeg.annotate("ARTEFACTO")
-            
+            if entrada > 1 and entrada <= len(acciones)+1:
+                eeg.annotate(acciones[entrada-2])
             
         eeg.stop_acquisition()
         eeg.close()
