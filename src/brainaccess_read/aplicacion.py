@@ -32,8 +32,8 @@ def validar_nombre_accion(console,text):
         console.print("[red]No se permiten espacios[/]")
         return False
 
-    if len(text) > 12:
-        console.print("[red]Máximo 12 caracteres[/]")
+    if len(text) > 20:
+        console.print("[red]Máximo 20 caracteres[/]")
         return False
 
     return True
@@ -140,14 +140,14 @@ def cargar_acciones(console):
 
     if not archivos:
         console.input("[dim]Pulse Enter para continuar...[/dim]")
-        return []
+        return None
 
     idx = -2
     while (idx < -1 or idx >= len(archivos)):
         idx = IntPrompt.ask("ID del archivo a cargar [dim](-1 para cancelar)[/dim]")
 
         if idx == -1:
-            return []
+            return None
 
         if 0 <= idx < len(archivos):
             archivo = os.path.join(DIR_ACCIONES, archivos[idx])
@@ -164,7 +164,7 @@ def cargar_acciones(console):
         else:
             console.print("[red]Índice fuera de rango[/]")
             
-    return []
+    return None
             
 def menu_acciones(console,acciones):
     choice = ""
@@ -197,7 +197,10 @@ def menu_acciones(console,acciones):
             case "3":
                 guardar_acciones(acciones, console)
             case "4":
-                acciones = cargar_acciones(console)
+                acciones_aux = cargar_acciones(console)
+                if acciones_aux is not None:
+                    acciones.clear()
+                    acciones.extend(acciones_aux)
             case "5":
                 console.print("[green]Volviendo al menú principal...[/green]")
                 break
@@ -267,8 +270,9 @@ def main_menu(console):
                 medir_impedancias(console, channels)
 
             case "4":
-                recorder = EEGRecorder(mgr, console)
-                recorder.start(channels)
+                with EEGManager() as mgr:
+                    recorder = EEGRecorder(mgr, console)
+                    recorder.start(channels,acciones)
 
             case "5":
                 with EEGManager() as mgr:

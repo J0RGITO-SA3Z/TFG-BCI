@@ -70,25 +70,16 @@ class EEGRecorder:
             mgr=self.mgr,
             port=puerto_COM,
             cap=electrodes,
-            gain=12,
+            gain=8,
             bias=bias
         )
 
         self.console.print("[green]EEG configurado correctamente[/green]\n")
-
-        while True:
-            try:
-                record_sec = int(self.console.input("Introduce la duración de la grabación (en segundos): "))
-                if record_sec <= 0:
-                    raise ValueError
-                break
-            except ValueError:
-                self.console.print("[red]Introduce un número entero válido (> 0)[/red]")
         
         fileOutput = time.strftime("%Y%m%d_%H%M%S") + "_brainaccess_midi_15ch_raw.fif"
         fileOutput = self.console.input("Introduce el nombre del archivo de salida (sin extensión): ")
 
-        self.console.print(f"Grabando EEG durante [bold]{record_sec}[/bold] segundos...")
+        self.console.print(f"[bold]Grabando EEG hasta que se detenga la grabación...[/bold]")
 
         eeg.start_acquisition()
         entrada = -2
@@ -97,9 +88,19 @@ class EEGRecorder:
             self.console.clear()
             self.console.print(build_recording_panel(acciones))
             
-            entrada = lee_indice(self.console, prompt="[cyan]Introduce indice de opcióna: [/cyan]")
+            entrada = self.console.input("[cyan]Seleccione una opción:[/] ")
+            try:
+                entrada = int(entrada)
+            except ValueError:
+                entrada = -2
+
             while entrada <0 or entrada >len(acciones)+1:
-                entrada = lee_indice(self.console, prompt="[red]Índice inválido. Intente de nuevo:[/red]")
+                entrada = self.console.input("[red]Índice inválido. Intente de nuevo:[/]")
+                try:
+                    entrada = int(entrada)
+                except ValueError:
+                    entrada = -2
+                
                 
             if entrada > 1 and entrada <= len(acciones)+1:
                 eeg.annotate(acciones[entrada-2])

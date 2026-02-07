@@ -2,7 +2,7 @@ import mne
 import matplotlib.pyplot as plt
 import numpy as np
 
-NAME = "data/20260129_214203_brainaccess_midi_15ch_raw.fif"
+NAME = "prueba_jorge.fif"
 raw = mne.io.read_raw_fif(NAME, preload=True, verbose=False)
 
 raw.compute_psd(fmin=1, fmax=60, method="welch").plot()
