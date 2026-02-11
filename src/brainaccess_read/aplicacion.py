@@ -18,6 +18,7 @@ import asyncio
 from UI_utils import ask_validated
 
 from visualizacion_directo import EEGVisualizacionDirecto
+from ExperimentoVisual import ExperimentoVisual
 from grabacion import EEGRecorder
 from medicion_impedancias import medir_impedancias
 from set_configuracion import channels_menu
@@ -226,7 +227,8 @@ def build_root_menu():
     menu.append("  3) Test impedancias\n")
     menu.append("  4) Grabar\n")
     menu.append("  5) Tiempo real\n")
-    menu.append("  6) Salir\n")
+    menu.append("  6) Experimento Visual\n")
+    menu.append("  7) Salir\n")
     content = Group(
         header,
         subtitle,
@@ -278,8 +280,14 @@ def main_menu(console):
                 with EEGManager() as mgr:
                     visualizador = EEGVisualizacionDirecto(mgr, console)
                     asyncio.run(visualizador.start(channels)) 
-
+            
             case "6":
+                with EEGManager() as mgr:
+                    experimento = ExperimentoVisual(mgr, console)
+                    experimento.start(channels,acciones)
+                break
+
+            case "7":
                 console.print("[bold green]Saliendo del sistema BCI[/bold green]")
                 break
 
