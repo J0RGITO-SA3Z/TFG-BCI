@@ -1,39 +1,68 @@
 import pygame
+import multiprocessing as mp
 
 class ventanaExperimentoVisual:
-    def __init__(self, fullscreen=True, font_size=80):
-        self.fullscreen = fullscreen
-        self.font_size = font_size
-        self.screen = None
-        self.font = None
-        self.width = None
-        self.height = None
+    def __init__(self):
+        self.cola = None
+        self.child = None
 
     def open(self):
-        pygame.init()
-        info = pygame.display.Info()
+        self.cola = mp.Queue()
+        self.child = mp.Process(target=window_process,args= (self.cola,))
+        self.child.start()
 
-        self.width = info.current_w
-        self.height = info.current_h
-
-        if self.fullscreen:
-            self.screen = pygame.display.set_mode(
-                (self.width, self.height),
-                pygame.FULLSCREEN
-            )
-        else:
-            self.screen = pygame.display.set_mode((1280, 720))
-
-        self.font = pygame.font.SysFont("Arial", self.font_size)
-
-    def draw_text(self, text, color=(255, 255, 255), clear=True):
-        if clear:
-            self.screen.fill((0, 0, 0))
-
-        surf = self.font.render(text, True, color)
-        rect = surf.get_rect(center=(self.width // 2, self.height // 2))
-        self.screen.blit(surf, rect)
-        pygame.display.flip()
+    def draw_text(self, text):
+        if self.cola != None:
+            self.cola.put(text)
 
     def close(self):
-        pygame.quit()
+        if self.cola != None:
+            self.cola.put("STOP")
+
+
+def window_process(queue):
+
+    fullscreen = True
+    font_size = 120
+    screen = None
+    font = None
+    width = None
+    height = None
+
+    pygame.init()
+    info = pygame.display.Info()
+
+    width = info.current_w
+    height = info.current_h
+
+    if fullscreen:
+        screen = pygame.display.set_mode(
+            (width, height),
+            pygame.FULLSCREEN
+        )
+    else:
+        screen = pygame.display.set_mode((1280, 720))
+
+    font = pygame.font.SysFont("Arial", font_size)
+    
+    reception = queue.get()
+    
+    while reception != "STOP":
+        draw_text(screen, width, height,font, reception, (0,255,0),True)
+        reception = queue.get()
+        
+    pygame.quit()
+
+    return
+
+
+
+def draw_text(screen, width, height, font, text, color=(255, 255, 255), clear=True):
+
+    if clear:
+        screen.fill((0, 0, 0))
+
+    surf = font.render(text, True, color)
+    rect = surf.get_rect(center=(width // 2, height // 2))
+    screen.blit(surf, rect)
+    pygame.display.flip()

@@ -158,3 +158,4 @@ dependencies:
       - matplotlib==3.10.7
       - mne==1.6.1
       - numpy==1.26.4
+      - pygame==2.6.1

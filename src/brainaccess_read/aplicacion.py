@@ -284,7 +284,7 @@ def main_menu(console):
             case "6":
                 with EEGManager() as mgr:
                     experimento = ExperimentoVisual(mgr, console)
-                    experimento.start(channels,acciones)
+                    experimento.start(channels)
                 break
 
             case "7":

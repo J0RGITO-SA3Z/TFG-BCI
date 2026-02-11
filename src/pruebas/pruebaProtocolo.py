@@ -1,4 +1,5 @@
 import multiprocessing
+import random
 import time
 import pandas as pd
 import numpy as np
@@ -9,6 +10,8 @@ from rich.console import Console
 from brainaccess.utils.acquisition import EEG
 from brainaccess.core.eeg_manager import EEGManager
 import brainaccess.core.eeg_channel as eeg_channel
+
+# Generar acciones random (según las acciones pasadas), Interfaz grafica como un objeto, 
 
 # --- CONFIGURACIÓN ---
 PORT = "COM6" 
@@ -24,6 +27,16 @@ MARKER_CIRCLE = 2
 MARKER_LEFT_ARROW = 3
 MARKER_RIGHT_ARROW = 4
 MARKER_DOWN_ARROW = 5
+
+
+def generar_lista(acciones, total):
+    n = len(acciones)
+    if total % n != 0:
+        raise ValueError("El total debe ser múltiplo del número de acciones")
+
+    lista = acciones * (total // n)
+    random.shuffle(lista)
+    return lista
 
 # --- PROCESO 1: PROTOCOLO VISUAL (Pygame) ---
 def visual_protocol(queue_markers, queue_ready):
@@ -44,10 +57,10 @@ def visual_protocol(queue_markers, queue_ready):
     # Esperar señal de que el objeto EEG está listo y grabando
     status = queue_ready.get()
     if status != "READY": return
-
+    actions = ["<<<", ">>>", "vvv"]
     time.sleep(2)
     trials = 1 # Ajustar según necesidad
-
+    labels = generar_lista(actions,trials)
     try:
         for i in range(trials):
             # t=0s: Cruz
@@ -62,7 +75,7 @@ def visual_protocol(queue_markers, queue_ready):
 
             # t=3s: Acción (Flecha)
             marker = [MARKER_LEFT_ARROW, MARKER_RIGHT_ARROW, MARKER_DOWN_ARROW][i % 3]
-            label = ["<<<", ">>>", "vvv"][i % 3]
+            label = labels[i % 3]
             queue_markers.put(marker)
             draw_text(label, (0, 255, 0))
             time.sleep(6)

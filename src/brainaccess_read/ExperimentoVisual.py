@@ -15,7 +15,8 @@ from rich.columns import Columns
 from rich.prompt import IntPrompt
 from UI_utils import seleccionarPuertoCOM
 from UI_utils import lee_indice
-from brainaccess_read.ventanaExperimentoVisual import ventanaExperimentoVisual
+from ventanaExperimentoVisual import ventanaExperimentoVisual
+
 
 class ExperimentoVisual:
 
@@ -29,7 +30,7 @@ class ExperimentoVisual:
         self.numTrials = 60
         return
     
-    def __generar_lista(acciones, total):
+    def __generar_lista(self,acciones, total):
         n = len(acciones)
         if total % n != 0:
             raise ValueError("El total debe ser múltiplo del número de acciones")
@@ -40,13 +41,13 @@ class ExperimentoVisual:
     
     def __trialToText(self, trial):
         if trial == "IZQUIERDA":
-            return "<--"
+            return "<<<"
         elif trial == "DERECHA":
-            return "-->"
+            return ">>>"
         elif trial == "ABAJO":
-            return "|\n|\nv"
+            return "VVV"
         elif trial == "DESCANSO":
-            return "+++"
+            return "NADA"
         else:
             return trial
     
@@ -62,7 +63,7 @@ class ExperimentoVisual:
 
         self.console.clear()
         self.console.print("En el modo experimento visual, las acciones anotadas siempre son hizquierda, derecha, abajo, descanso. Si quieres anotaciones personalizadas, usa el modo de grabación manual.")
-        self.console.intput("Pulse Enter para continuar...")
+        self.console.input("Pulse Enter para continuar...")
         self.console.clear()
 
         puerto_COM = seleccionarPuertoCOM(self.console)
@@ -78,12 +79,13 @@ class ExperimentoVisual:
 
         self.console.print("[green]EEG configurado correctamente[/green]\n")
 
-        self.numTrials = IntPrompt.ask("Introduce el numero de trials por clase (4 clases y 8s por trial): ")
+        self.numTrials = IntPrompt.ask("Introduce el numero de trials por clase (4 clases y 8s por trial)")
         self.numTrials = self.numTrials * 4
         trials = self.__generar_lista(["IZQUIERDA","DERECHA","ABAJO","DESCANSO"], self.numTrials)
 
         fileOutput = time.strftime("%Y%m%d_%H%M%S") + "_brainaccess_midi_15ch_raw.fif"
         fileOutput = self.console.input("Introduce el nombre del archivo de salida (sin extensión): ")
+        fileOutput += ".fif"
 
         self.console.print(f"[bold]Grabando EEG hasta que se detenga la grabación...[/bold]")
 
@@ -92,18 +94,24 @@ class ExperimentoVisual:
 
         eeg.start_acquisition()
 
+        self.console.print("Baseline")
+        experimentoVisual.draw_text("Baseline")
         time.sleep(self.tmpBaselineInicial)
+        self.console.print("Concéntrate")
+        experimentoVisual.draw_text("Concéntrate")
+        time.sleep(10)
+        self.console.print("YA")
 
         for trial in trials:
-            experimentoVisual.draw_text("+", (0, 255, 0))
+            experimentoVisual.draw_text("+")
             eeg.annotate("CROSS")
             time.sleep(self.tmpBaselineEpoch)
 
-            experimentoVisual.draw_text(self.__trialToText(trial), (0, 255, 0))
+            experimentoVisual.draw_text(self.__trialToText(trial))
             eeg.annotate(trial)
 
             time.sleep(self.tmpIM)
-            experimentoVisual.draw_text("", (0, 255, 0))
+            experimentoVisual.draw_text("")
             eeg.annotate("BLANK")
 
             time.sleep(self.tmpBreack)
