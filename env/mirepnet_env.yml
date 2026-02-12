@@ -156,6 +156,6 @@ dependencies:
       - pyqtgraph==0.14.0
       - PyQt5==5.15.11
       - matplotlib==3.10.7
-      - mne==1.6.1
+      - mne==1.11.0
       - numpy==1.26.4
       - pygame==2.6.1

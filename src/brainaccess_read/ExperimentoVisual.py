@@ -17,6 +17,8 @@ from UI_utils import seleccionarPuertoCOM
 from UI_utils import lee_indice
 from ventanaExperimentoVisual import ventanaExperimentoVisual
 
+import winsound
+
 
 class ExperimentoVisual:
 
@@ -68,7 +70,7 @@ class ExperimentoVisual:
 
         puerto_COM = seleccionarPuertoCOM(self.console)
 
-        eeg = EEG(mode="accumulate")
+        eeg = EEG()
         eeg.setup(
             mgr=self.mgr,
             port=puerto_COM,
@@ -82,9 +84,10 @@ class ExperimentoVisual:
         self.numTrials = IntPrompt.ask("Introduce el numero de trials por clase (4 clases y 8s por trial)")
         self.numTrials = self.numTrials * 4
         trials = self.__generar_lista(["IZQUIERDA","DERECHA","ABAJO","DESCANSO"], self.numTrials)
+        print(trials)
 
-        fileOutput = time.strftime("%Y%m%d_%H%M%S") + "_brainaccess_midi_15ch_raw.fif"
-        fileOutput = self.console.input("Introduce el nombre del archivo de salida (sin extensión): ")
+        fileOutput = "grabaciones/"
+        fileOutput += self.console.input("Introduce el nombre del archivo de salida (sin extensión): ")
         fileOutput += ".fif"
 
         self.console.print(f"[bold]Grabando EEG hasta que se detenga la grabación...[/bold]")
@@ -99,13 +102,17 @@ class ExperimentoVisual:
         time.sleep(self.tmpBaselineInicial)
         self.console.print("Concéntrate")
         experimentoVisual.draw_text("Concéntrate")
-        time.sleep(10)
+
+        time.sleep(9.5)
+        winsound.Beep(1000, 500)
+
         self.console.print("YA")
 
         for trial in trials:
             experimentoVisual.draw_text("+")
             eeg.annotate("CROSS")
-            time.sleep(self.tmpBaselineEpoch)
+            time.sleep(self.tmpBaselineEpoch-0.5)
+            winsound.Beep(1000, 500)
 
             experimentoVisual.draw_text(self.__trialToText(trial))
             eeg.annotate(trial)
@@ -125,7 +132,5 @@ class ExperimentoVisual:
 
         self.console.clear()
         self.console.print(f"\nEEG grabado y guardado en [green]{fileOutput}[/green]")
-        eeg.data.mne_raw.filter(1, 40).plot(scalings='auto', verbose=False)
+        raw.filter(1, 40).plot(scalings='auto', verbose=False)
         self.console.input("[dim]Pulse Enter para continuar...[/dim]")
-
-        return raw
