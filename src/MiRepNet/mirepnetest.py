@@ -5,7 +5,7 @@ import torch.nn as nn
 from collections import deque
 from sklearn.preprocessing import LabelEncoder
 
-# === 1️⃣ Configuración ===
+# === Configuración ===
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 MIREPNET_DIR = os.path.join(PROJECT_ROOT, "Modelos", "MIRepNet")
 WEIGHT_PATH = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
@@ -15,7 +15,7 @@ from model.mlm import mlm_mask, PatchEmbedding
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"🚀 Usando dispositivo: {device}")
 
-# === 2️⃣ Canales ===
+# === Canales ===
 # Cargamos el array de canales desde los archivos JSON en la carpeta Disposition
 SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 CONFIG_DIR = os.path.join(SRC_ROOT, "Disposition", "configs")
@@ -39,7 +39,7 @@ print(TEMPLATE_45)
 
 
 # ESTA PARTE ES TEMPORAL, HASTA TENER EL INTERPOLADOR ========================
-# === 3️⃣ Proyector 14→45 ===
+# === Proyector 14→45 ===
 class ChannelProjector(nn.Module):
     def __init__(self, in_ch=15, out_ch=45):
         super().__init__()
@@ -57,7 +57,7 @@ class ChannelProjector(nn.Module):
     def forward(self, x):
         return self.proj(x)  # [B,45,T]
 
-# === 4️⃣ Modelo MIRepNet ===
+# === Modelo MIRepNet ===
 # Cargamos el modelo MIRepNet 
 # emb_size (tamaño de los vectores de embedding para cada segmento temporal) = 256, depth (profundidad de capas del transformer)=6, n_classes=3 (ajusta n_classes según tu tarea)
 model = mlm_mask(emb_size=256, depth=6, n_classes=3)
@@ -76,20 +76,20 @@ else:
 projector = ChannelProjector().to(device)
 model.eval(); projector.eval()
 
-# === 5️⃣ Configuración de flujo ===
+# === Configuración de flujo ===
 # Aquí deberías importar tu SDK de BrainAccess:
 # from brainaccess import EEGDevice
 # deviceEEG = EEGDevice()
 # deviceEEG.start_stream()
 
 SAMPLE_RATE = 250        # Hz (ajusta a tu casco)
-WINDOW_SEC = 4           # segundos por ventana (≈ 480 muestras)
+WINDOW_SEC = 4           # segundos por ventana ->  Típico de Motor Imagery (≈ 480 muestras)
 WINDOW_SIZE = SAMPLE_RATE * WINDOW_SEC
 buffer = deque(maxlen=WINDOW_SIZE)
 
 le = LabelEncoder().fit(["left_hand","right_hand","feet"])
 
-# === 6️⃣ Bucle en tiempo real ===
+# === Bucle en tiempo real ===
 print("🧠 Esperando flujo EEG...")
 while True:
     # Simulación: datos aleatorios del casco (14 canales, N muestras nuevas)
