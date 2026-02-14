@@ -38,7 +38,8 @@ use_channels_names = [
              'P7', 'P5', 'P3', 'P1', 'PZ', 'P2', 'P4', 'P6', 'P8', 
                    #  'PO7',  'PO3', 'POZ',  'PO4', 'PO8', 
                              #  'O1', 'OZ', 'O2',
-        ]
+]
+
 
 def validar_nombre_electrodo(nombre):
     montage = mne.channels.make_standard_montage("standard_1005")
@@ -74,6 +75,29 @@ def pad_missing_channels_diff(x, target_channels, actual_channels):
         padded[b] = W @ x[b]  
     
     return padded
+
+
+def raw_to_epochs(archivo, tmin=0.0, tmax=4.0):
+    raw = mne.io.read_raw_fif(archivo, preload=True)
+    events, event_id = mne.events_from_annotations(raw)
+    event_id_filtrado = {k: v for k, v in event_id.items() if k in ["IZQUIERDA", "DERECHA", "ABAJO", "DESCANSO"]}
+    epochs = mne.Epochs(
+        raw,
+        events=mne.events_from_annotations(raw)[0],
+        event_id=event_id_filtrado,
+        tmin=tmin,
+        tmax=tmax,
+        baseline=None,
+        preload=True
+    )
+
+    epochs = epochs.copy().pick("eeg")
+    actual_channels_names = [ elem.upper() for elem in epochs.ch_names]
+    epochs_data = epochs.get_data()
+    transpolated_data = pad_missing_channels_diff(epochs_data, use_channels_names, actual_channels_names)
+
+    return transpolated_data   
+
 
 def __main__():
     archivo = input("Introduce el nombre del archivo a evaluar: ")
