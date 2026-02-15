@@ -3,7 +3,7 @@ from moabb.datasets import PhysionetMI
 from moabb.paradigms import MotorImagery
 
 # === 1️⃣ Configurar ruta a MIRepNet ===
-sys.path.append(r"C:\Users\JORGE\OneDrive\Escritorio\Modelos BCI\Modelos\MIRepNet")
+sys.path.append(r"C:\Users\JORGE\Documents\GitHub\TFG-BCI\Modelos\MIRepNet")
 from model.mlm import mlm_mask, PatchEmbedding
 
 
@@ -62,7 +62,7 @@ model.to(device)  # <- importante
 print("✅ Modelo MIRepNet inicializado en", device)
 
 # === 3.1️⃣ Cargar pesos preentrenados ===
-weight_path = r"C:\Users\JORGE\OneDrive\Escritorio\Modelos BCI\Modelos\MIRepNet\weight\MIRepNet.pth"
+weight_path = r"C:\Users\JORGE\Documents\GitHub\TFG-BCI\Modelos\MIRepNet\weight\MIRepNet.pth"
 try:
     checkpoint = torch.load(weight_path, map_location=device)
     model.load_state_dict(checkpoint, strict=False)
@@ -82,7 +82,9 @@ print("🔧 Shape final:", X.shape)
 # === 4️⃣ Entrenamiento rápido ===
 loss_fn = torch.nn.CrossEntropyLoss()
 opt = torch.optim.Adam(model.parameters(), lr=1e-3)
-epochs = 15
+epochs = 20
+
+le = LabelEncoder().fit(["left_hand","right_hand","feet"])
 
 for epoch in range(epochs):
     opt.zero_grad()
@@ -91,8 +93,12 @@ for epoch in range(epochs):
     loss.backward()
     opt.step()
 
+    probabilities = torch.softmax(out, dim=1)
     pred = out.argmax(dim=1)
     acc = (pred == y).float().mean().item()
-    print(f"🌀 Epoch {epoch+1}/{epochs} | Loss: {loss.item():.4f} | Acc: {acc*100:.2f}%")
+    labels = le.inverse_transform(pred.cpu().numpy())
+    print(f"🌀 Epoch {epoch+1}/{epochs} | Pred: {pred} |Label: {labels} |Loss: {loss.item():.4f} | Acc: {acc*100:.2f}% ")
 
 print("✅ Entrenamiento terminado en", device)
+
+

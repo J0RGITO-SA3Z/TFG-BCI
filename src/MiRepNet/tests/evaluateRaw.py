@@ -38,8 +38,7 @@ use_channels_names = [
              'P7', 'P5', 'P3', 'P1', 'PZ', 'P2', 'P4', 'P6', 'P8', 
                    #  'PO7',  'PO3', 'POZ',  'PO4', 'PO8', 
                              #  'O1', 'OZ', 'O2',
-]
-
+        ]
 
 def validar_nombre_electrodo(nombre):
     montage = mne.channels.make_standard_montage("standard_1005")
@@ -79,8 +78,11 @@ def pad_missing_channels_diff(x, target_channels, actual_channels):
 
 def raw_to_epochs(archivo, tmin=0.0, tmax=4.0):
     raw = mne.io.read_raw_fif(archivo, preload=True)
+
     events, event_id = mne.events_from_annotations(raw)
+
     event_id_filtrado = {k: v for k, v in event_id.items() if k in ["IZQUIERDA", "DERECHA", "ABAJO", "DESCANSO"]}
+    
     epochs = mne.Epochs(
         raw,
         events=mne.events_from_annotations(raw)[0],
@@ -92,6 +94,18 @@ def raw_to_epochs(archivo, tmin=0.0, tmax=4.0):
     )
 
     epochs = epochs.copy().pick("eeg")
+
+    # Códigos numéricos de cada epoch
+    true_labels_numeric = epochs.events[:, 2]
+
+    # Mapa inverso: número → nombre
+    inv_event_id = {v: k for k, v in epochs.event_id.items()}
+
+    true_labels_text = [inv_event_id[i] for i in true_labels_numeric]
+
+    for i, label in enumerate(true_labels_text):
+        print(f"Epoch {i}: {label}")
+
     actual_channels_names = [ elem.upper() for elem in epochs.ch_names]
     epochs_data = epochs.get_data()
     transpolated_data = pad_missing_channels_diff(epochs_data, use_channels_names, actual_channels_names)
@@ -120,7 +134,7 @@ def __main__():
     )
     
     epochs = epochs.copy().pick("eeg")
-    
+
     actual_channels_names = [ elem.upper() for elem in epochs.ch_names]
     epochs_data = epochs.get_data()
     transpolated_data = pad_missing_channels_diff(epochs_data, use_channels_names, actual_channels_names)

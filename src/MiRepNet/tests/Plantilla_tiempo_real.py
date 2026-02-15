@@ -17,17 +17,20 @@ print(f"🚀 Usando dispositivo: {device}")
 
 # === Canales ===
 # Cargamos el array de canales desde los archivos JSON en la carpeta Disposition
+
 SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-CONFIG_DIR = os.path.join(SRC_ROOT, "Disposition", "configs")
-HEADSET_DIR = os.path.join(CONFIG_DIR, "channels_headset_15.json")
+CONFIG_DIR = os.path.join(SRC_ROOT, "Disposition", "models")
+# HEADSET_DIR = os.path.join(CONFIG_DIR, "channels_headset_15.json")
 TEMPLATE_DIR = os.path.join(CONFIG_DIR, "channels_template_45.json")
-headset_file = open (HEADSET_DIR)
+# headset_file = open (HEADSET_DIR)
 template_file = open (TEMPLATE_DIR)
 
-with open(HEADSET_DIR, "r") as f:
-    cfg = json.load(f)
 
-HEADSET_CHANNELS_15 = cfg["channels"]
+#with open(HEADSET_DIR, "r") as f:
+  #  cfg = json.load(f)
+
+# HEADSET_CHANNELS_15 = cfg["channels"]
+HEADSET_CHANNELS_15 = ['FP1','FP2','F3','F4','C3','C4','P3','P4','O1','O2','FZ','CZ','PZ','CPZ','FZ']  # Ejemplo de 15 canales (ajusta según tu casco)
 
 with open(TEMPLATE_DIR, "r") as d:
     cfg = json.load(d)
@@ -67,6 +70,7 @@ model.embedding = PatchEmbedding(embed_dim=256, num_channels=45)
 model.to(device)
 
 if os.path.isfile(WEIGHT_PATH):
+
     ckpt = torch.load(WEIGHT_PATH, map_location=device)
     model.load_state_dict(ckpt, strict=False)
     print("✅ Pesos preentrenados cargados.")
@@ -83,7 +87,7 @@ model.eval(); projector.eval()
 # deviceEEG.start_stream()
 
 SAMPLE_RATE = 250        # Hz (ajusta a tu casco)
-WINDOW_SEC = 4           # segundos por ventana ->  Típico de Motor Imagery (≈ 480 muestras)
+WINDOW_SEC = 4           # segundos por ventana ->  Típico de Motor Imagery (≈ 1000 muestras)
 WINDOW_SIZE = SAMPLE_RATE * WINDOW_SEC
 buffer = deque(maxlen=WINDOW_SIZE)
 
@@ -103,16 +107,16 @@ while True:
     # Solo procesar cuando tenemos ventana completa
     if len(buffer) == WINDOW_SIZE:
         # Convertir buffer a tensor [1,14,T]
-        X = np.stack(buffer, axis=1)[None, :, :]  # (1,14,T)
+        X = np.stack(buffer, axis=1)[None, :, :]  # (1,14,T) -> (B,C,T) Transforma a un batch de 1 muestra para el timepo real (no necesitas epochs)
         X = (X - X.mean()) / (X.std() + 1e-8)
         X = X - X.mean(axis=1, keepdims=True)
 
         X = torch.tensor(X, dtype=torch.float32).to(device)
         with torch.no_grad():
             x45 = projector(X)
-            _, out = model(x45)
+            rep, out = model(x45)
             pred = out.argmax(1).item()
             label = le.inverse_transform([pred])[0]
 
-        print(f"🔮 Predicción: {label}")
+        print(f"🔮 Predicción: {label} {rep}")
         time.sleep(0.25)  # espera simbólica para siguiente lectura
