@@ -3,9 +3,6 @@
 Script para evaluar el modelo MIRepNet con datos EEG personalizados en formato (B, C, T)
 con 45 canales de EEG.
 
-Requisitos:
-- Datos en formato (Batch, Canales=45, Tiempo)
-- Datos normalizados/preprocesados según tu pipeline
 """
 
 import sys
