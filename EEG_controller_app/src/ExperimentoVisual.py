@@ -13,8 +13,8 @@ from rich.console import Group
 from rich.text import Text
 from rich.columns import Columns
 from rich.prompt import IntPrompt
-from UI_utils import seleccionarPuertoCOM
-from UI_utils import lee_indice
+from utils import seleccionarPuertoCOM
+from utils import lee_indice
 from ventanaExperimentoVisual import ventanaExperimentoVisual
 
 import winsound

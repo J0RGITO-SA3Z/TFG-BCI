@@ -11,8 +11,8 @@ from rich.panel import Panel
 from rich.console import Group
 from rich.text import Text
 from rich.columns import Columns
-from UI_utils import seleccionarPuertoCOM
-from UI_utils import lee_indice
+from utils import seleccionarPuertoCOM
+from utils import lee_indice
 
 def build_recording_panel(acciones):
     header = Columns()

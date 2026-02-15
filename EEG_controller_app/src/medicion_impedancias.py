@@ -8,7 +8,7 @@ import numpy as np
 from brainaccess.utils import acquisition
 from brainaccess.core.eeg_manager import EEGManager
 
-from UI_utils import seleccionarPuertoCOM
+from utils import seleccionarPuertoCOM
 
 def build_channels_table(canales, lecturas) -> Table:
     table = Table(title="Estado de Canales")

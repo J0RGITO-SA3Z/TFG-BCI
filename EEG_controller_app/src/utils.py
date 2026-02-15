@@ -1,8 +1,16 @@
 from rich.table import Table
 from rich.console import Console
 from rich.prompt import Prompt
+from pathlib import Path
 
 import serial.tools.list_ports
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+RECORD_DIR = BASE_DIR / "recordings"
+ACTIONS_CONF_DIR = BASE_DIR / "config" /"actions"
+DEFAULT_ACTIONS_CONFIG_FILE = BASE_DIR / "config" / "default" / "default_actions.json"
+CHANNELS_CONF_DIR = BASE_DIR / "config" / "channels"
+DEFAULT_CHANNELS_CONFIG_FILE = BASE_DIR / "config" / "default" / "default_channels.json"
 
 def lee_indice(texto):
     try:
@@ -10,7 +18,6 @@ def lee_indice(texto):
         return valor
     except ValueError:
         return -2
-
 
 def seleccionarPuertoCOM(console):
     """
@@ -40,9 +47,8 @@ def seleccionarPuertoCOM(console):
 
     return ports[indice].device
 
-def ask_validated(console, prompt_text, validate_fn):
+def ask_validated(prompt_text, validate_fn):
     while True:
         value = Prompt.ask(prompt_text)
         if validate_fn(value):
             return value
-        console.print("[red]❌ Valor inválido[/]")
