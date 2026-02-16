@@ -44,11 +44,11 @@ class ExperimentoVisual:
     
     def __trialToText(self, trial):
         if trial == "IZQUIERDA":
-            return "<<<"
+            return "←"
         elif trial == "DERECHA":
-            return ">>>"
+            return "→"
         elif trial == "ABAJO":
-            return "VVV"
+            return "↓"
         elif trial == "DESCANSO":
             return "NADA"
         else:

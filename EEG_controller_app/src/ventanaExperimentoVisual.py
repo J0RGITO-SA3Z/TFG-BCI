@@ -48,7 +48,7 @@ def window_process(queue):
     reception = queue.get()
     
     while reception != "STOP":
-        draw_text(screen, width, height,font, reception, (0,255,0),True)
+        draw_text(screen, width, height,font, reception, (255,255,255),True)
         reception = queue.get()
         
     pygame.quit()
