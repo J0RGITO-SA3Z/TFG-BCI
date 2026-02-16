@@ -8,3 +8,4 @@ Modelos/
 # -----------------------------
 BrainAccess/
 BrainAccess.zip
+*.pyc

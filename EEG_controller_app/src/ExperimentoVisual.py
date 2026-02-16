@@ -15,6 +15,7 @@ from rich.columns import Columns
 from rich.prompt import IntPrompt
 from utils import seleccionarPuertoCOM
 from utils import lee_indice
+from utils import RECORD_DIR
 from ventanaExperimentoVisual import ventanaExperimentoVisual
 
 import winsound
@@ -86,9 +87,10 @@ class ExperimentoVisual:
         trials = self.__generar_lista(["IZQUIERDA","DERECHA","ABAJO","DESCANSO"], self.numTrials)
         print(trials)
 
-        fileOutput = "grabaciones/"
-        fileOutput += self.console.input("Introduce el nombre del archivo de salida (sin extensión): ")
-        fileOutput += ".fif"
+        
+        entrada = self.console.input("Introduce el nombre del archivo de salida (sin extensión): ")
+        entrada += ".fif"
+        fileOutput = RECORD_DIR / entrada
 
         self.console.print(f"[bold]Grabando EEG hasta que se detenga la grabación...[/bold]")
 
