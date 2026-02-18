@@ -11,7 +11,7 @@ import asyncio
 from visualizacion_directo import EEGVisualizacionDirecto
 from ExperimentoVisual import ExperimentoVisual
 from grabacion import EEGRecorder
-from medicion_impedancias import medir_impedancias
+from medicion_impedancias import medir_impedancias_interactivo
 from configuracion_canales import channels_menu
 from configuracion_canales import load_default_channel_config
 from configuracion_canales import ChannelConfig
@@ -92,7 +92,7 @@ def main_menu(console):
                 menu_acciones(console,acciones)
         
             case "3":
-                medir_impedancias(console, channels)
+                medir_impedancias_interactivo(console, channels)
 
             case "4":
                 with EEGManager() as mgr:
