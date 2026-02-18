@@ -11,14 +11,13 @@ Write-Host ""
 $BrainAccessUrl = "https://www.brainaccess.ai/wp-content/uploads/downloads/BrainAccessSDK-classic.zip"
 $zipFile = "BrainAccess.zip"
 $extractDir = "lib/BrainAccess"
-$modelsDir = "lib/Modelos"
 $envName = "bci-mi-tfg"
 $envFile = "./bci-mi-tfg.yml"
 
 # -----------------------------
 # Comprobar Conda
 # -----------------------------
-Write-Host "[1/6] Comprobando Conda..." -ForegroundColor Cyan
+Write-Host "[1/5] Comprobando Conda..." -ForegroundColor Cyan
 
 if (-not (Get-Command conda -ErrorAction SilentlyContinue)) {
     Write-Error @"
@@ -31,30 +30,6 @@ https://www.anaconda.com/download
 }
 
 Write-Host "[OK] Conda detectado" -ForegroundColor Green
-Write-Host ""
-
-# -----------------------------
-# Clonar modelo
-# -----------------------------
-Write-Host "[2/6] Preparando carpeta de modelos..." -ForegroundColor Cyan
-
-New-Item -ItemType Directory -Path $modelsDir -Force | Out-Null
-
-Push-Location $modelsDir
-
-if (-not (Test-Path "MIRepNet")) {
-    Write-Host "Clonando repositorio MIRepNet..." -ForegroundColor Cyan
-    git clone https://github.com/staraink/MIRepNet
-    Write-Host "[OK] Repositorio clonado" -ForegroundColor Green
-} else {
-    Write-Host "MIRepNet ya existe, se omite el clon" -ForegroundColor Yellow
-}
-
-Push-Location "MIRepNet"
-pip install -e .
-
-pop-Location
-Pop-Location
 Write-Host ""
 
 # -----------------------------
@@ -74,7 +49,7 @@ Write-Host ""
 # -----------------------------
 # Activar entorno Conda
 # -----------------------------
-Write-Host "[4/6] Activando entorno Conda..." -ForegroundColor Cyan
+Write-Host "[3/5] Activando entorno Conda..." -ForegroundColor Cyan
 
 & conda shell.powershell hook | Out-String | Invoke-Expression
 conda activate $envName
@@ -85,7 +60,7 @@ Write-Host ""
 # -----------------------------
 # Instalar BrainAccess SDK
 # -----------------------------
-Write-Host "[5/6] Instalando BrainAccess SDK..." -ForegroundColor Cyan
+Write-Host "[4/5] Instalando BrainAccess SDK..." -ForegroundColor Cyan
 
 if (-not (Test-Path $extractDir)) {
 
@@ -118,7 +93,7 @@ Write-Host ""
 # -----------------------------
 # PATH (opcional)
 # -----------------------------
-Write-Host "[6/6] Configurando PATH del usuario..." -ForegroundColor Cyan
+Write-Host "[5/5] Configurando PATH del usuario..." -ForegroundColor Cyan
 
 $libPath = (Resolve-Path $extractDir).Path
 $oldPath = [Environment]::GetEnvironmentVariable("PATH", "User")

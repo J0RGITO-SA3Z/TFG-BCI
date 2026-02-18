@@ -14,7 +14,10 @@ from collections import deque
 from sklearn.preprocessing import LabelEncoder
 from scipy.spatial.distance import cdist
 
-from model.mlm import mlm_mask, PatchEmbedding
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(PROJECT_ROOT)
+
+from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding
 
 # === Configuración del Dispositivo ===
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

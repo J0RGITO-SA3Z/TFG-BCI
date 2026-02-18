@@ -2,7 +2,10 @@ import os, sys, torch, numpy as np
 from moabb.datasets import PhysionetMI
 from moabb.paradigms import MotorImagery
 
-from model.mlm import mlm_mask, PatchEmbedding
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(PROJECT_ROOT)
+
+from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding
 
 
 # === ⚙️ Selección de dispositivo ===
