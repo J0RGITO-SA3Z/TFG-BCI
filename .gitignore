@@ -1,11 +1,15 @@
 # -----------------------------
 # Modelos descargados
 # -----------------------------
-Modelos/
+lib/Modelos/
 
 # -----------------------------
 # BrainAccess SDK (descargado automáticamente)
 # -----------------------------
-BrainAccess/
+lib/BrainAccess/
 BrainAccess.zip
-*.pyc
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
