@@ -14,13 +14,6 @@ from collections import deque
 from sklearn.preprocessing import LabelEncoder
 from scipy.spatial.distance import cdist
 
-
-# === Configuración de Rutas ===
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-MIREPNET_DIR = os.path.join(PROJECT_ROOT, "Modelos", "MIRepNet")
-WEIGHT_PATH = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
-sys.path.append(MIREPNET_DIR)
-
 from model.mlm import mlm_mask, PatchEmbedding
 
 # === Configuración del Dispositivo ===

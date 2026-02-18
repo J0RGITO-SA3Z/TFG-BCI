@@ -65,6 +65,9 @@ class EEGRecorder:
         electrodes = {ch.index: ch.electrode for ch in channelsConfig if ch.enabled}
         puerto_COM = seleccionarPuertoCOM(self.console)
 
+        if puerto_COM is None:
+            return
+
         eeg = EEG(mode="accumulate") 
         eeg.setup(
             mgr=self.mgr,

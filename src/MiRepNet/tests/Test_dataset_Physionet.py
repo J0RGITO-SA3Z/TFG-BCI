@@ -2,8 +2,6 @@ import os, sys, torch, numpy as np
 from moabb.datasets import PhysionetMI
 from moabb.paradigms import MotorImagery
 
-# === 1️⃣ Configurar ruta a MIRepNet ===
-sys.path.append(r"C:\Users\JORGE\Documents\GitHub\TFG-BCI\Modelos\MIRepNet")
 from model.mlm import mlm_mask, PatchEmbedding
 
 

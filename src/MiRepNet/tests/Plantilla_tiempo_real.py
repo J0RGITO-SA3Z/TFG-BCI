@@ -5,11 +5,6 @@ import torch.nn as nn
 from collections import deque
 from sklearn.preprocessing import LabelEncoder
 
-# === Configuración ===
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-MIREPNET_DIR = os.path.join(PROJECT_ROOT, "Modelos", "MIRepNet")
-WEIGHT_PATH = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
-sys.path.append(MIREPNET_DIR)
 from model.mlm import mlm_mask, PatchEmbedding
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

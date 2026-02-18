@@ -1,4 +1,4 @@
-$envName = "mirepnet_env"
+$envName = "bci-mi-tfg"
 
 Set-Location $PSScriptRoot
 

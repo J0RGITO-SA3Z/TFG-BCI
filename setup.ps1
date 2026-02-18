@@ -50,6 +50,10 @@ if (-not (Test-Path "MIRepNet")) {
     Write-Host "MIRepNet ya existe, se omite el clon" -ForegroundColor Yellow
 }
 
+Push-Location "MIRepNet"
+pip install -e .
+
+pop-Location
 Pop-Location
 Write-Host ""
 

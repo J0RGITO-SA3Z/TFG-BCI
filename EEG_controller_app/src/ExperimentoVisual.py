@@ -71,6 +71,9 @@ class ExperimentoVisual:
 
         puerto_COM = seleccionarPuertoCOM(self.console)
 
+        if puerto_COM is None:
+            return
+
         eeg = EEG()
         eeg.setup(
             mgr=self.mgr,

@@ -62,6 +62,9 @@ def medir_impedancias(console, canales):
         return None
     
     puerto_com = seleccionarPuertoCOM(console)
+
+    if puerto_com is None:
+        return None
     
     if puerto_com is None:
         return None
