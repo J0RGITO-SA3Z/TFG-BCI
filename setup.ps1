@@ -12,8 +12,8 @@ $BrainAccessUrl = "https://www.brainaccess.ai/wp-content/uploads/downloads/Brain
 $zipFile = "BrainAccess.zip"
 $extractDir = "lib/BrainAccess"
 $modelsDir = "lib/Modelos"
-$envName = "mirepnet_env"
-$envFile = "./mirepnet_env.yml"
+$envName = "bci-mi-tfg"
+$envFile = "./bci-mi-tfg.yml"
 
 # -----------------------------
 # Comprobar Conda
