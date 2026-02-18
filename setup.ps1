@@ -10,9 +10,10 @@ Write-Host ""
 # -----------------------------
 $BrainAccessUrl = "https://www.brainaccess.ai/wp-content/uploads/downloads/BrainAccessSDK-classic.zip"
 $zipFile = "BrainAccess.zip"
-$extractDir = "BrainAccess"
-$modelsDir = "Modelos"
+$extractDir = "lib/BrainAccess"
+$modelsDir = "lib/Modelos"
 $envName = "mirepnet_env"
+$envFile = "./mirepnet_env.yml"
 
 # -----------------------------
 # Comprobar Conda
@@ -58,7 +59,7 @@ Write-Host ""
 Write-Host "[3/6] Creando entorno Conda..." -ForegroundColor Cyan
 
 if (-not (conda env list | Select-String $envName)) {
-    conda env create -f ./env/mirepnet_env.yml
+    conda env create -f $envFile -n $envName
     Write-Host "[OK] Entorno creado" -ForegroundColor Green
 } else {
     Write-Host "El entorno ya existe, se omite la creacion" -ForegroundColor Yellow
