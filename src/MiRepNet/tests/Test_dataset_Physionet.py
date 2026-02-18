@@ -3,6 +3,8 @@ from moabb.datasets import PhysionetMI
 from moabb.paradigms import MotorImagery
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+MIREPNET_DIR = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
+WEIGHT_PATH = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
 sys.path.append(PROJECT_ROOT)
 
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding

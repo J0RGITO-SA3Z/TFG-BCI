@@ -35,7 +35,7 @@ Write-Host ""
 # -----------------------------
 # Crear entorno Conda
 # -----------------------------
-Write-Host "[3/6] Creando entorno Conda..." -ForegroundColor Cyan
+Write-Host "[2/5] Creando entorno Conda..." -ForegroundColor Cyan
 
 if (-not (conda env list | Select-String $envName)) {
     conda env create -f $envFile -n $envName
