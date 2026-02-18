@@ -2,7 +2,10 @@ from moabb.datasets import PhysionetMI
 from moabb.paradigms import MotorImagery
 import numpy as np, os
 
-SAVE_DIR = r"C:\Users\JORGE\OneDrive\Escritorio\Modelos BCI\Modelos\MIRepNet\data\PhysioNetMI"
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+MIREPNET_DIR = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
+SAVE_DIR = os.path.join(MIREPNET_DIR, "data", "PhysioNetMI")
+
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 dataset = PhysionetMI()       # sin guiones raros ni bugs
