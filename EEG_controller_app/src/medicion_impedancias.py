@@ -52,7 +52,7 @@ def build_channels_table(canales, lecturas) -> Table:
 def menu_post_impedancias(console):
     console.print("Seleccione una opción:")
     console.print("  1) Repetir medición")
-    console.print("  2) Repetir medición")
+    console.print("  2) Mostrar visualización de impedancias")
     console.print("  3) Volver al menú principal\n")
 
     opcion = console.input("Seleccione una opción: ").strip()
@@ -67,9 +67,9 @@ def medir_impedancias(puerto_com, canales, console):
     electrodes = {ch.index: ch.electrode for ch in canales if ch.enabled}
     imp = None
 
-    with EEGManager() as mgr:
-        eeg = acquisition.EEG()
+    eeg = acquisition.EEG()
 
+    with EEGManager() as mgr:
         eeg.setup(
             mgr=mgr,
             port=puerto_com,
@@ -88,6 +88,8 @@ def medir_impedancias(puerto_com, canales, console):
 
         eeg.stop_impedance_measurement()
         mgr.disconnect()
+    
+    eeg.close()
 
     console.input("Medición de impedancias finalizada. Pulse Enter para continuar...")
     return imp

@@ -10,87 +10,52 @@ import asyncio
 import numpy as np
 import threading
 
-"""FUNCIONES PARA CONECTAR EEG"""
-async def conectar_eeg(eeg_state,eeg_mgr,console):
-    console.clear()
+async def _conectar(console, mgr):
+    puerto_COM = seleccionarPuertoCOM(console)
 
-    if eeg_state.connected:
-        eeg_mgr.disconnect()
-        eeg_state.connected = False
-        console.print("[green]EEG desconectado correctamente[/green]")
+    if puerto_COM == None:
+        return None
+    
+    ok = await mgr.connect(puerto_COM)
+
+    if not ok:
+        console.clear()
+        console.print(f"[red]Error al conectar EEG[/red]")
         console.input("[dim]Pulse Enter para continuar...[/dim]")
+        await mgr.disconnect()
+        return None
     else:
-        puerto_COM = seleccionarPuertoCOM(console)
+        console.clear()
+        console.print("[green]EEG conectado correctamente al puerto {puerto_COM}[/green]")
+    
+    return 0
 
-        if puerto_COM == None:
+def _chunk_callback(chunk, chunk_size):
+    print(chunk)
+
+def _configurar_EEG(mgr, channelsConfig):
+    for ch in channelsConfig:
+        mgr.set_channel_enabled(eeg_channel.ELECTRODE_MEASUREMENT + ch.index, ch.enabled)
+        mgr.set_channel_bias(eeg_channel.ELECTRODE_MEASUREMENT + ch.index, ch.is_bias)
+    
+    mgr.set_callback_chunk(_chunk_callback)
+
+async def visualizacion_directo(channelsConfig, console):
+    console.clear()
+    bacore.init(bacore.Version(2, 0, 0))
+
+    with EEGManager() as mgr:
+        if await _conectar(console, mgr) is None:
+            bacore.close()
             return
-
-        try:
-            ok = await eeg_mgr.connect(puerto_COM)
-            if not ok:
-                console.clear()
-                console.print(f"[red]Error al conectar EEG: {e}[/red]")
-                console.input("[dim]Pulse Enter para continuar...[/dim]")
-                await eeg_mgr.disconnect()
-                
-            else:
-                eeg_state.connected = True
-                console.clear()
-                console.print("[green]EEG conectado correctamente[/green]")
-                console.input("[dim]Pulse Enter para continuar...[/dim]")
-
-        except Exception as e:
-            console.clear()
-            console.print(f"[red]Error al conectar EEG: {e}[/red]")
-            console.input("[dim]Pulse Enter para continuar...[/dim]")
-
-async def visualizacion_directo(channels, console):
-    return
         
-class EEGVisualizacionDirecto:
-    
-    def __init__(self, mgr: EEGManager, console: Console):
-        self.mgr = mgr
-        self.console = console
-        return
-    
-    async def start(self,channelsConfig):
-        await self._conectar()
-        self._configurar_EEG(channelsConfig)
+        _configurar_EEG(mgr,channelsConfig)
 
-        await self.mgr.start_stream()
+        await mgr.start_stream()
         await asyncio.sleep(3)
-        await self.mgr.stop_stream()
-        self.mgr.disconnect()
+        await mgr.stop_stream()
+        mgr.disconnect()
 
-        return
-    
-    async def _conectar(self):
-        self.puerto_COM = seleccionarPuertoCOM(self.console)
+    bacore.close()
 
-        if self.puerto_COM == None:
-            return None
-        
-        ok = await self.mgr.connect(self.puerto_COM)
-
-        if not ok:
-            self.console.clear()
-            self.console.print(f"[red]Error al conectar EEG[/red]")
-            self.console.input("[dim]Pulse Enter para continuar...[/dim]")
-            await self.mgr.disconnect()
-            return None
-        else:
-            self.console.clear()
-            self.console.print("[green]EEG conectado correctamente al puerto {self.puerto_COM}[/green]")
-        
-        return 0
-    
-    def _configurar_EEG(self, channelsConfig):
-        for ch in channelsConfig:
-            self.mgr.set_channel_enabled(eeg_channel.ELECTRODE_MEASUREMENT + ch.index, ch.enabled)
-            self.mgr.set_channel_bias(eeg_channel.ELECTRODE_MEASUREMENT + ch.index, ch.is_bias)
-        
-        self.mgr.set_callback_chunk(self._chunk_callback)
-
-    def _chunk_callback(self, chunk, chunk_size):
-        self.console.print(chunk)
+    return

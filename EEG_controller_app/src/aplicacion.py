@@ -4,13 +4,11 @@ from rich.console import Group
 from rich.text import Text
 from rich.columns import Columns
 
-from brainaccess.core.eeg_manager import EEGManager
-import brainaccess.core as bacore
 import asyncio
 
-from visualizacion_directo import EEGVisualizacionDirecto
+from visualizacion_directo import visualizacion_directo
 from ExperimentoVisual import ExperimentoVisual
-from grabacion import EEGRecorder
+from grabacion import startRecording
 from medicion_impedancias import medir_impedancias_interactivo
 from configuracion_canales import channels_menu
 from configuracion_canales import load_default_channel_config
@@ -95,19 +93,14 @@ def main_menu(console):
                 medir_impedancias_interactivo(console, channels)
 
             case "4":
-                with EEGManager() as mgr:
-                    recorder = EEGRecorder(mgr, console)
-                    recorder.start(channels,acciones)
+                startRecording(channels, acciones, console)
 
             case "5":
-                with EEGManager() as mgr:
-                    visualizador = EEGVisualizacionDirecto(mgr, console)
-                    asyncio.run(visualizador.start(channels)) 
+                asyncio.run(visualizacion_directo(channels, console)) 
             
             case "6":
-                with EEGManager() as mgr:
-                    experimento = ExperimentoVisual(mgr, console)
-                    experimento.start(channels)
+                experimento = ExperimentoVisual(console)
+                experimento.start(channels)
 
             case "7":
                 console.print("[bold green]Saliendo del sistema BCI[/bold green]")
@@ -119,8 +112,6 @@ def main_menu(console):
 
 def main():
     console = Console()
-
-    bacore.init(bacore.Version(2, 0, 0))
 
     main_menu(console)
 

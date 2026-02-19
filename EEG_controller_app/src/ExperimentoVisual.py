@@ -23,8 +23,7 @@ import winsound
 
 class ExperimentoVisual:
 
-    def __init__(self,mgr: EEGManager, console: Console):
-        self.mgr = mgr
+    def __init__(self, console: Console):
         self.console = console
         self.tmpBaselineInicial = 30
         self.tmpBaselineEpoch = 2
@@ -74,67 +73,70 @@ class ExperimentoVisual:
         if puerto_COM is None:
             return
 
+        raw = None
+
         eeg = EEG()
-        eeg.setup(
-            mgr=self.mgr,
-            port=puerto_COM,
-            cap=electrodes,
-            gain=8,
-            bias=bias
-        )
+        with EEGManager() as mgr:
+            eeg.setup(
+                mgr=mgr,
+                port=puerto_COM,
+                cap=electrodes,
+                gain=8,
+                bias=bias
+            )
 
-        self.console.print("[green]EEG configurado correctamente[/green]\n")
+            self.console.print("[green]EEG configurado correctamente[/green]\n")
 
-        self.numTrials = IntPrompt.ask("Introduce el numero de trials por clase (4 clases y 8s por trial)")
-        self.numTrials = self.numTrials * 4
-        trials = self.__generar_lista(["IZQUIERDA","DERECHA","ABAJO","DESCANSO"], self.numTrials)
-        print(trials)
+            self.numTrials = IntPrompt.ask("Introduce el numero de trials por clase (4 clases y 8s por trial)")
+            self.numTrials = self.numTrials * 4
+            trials = self.__generar_lista(["IZQUIERDA","DERECHA","ABAJO","DESCANSO"], self.numTrials)
+            print(trials)
+            
+            entrada = self.console.input("Introduce el nombre del archivo de salida (sin extensión): ")
+            entrada += ".fif"
+            fileOutput = RECORD_DIR / entrada
 
-        
-        entrada = self.console.input("Introduce el nombre del archivo de salida (sin extensión): ")
-        entrada += ".fif"
-        fileOutput = RECORD_DIR / entrada
+            self.console.print(f"[bold]Grabando EEG hasta que se detenga la grabación...[/bold]")
 
-        self.console.print(f"[bold]Grabando EEG hasta que se detenga la grabación...[/bold]")
+            ventana = ventanaExperimentoVisual()
+            ventana.open()
 
-        experimentoVisual = ventanaExperimentoVisual()
-        experimentoVisual.open()
+            eeg.start_acquisition()
 
-        eeg.start_acquisition()
+            self.console.print("Baseline")
+            ventana.draw_text("Baseline")
+            time.sleep(self.tmpBaselineInicial)
+            self.console.print("Concéntrate")
+            ventana.draw_text("Concéntrate")
 
-        self.console.print("Baseline")
-        experimentoVisual.draw_text("Baseline")
-        time.sleep(self.tmpBaselineInicial)
-        self.console.print("Concéntrate")
-        experimentoVisual.draw_text("Concéntrate")
-
-        time.sleep(9.5)
-        winsound.Beep(1000, 500)
-
-        self.console.print("YA")
-
-        for trial in trials:
-            experimentoVisual.draw_text("+")
-            eeg.annotate("CROSS")
-            time.sleep(self.tmpBaselineEpoch-0.5)
+            time.sleep(9.5)
             winsound.Beep(1000, 500)
 
-            experimentoVisual.draw_text(self.__trialToText(trial))
-            eeg.annotate(trial)
+            self.console.print("YA")
 
-            time.sleep(self.tmpIM)
-            experimentoVisual.draw_text("")
-            eeg.annotate("BLANK")
+            for trial in trials:
+                ventana.draw_text("+")
+                eeg.annotate("CROSS")
+                time.sleep(self.tmpBaselineEpoch-0.5)
+                winsound.Beep(1000, 500)
 
-            time.sleep(self.tmpBreack)
-            
-        eeg.stop_acquisition()
+                ventana.draw_text(self.__trialToText(trial))
+                eeg.annotate(trial)
+
+                time.sleep(self.tmpIM)
+                ventana.draw_text("")
+                eeg.annotate("BLANK")
+
+                time.sleep(self.tmpBreack)
+                
+            raw = eeg.get_mne()
+            eeg.stop_acquisition()
+            mgr.disconnect()
+            ventana.close()
+
         eeg.close()
-        experimentoVisual.close()
 
-        raw = eeg.get_mne()
         raw.save(fileOutput, overwrite=True)
-
         self.console.clear()
         self.console.print(f"\nEEG grabado y guardado en [green]{fileOutput}[/green]")
         raw.filter(1, 40).plot(scalings='auto', verbose=False)

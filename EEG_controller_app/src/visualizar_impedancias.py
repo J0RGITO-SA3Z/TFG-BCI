@@ -146,7 +146,7 @@ def visualizar_impedancias(
         mpatches.Patch(color="red",   label=f"desconectado (0 kΩ)"),
         mpatches.Patch(color="green",   label=f"Buena  (< {UMBRAL_BUENO} kΩ)"),
         mpatches.Patch(color="#FFD700",  label=f"Aceptable ({UMBRAL_BUENO}–{UMBRAL_MALO} kΩ)"),
-        mpatches.Patch(color="red",     label=f"Mala   (> {UMBRAL_MALO} kΩ)"),
+        mpatches.Patch(color="#DA8B23",     label=f"Mala   (> {UMBRAL_MALO} kΩ)"),
     ]
     ax.legend(handles=leyenda_items, loc="lower center",
               bbox_to_anchor=(0.5, -0.08), ncol=3, fontsize=9,
