@@ -8,7 +8,7 @@ import asyncio
 
 from visualizacion_directo import visualizacion_directo
 from ExperimentoVisual import ExperimentoVisual
-from grabacion import startRecording
+from grabacionPerso import startRecording
 from medicion_impedancias import medir_impedancias_interactivo
 from configuracion_canales import channels_menu
 from configuracion_canales import load_default_channel_config

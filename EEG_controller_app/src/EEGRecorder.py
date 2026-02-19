@@ -39,7 +39,7 @@ class EEGRecorder:
         # Inicializa nombreCanales con los nombres de los canales habilitados
         for ch in self.channelConfig:
             if ch.enabled:
-                self.nombreCanales[eeg_channel.ELECTRODE_MEASUREMENT + ch.index] = ch.nombre
+                self.nombreCanales[eeg_channel.ELECTRODE_MEASUREMENT + ch.index] = ch.electrode
 
         self.nombreCanales[eeg_channel.ACCELEROMETER + 0] = "Accel_x"
         self.nombreCanales[eeg_channel.ACCELEROMETER + 1] = "Accel_y"
@@ -60,9 +60,10 @@ class EEGRecorder:
 
     def _create_info(self):
         sfreq = self.mgr.get_sample_frequency()
-        ch_names = [x.electrode for x in self.nombreCanales.values()]
+        ch_names = [x for x in self.nombreCanales.values()]
 
-        ch_types = ['eeg'] * len(self.channelConfig)
+
+        ch_types = ['eeg'] * (len(ch_names) - 5)
         ch_types.extend(["misc"] * 3)
         ch_types.append("stim")
         ch_types.append("syst")
@@ -83,6 +84,12 @@ class EEGRecorder:
 
             if ch.is_bias:
                 self.mgr.set_channel_bias(eeg_channel.ELECTRODE_MEASUREMENT + ch.index, True)
+
+        self.mgr.set_channel_enabled(eeg_channel.ACCELEROMETER + 0, True)
+        self.mgr.set_channel_enabled(eeg_channel.ACCELEROMETER + 1, True)
+        self.mgr.set_channel_enabled(eeg_channel.ACCELEROMETER + 2, True)
+        self.mgr.set_channel_enabled(eeg_channel.SAMPLE_NUMBER, True)
+        self.mgr.set_channel_enabled(eeg_channel.DIGITAL_INPUT, True)
         
         self.mgr.set_callback_chunk(self._callbackFunction)
 
@@ -96,10 +103,13 @@ class EEGRecorder:
         
         self.obtenerIndicesCanalesActivos()
 
-    def iniciarGrabacion(self, mgr:EEGManager, COM_port, channelConfig: list[ChannelConfig], gain):
-        asyncio.run(mgr.connect(COM_port))
+    async def _conectar(self, COM_port):
+        return await self.mgr.connect(COM_port)
 
+    def iniciarGrabacion(self, mgr:EEGManager, COM_port, channelConfig: list[ChannelConfig], gain):
         self.mgr = mgr
+        asyncio.run(self._conectar(COM_port))
+
         self.channelConfig = channelConfig
         self.gain = multiplier_to_gain_mode(gain)
         self._init_channel_mappings() # inicializa indiceCanal y nombreCanal
@@ -107,9 +117,14 @@ class EEGRecorder:
         self.data = EEGData(self.info, lock=self.lock, zeros_at_start=0)
 
         asyncio.run(self._inicarGrabacion())
+        print(self.indiceCanales)
+        print(self.nombreCanales)
+
+    async def _detenerGrabacion(self):
+        return await self.mgr.stop_stream()
 
     def detenerGrabacion(self):
-        asyncio.run(self.mgr.stop_stream())
+        asyncio.run(self._detenerGrabacion())
 
     def anotar(self, anotacion:str):
         self.mgr.annotate(anotacion)
