@@ -138,7 +138,7 @@ def __main__():
     actual_channels_names = [ elem.upper() for elem in epochs.ch_names]
     epochs_data = epochs.get_data()
     transpolated_data = pad_missing_channels_diff(epochs_data, use_channels_names, actual_channels_names)
-
+    print ("Shape raw epochs:", raw.shape)
     """
     info = mne.create_info(
         ch_names=[validar_nombre_electrodo(elem) for elem in use_channels_names],

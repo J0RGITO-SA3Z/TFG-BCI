@@ -10,6 +10,8 @@ import os, sys, torch, numpy as np
 import mne
 import torch
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 from collections import deque
 from sklearn.preprocessing import LabelEncoder
 from scipy.spatial.distance import cdist
@@ -61,6 +63,13 @@ use_channels_names = [
                              #  'O1', 'OZ', 'O2',
         ]
 
+# Etiquetas del experimento → etiquetas del modelo
+LABEL_MAP = {
+    "IZQUIERDA" : "left_hand",
+    "DERECHA"   : "right_hand",
+    "ABAJO"     : "feet",
+}
+CLASS_NAMES = ["left_hand", "right_hand", "feet"]
 
 # Fucnion reutilizada de MIrepNet en la ruta MIrepNet/utils/utils.py
 def pad_missing_channels_diff(x, target_channels, actual_channels):
@@ -89,41 +98,27 @@ def pad_missing_channels_diff(x, target_channels, actual_channels):
     return padded
 
 # Función para convertir un archivo .fif a formato (B, C, T) con 45 canales
-def raw_to_epochs(archivo, tmin=0.0, tmax=4.0):
-    raw = mne.io.read_raw_fif(archivo, preload=True)
-
+def raw_to_epochs(raw, tmin=0.0, tmax=4.0):
     events, event_id = mne.events_from_annotations(raw)
-
-    event_id_filtrado = {k: v for k, v in event_id.items() if k in ["IZQUIERDA", "DERECHA", "ABAJO"]} # "IZQUIERDA", "DERECHA", "ABAJO", "DESCANSO"
-    
+    event_id_filtrado = {k: v for k, v in event_id.items() if k in LABEL_MAP}
     epochs = mne.Epochs(
         raw,
         events=mne.events_from_annotations(raw)[0],
         event_id=event_id_filtrado,
-        tmin=tmin,
-        tmax=tmax,
-        baseline=None,
-        preload=True
+        tmin=tmin, tmax=tmax,
+        baseline=None, preload=True
     )
-
     epochs = epochs.copy().pick("eeg")
 
-    # Códigos numéricos de cada epoch
     true_labels_numeric = epochs.events[:, 2]
+    inv_event_id        = {v: k for k, v in epochs.event_id.items()}
+    true_labels_text    = [inv_event_id[i] for i in true_labels_numeric]
 
-    # Mapa inverso: número → nombre
-    inv_event_id = {v: k for k, v in epochs.event_id.items()}
+    actual_channels_names = [elem.upper() for elem in epochs.ch_names]
+    epochs_data           = epochs.get_data()
+    transpolated_data     = pad_missing_channels_diff(epochs_data, use_channels_names, actual_channels_names)
 
-    true_labels_text = [inv_event_id[i] for i in true_labels_numeric]
-
-    for i, label in enumerate(true_labels_text):
-        print(f"Epoch {i}: {label}")
-
-    actual_channels_names = [ elem.upper() for elem in epochs.ch_names]
-    epochs_data = epochs.get_data()
-    transpolated_data = pad_missing_channels_diff(epochs_data, use_channels_names, actual_channels_names)
-
-    return transpolated_data   
+    return transpolated_data, true_labels_text
 
 # === Inicialización del Modelo ===
 def load_model(weight_path, device):
@@ -160,6 +155,113 @@ def load_model(weight_path, device):
     
     return model
 
+def preprocess_eeg_data(
+    raw,
+    # ── Filtros ──────────────────────────────────────────
+    bandpass        = (8.0, 30.0),   # (l_freq, h_freq) en Hz. None para desactivar
+    notch           = None,          # frecuencia notch en Hz (ej. 50.0). None para desactivar
+    # ── Resampleo ────────────────────────────────────────
+    resample_freq   = 250,           # Hz. None para desactivar
+    # ── Rereferencia ─────────────────────────────────────
+    apply_car       = True,          # Common Average Reference
+    # ── ICA ──────────────────────────────────────────────
+    apply_ica       = False,         # ICA para eliminar artefactos
+    ica_n_components= 15,            # número de componentes ICA
+    ica_method      = "fastica",     # "fastica" | "infomax" | "picard"
+    # ── Normalización ────────────────────────────────────
+    apply_ea        = False,         # Euclidean Alignment (usado en MIRepNet)
+):
+    """
+    Preprocesa un objeto mne.io.Raw aplicando los pasos indicados en orden.
+
+    Pasos (en orden de ejecución):
+        1. Bandpass filter
+        2. Notch filter
+        3. Resampleo
+        4. CAR (Common Average Reference)
+        5. ICA
+        6. Euclidean Alignment
+
+    Args:
+        raw             : mne.io.Raw — datos crudos de entrada (no se modifica el original)
+        bandpass        : tuple (l_freq, h_freq) o None
+        notch           : float o None
+        resample_freq   : int o None
+        apply_car       : bool
+        apply_ica       : bool
+        ica_n_components: int
+        ica_method      : str
+        apply_ea        : bool — normaliza la covarianza entre sujetos (útil para MIRepNet)
+
+    Returns:
+        np.ndarray de forma (n_canales, n_muestras) con los datos preprocesados
+    """
+
+    # Trabajamos sobre una copia para no modificar el original
+    raw = raw.copy()
+
+    # ── 1. Bandpass ──────────────────────────────────────────────────────────
+    if bandpass is not None:
+        l_freq, h_freq = bandpass
+        raw.filter(l_freq=l_freq, h_freq=h_freq, verbose=False)
+
+    # ── 2. Notch ─────────────────────────────────────────────────────────────
+    if notch is not None:
+        raw.notch_filter(freqs=notch, verbose=False)
+
+    # ── 3. Resampleo ─────────────────────────────────────────────────────────
+    if resample_freq is not None:
+        raw.resample(sfreq=resample_freq, verbose=False)
+
+    # ── 4. CAR ───────────────────────────────────────────────────────────────
+    if apply_car:
+        raw.set_eeg_reference("average", projection=False, verbose=False)
+
+    # ── 5. ICA ───────────────────────────────────────────────────────────────
+    if apply_ica:
+        ica = mne.preprocessing.ICA(
+            n_components=ica_n_components,
+            method=ica_method,
+            random_state=42,
+            verbose=False,
+        )
+        ica.fit(raw, verbose=False)
+        # Detección automática de artefactos oculares y musculares
+        eog_indices, _  = ica.find_bads_eog(raw, verbose=False)  if "eog" in [ch.lower() for ch in raw.ch_names] else ([], None)
+        muscle_indices, _ = ica.find_bads_muscle(raw, verbose=False)
+        ica.exclude = list(set(eog_indices + muscle_indices))
+        raw = ica.apply(raw, verbose=False)
+
+    # ── 6. Extraer datos en numpy ─────────────────────────────────────────────
+    data, times = raw[:]   # shape: (n_canales, n_muestras)
+
+    # ── 7. Euclidean Alignment ────────────────────────────────────────────────
+    if apply_ea:
+        data = _euclidean_alignment(data)
+    
+    # ── 8. Reconstruir Raw preservando annotations ────────────────────────────
+    info = raw.info
+    raw_preprocessed = mne.io.RawArray(data, info, verbose=False)
+    raw_preprocessed.set_annotations(raw.annotations)
+
+    return raw_preprocessed
+
+def _euclidean_alignment(data: np.ndarray) -> np.ndarray:
+    """
+    Euclidean Alignment (He & Wu, 2019).
+    Blanquea los datos para que su covarianza sea la identidad.
+
+    Args:
+        data: (n_canales, n_muestras)
+
+    Returns:
+        np.ndarray (n_canales, n_muestras) alineado
+    """
+    cov = np.cov(data)                          # (C, C)
+    eigvals, eigvecs = np.linalg.eigh(cov)
+    eigvals = np.maximum(eigvals, 1e-10)        # evitar división por cero
+    whitening = eigvecs @ np.diag(1.0 / np.sqrt(eigvals)) @ eigvecs.T
+    return whitening @ data
 
 def normalize_eeg_data(X, axis=1):
     """
@@ -228,41 +330,202 @@ def predict_batch(model, eeg_data, device, normalize=True):
     return predictions, probabilities, logits
 
 
-def main():
+##############################################################################
+#  FUNCIÓN DOWNSTREAM
+##############################################################################
+
+def downstream(archivo=None):
     """
-    Función principal para demostración.
+    Evalúa el modelo MIRepNet preentrenado sobre un archivo .fif.
+    Al finalizar muestra una gráfica con los resultados.
+
+    Args:
+        archivo: Ruta al .fif. Si es None, se pide por consola.
     """
-    # === CARGAR MODELO ===
+    # — Cargar modelo —
     model = load_model(WEIGHT_PATH, device)
-    
-    # === DECODIFICADOR DE ETIQUETAS ===
-    le = LabelEncoder().fit(["left_hand", "right_hand", "feet"])
-    class_names = le.classes_
-    
-    # === Evaluación de un archivo .fif ===
-    archivo = input("Introduce el nombre del archivo a evaluar: ")
-    Epochs_x45 = raw_to_epochs(archivo)
+    le    = LabelEncoder().fit(CLASS_NAMES)
 
-    # Realizar predicciones
-    predictions, probs, _ = predict_batch(model, Epochs_x45, device, normalize=True)
-    
-    batch_size = Epochs_x45.shape[0]
+    # — Cargar archivo —
+    if archivo is None:
+        archivo = input("Introduce la ruta del archivo .fif: ").strip()
+    raw = mne.io.read_raw_fif(archivo, preload=True)
 
-    # Mostrar resultados
-    print("\n" + "-"*60)
-    print("RESULTADOS DE PREDICCIONES:")
-    print("-"*60)
-    for i in range(batch_size):
-        pred_class = le.inverse_transform([predictions[i]])[0]
-        confidence = probs[i].max().item() * 100
-        print(f"\n Epoch {i}:")
-        print(f"   Predicción: {pred_class}")
-        print(f"   Confianza: {confidence:.2f}%")
-        print(f"   Probabilidades: ", end="")
-        for j, class_name in enumerate(class_names):
-            print(f"{class_name}={probs[i][j].item():.4f} ", end="")
-        print()
+    # — Preprocesar —
+    raw = preprocess_eeg_data(
+        raw,
+        bandpass=(8.0, 30.0),
+        notch=None,
+        resample_freq=None,
+        apply_car=False,
+        apply_ica=True,
+        apply_ea=True,
+    )
+
+    # — Epochs + etiquetas reales —
+    epochs_x45, true_labels_raw = raw_to_epochs(raw)
+    # Traducir etiquetas del experimento al formato del modelo
+    true_labels = [LABEL_MAP[l] for l in true_labels_raw]
+
+    # — Predicciones —
+    predictions, probs, _ = predict_batch(model, epochs_x45, device, normalize=True)
+    pred_labels = [le.inverse_transform([p])[0] for p in predictions]
+
+    # — Resumen en consola —
+    n        = len(true_labels)
+    correct  = [t == p for t, p in zip(true_labels, pred_labels)]
+    accuracy = sum(correct) / n * 100
+
+    print("\n" + "─" * 60)
+    print("RESULTADOS DOWNSTREAM")
+    print("─" * 60)
+    for i in range(n):
+        mark = "✅" if correct[i] else "❌"
+        conf = probs[i].max().item() * 100
+        print(f" {mark} Epoch {i:>2} | Real: {true_labels[i]:<12} | Pred: {pred_labels[i]:<12} | Conf: {conf:.1f}%")
+    print("─" * 60)
+    print(f" Accuracy total: {sum(correct)}/{n} = {accuracy:.1f}%")
+    print("─" * 60)
+
+    # — Gráfica —
+    plot_results(true_labels, pred_labels, probs, CLASS_NAMES)
+
     
+def fine_tune(archivo=None, epochs=10, lr=1e-3):
+    """
+    Fine-tunea el modelo MIRepNet con datos propios.
+
+    Args:
+        archivo : Ruta al .fif con los datos de entrenamiento.
+        epochs  : Número de épocas de fine-tuning.
+        lr      : Learning rate.
+    """
+    # TODO: implementar fine-tuning
+    pass
+
+
+
+##############################################################################
+#  GRÁFICA DE RESULTADOS
+##############################################################################
+
+def plot_results(true_labels, pred_labels, probs, class_names):
+    """
+    Genera tres gráficas en una sola ventana:
+      1. Comparación epoch a epoch (real vs predicho)
+      2. Matriz de confusión simple
+      3. Accuracy global con indicador visual
+    
+    Args:
+        true_labels : list[str] — etiquetas reales (en formato modelo, ej. "left_hand")
+        pred_labels : list[str] — etiquetas predichas
+        probs       : Tensor [B, n_classes] — probabilidades del modelo
+        class_names : list[str]
+    """
+    n        = len(true_labels)
+    correct  = [t == p for t, p in zip(true_labels, pred_labels)]
+    accuracy = sum(correct) / n * 100
+
+    colors_map = {
+        "left_hand"  : "#4C72B0",
+        "right_hand" : "#DD8452",
+        "feet"       : "#55A868",
+    }
+    bar_colors = [colors_map.get(c, "#999999") for c in class_names]
+
+    fig = plt.figure(figsize=(16, 10))
+    fig.suptitle("Resultados MIRepNet — Downstream Evaluation", fontsize=15, fontweight="bold")
+
+    # ── Subplot 1: epoch a epoch ─────────────────────────────────────────────
+    ax1 = fig.add_subplot(2, 2, (1, 2))   # ocupa las dos columnas superiores
+
+    x = np.arange(n)
+    width = 0.35
+
+    # Convertir etiquetas a índices para el eje Y
+    label_to_idx = {c: i for i, c in enumerate(class_names)}
+    true_idx = [label_to_idx[l] for l in true_labels]
+    pred_idx = [label_to_idx[l] for l in pred_labels]
+
+    # Un círculo por epoch: verde si acertó, rojo si falló
+    # Si falla, se anota debajo qué predijo el modelo
+    for i in range(n):
+        color = "#2ecc71" if correct[i] else "#e74c3c"
+        ax1.scatter(i, true_idx[i], marker="o", s=120, color=color, zorder=3, edgecolors="white", linewidths=0.8)
+        if not correct[i]:
+            ax1.annotate(
+                pred_labels[i],
+                xy=(i, true_idx[i]),
+                xytext=(0, -22),
+                textcoords="offset points",
+                ha="center", fontsize=7, color="#e74c3c",
+                arrowprops=dict(arrowstyle="-", color="#e74c3c", lw=0.8)
+            )
+
+    ax1.set_yticks(range(len(class_names)))
+    ax1.set_yticklabels(class_names)
+    ax1.set_xlabel("Epoch")
+    ax1.set_title("Predicción por epoch  (verde=acierto, rojo=fallo — texto indica predicción errónea)")
+    ax1.grid(axis="x", alpha=0.3)
+    ax1.set_xticks(x)
+
+    legend_items = [
+        mpatches.Patch(color="#2ecc71", label="Acierto"),
+        mpatches.Patch(color="#e74c3c", label="Fallo"),
+    ]
+    ax1.legend(handles=legend_items, loc="upper right")
+
+    # ── Subplot 2: matriz de confusión ───────────────────────────────────────
+    ax2 = fig.add_subplot(2, 2, 3)
+
+    nc = len(class_names)
+    conf_matrix = np.zeros((nc, nc), dtype=int)
+    for t, p in zip(true_labels, pred_labels):
+        conf_matrix[label_to_idx[t], label_to_idx[p]] += 1
+
+    im = ax2.imshow(conf_matrix, cmap="Blues")
+    ax2.set_xticks(range(nc)); ax2.set_xticklabels(class_names, rotation=25, ha="right", fontsize=9)
+    ax2.set_yticks(range(nc)); ax2.set_yticklabels(class_names, fontsize=9)
+    ax2.set_xlabel("Predicción"); ax2.set_ylabel("Real")
+    ax2.set_title("Matriz de confusión")
+
+    for i in range(nc):
+        for j in range(nc):
+            ax2.text(j, i, str(conf_matrix[i, j]),
+                     ha="center", va="center",
+                     color="white" if conf_matrix[i, j] > conf_matrix.max() / 2 else "black",
+                     fontsize=11, fontweight="bold")
+
+    # ── Subplot 3: accuracy global ───────────────────────────────────────────
+    ax3 = fig.add_subplot(2, 2, 4)
+
+    # Accuracy por clase
+    acc_per_class = []
+    for c in class_names:
+        indices = [i for i, t in enumerate(true_labels) if t == c]
+        if indices:
+            acc_c = sum(correct[i] for i in indices) / len(indices) * 100
+        else:
+            acc_c = 0.0
+        acc_per_class.append(acc_c)
+
+    bars = ax3.bar(class_names, acc_per_class, color=bar_colors, edgecolor="white", linewidth=1.2)
+    ax3.axhline(accuracy, color="black", linestyle="--", linewidth=1.5, label=f"Total: {accuracy:.1f}%")
+    ax3.set_ylim(0, 110)
+    ax3.set_ylabel("Accuracy (%)")
+    ax3.set_title("Accuracy por clase")
+    ax3.legend(fontsize=10)
+
+    for bar, val in zip(bars, acc_per_class):
+        ax3.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 2,
+                 f"{val:.1f}%", ha="center", va="bottom", fontsize=10, fontweight="bold")
+
+    plt.tight_layout()
+    plt.show()
+
+
+def main():
+    downstream()
 
 
 if __name__ == "__main__":
