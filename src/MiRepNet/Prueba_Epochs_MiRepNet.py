@@ -94,7 +94,7 @@ def raw_to_epochs(archivo, tmin=0.0, tmax=4.0):
 
     events, event_id = mne.events_from_annotations(raw)
 
-    event_id_filtrado = {k: v for k, v in event_id.items() if k in ["IZQUIERDA", "DERECHA", "ABAJO", "DESCANSO"]}
+    event_id_filtrado = {k: v for k, v in event_id.items() if k in ["IZQUIERDA", "DERECHA", "ABAJO"]} # "IZQUIERDA", "DERECHA", "ABAJO", "DESCANSO"
     
     epochs = mne.Epochs(
         raw,

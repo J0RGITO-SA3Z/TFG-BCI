@@ -2,8 +2,8 @@ import os, sys, torch, numpy as np
 from moabb.datasets import PhysionetMI
 from moabb.paradigms import MotorImagery
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-MIREPNET_DIR = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+MIREPNET_DIR = os.path.join(PROJECT_ROOT, "pretrainedModels", "MiRepNet")
 WEIGHT_PATH = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
 sys.path.append(PROJECT_ROOT)
 
@@ -65,9 +65,8 @@ model.to(device)  # <- importante
 print("✅ Modelo MIRepNet inicializado en", device)
 
 # === 3.1️⃣ Cargar pesos preentrenados ===
-weight_path = r"C:\Users\JORGE\Documents\GitHub\TFG-BCI\Modelos\MIRepNet\weight\MIRepNet.pth"
 try:
-    checkpoint = torch.load(weight_path, map_location=device)
+    checkpoint = torch.load(WEIGHT_PATH, map_location=device)
     model.load_state_dict(checkpoint, strict=False)
     print("✅ Pesos preentrenados cargados.")
 except Exception as e:
