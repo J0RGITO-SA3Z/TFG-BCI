@@ -390,24 +390,171 @@ def downstream(archivo=None):
     # — Gráfica —
     plot_results(true_labels, pred_labels, probs, CLASS_NAMES)
 
-    
-def fine_tune(archivo=None, epochs=10, lr=1e-3):
+
+##############################################################################
+#  FUNCIÓN FINE-TUNE
+##############################################################################  
+def fine_tune(archivo_train=None, archivo_val=None, epochs=10, lr=1e-3, save_path=None):
     """
-    Fine-tunea el modelo MIRepNet con datos propios.
+    Fine-tunea el modelo MIRepNet con datos propios y grafica la evolución
+    de loss y accuracy en cada epoch para detectar overfitting.
 
     Args:
-        archivo : Ruta al .fif con los datos de entrenamiento.
-        epochs  : Número de épocas de fine-tuning.
-        lr      : Learning rate.
+        archivo_train : Ruta al .fif con los datos de entrenamiento.
+        archivo_val   : Ruta al .fif con los datos de validación.
+        epochs        : Número de épocas de fine-tuning.
+        lr            : Learning rate.
+        save_path     : Ruta donde guardar los pesos resultantes (.pth).
+                        Si es None se pide por consola al final.
     """
-    # TODO: implementar fine-tuning
-    pass
+    le = LabelEncoder().fit(CLASS_NAMES)
 
+    # — Cargar modelo —
+    model = load_model(WEIGHT_PATH, device)
 
+    # — Cargar archivos —
+    if archivo_train is None:
+        archivo_train = input("Introduce la ruta del .fif de ENTRENAMIENTO: ").strip()
+    if archivo_val is None:
+        archivo_val = input("Introduce la ruta del .fif de VALIDACIÓN: ").strip()
+
+    raw_t = mne.io.read_raw_fif(archivo_train, preload=True)
+    raw_v = mne.io.read_raw_fif(archivo_val,   preload=True)
+
+    # — Preprocesar (misma config para train y val) —
+    preprocess_cfg = dict(
+        bandpass=(8.0, 30.0),
+        notch=None,
+        resample_freq=250,      # MIRepNet espera 250 Hz
+        apply_car=True,
+        apply_ica=False,
+        apply_ea=True,
+    )
+    raw_t = preprocess_eeg_data(raw_t, **preprocess_cfg)
+    raw_v = preprocess_eeg_data(raw_v, **preprocess_cfg)
+
+    # — Epochs + etiquetas —
+    X_train, labels_train_raw = raw_to_epochs(raw_t)
+    X_val,   labels_val_raw   = raw_to_epochs(raw_v)
+
+    # Traducir etiquetas experimento -> formato modelo -> índice numérico
+    labels_train = [LABEL_MAP[l] for l in labels_train_raw]
+    labels_val   = [LABEL_MAP[l] for l in labels_val_raw]
+
+    y_train = torch.tensor(le.transform(labels_train), dtype=torch.long, device=device)
+    y_val   = torch.tensor(le.transform(labels_val),   dtype=torch.long, device=device)
+
+    # Normalizar y convertir a tensor
+    X_train = torch.tensor(normalize_eeg_data(X_train), dtype=torch.float32, device=device)
+    X_val   = torch.tensor(normalize_eeg_data(X_val),   dtype=torch.float32, device=device)
+
+    # — Optimizador y loss —
+    loss_fn = torch.nn.CrossEntropyLoss()
+    opt     = torch.optim.Adam(model.parameters(), lr=lr) # Ajusta pesos de todas las capas (puede ser problemático)
+
+    # — Historial para la gráfica —
+    history = {
+        "train_loss": [], "train_acc": [],
+        "val_loss":   [], "val_acc":   [],
+    }
+
+    print(f"\nIniciando fine-tuning: {len(labels_train)} trials train | {len(labels_val)} trials val")
+    print("─" * 65)
+
+    for epoch in range(epochs):
+
+        # ── ENTRENAMIENTO ─────────────────────────────────────────────
+        model.train()
+        opt.zero_grad()
+        _, out = model(X_train)
+        loss = loss_fn(out, y_train)
+        loss.backward()
+        opt.step()
+
+        pred_train = out.argmax(dim=1)
+        acc_train  = (pred_train == y_train).float().mean().item()
+
+        # ── VALIDACIÓN (sin gradientes — no queremos actualizar pesos) ─────
+        model.eval()
+        with torch.no_grad():
+            _, out_val = model(X_val)
+            loss_val   = loss_fn(out_val, y_val)
+            pred_val   = out_val.argmax(dim=1)
+            acc_val    = (pred_val == y_val).float().mean().item()
+
+        # — Guardar historial —
+        history["train_loss"].append(loss.item())
+        history["train_acc"].append(acc_train * 100)
+        history["val_loss"].append(loss_val.item())
+        history["val_acc"].append(acc_val * 100)
+
+        print(f" Epoch {epoch+1:>3}/{epochs} | "
+              f"Train → loss: {loss.item():.4f}  acc: {acc_train*100:.1f}% | "
+              f"Val   → loss: {loss_val.item():.4f}  acc: {acc_val*100:.1f}%")
+
+    print("─" * 65)
+    print(f"Fine-tuning completado. Mejor val acc: {max(history['val_acc']):.1f}%")
+
+    # — Guardar pesos —
+    if save_path is None:
+        save_path = input("\nRuta para guardar pesos fine-tuneados (Enter para no guardar): ").strip()
+    if save_path:
+        torch.save(model.state_dict(), save_path)
+        print(f"Pesos guardados en {save_path}")
+    
+    # — Gráfica de entrenamiento —
+    plot_training(history, epochs) 
+
+    return model
 
 ##############################################################################
-#  GRÁFICA DE RESULTADOS
+#  FUNCIONES PARA GRÁFICAR DE RESULTADOS
 ##############################################################################
+
+def plot_training(history, epochs):
+    """
+    Grafica la evolución de loss y accuracy (train vs val) por epoch.
+    La divergencia entre train y val indica overfitting.
+    """
+    x = np.arange(1, epochs + 1)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
+    fig.suptitle("Evolución del Fine-Tuning", fontsize=14, fontweight="bold")
+
+    # ── Loss ─────────────────────────────────────────────────────────────────
+    ax1.plot(x, history["train_loss"], color="#4C72B0", marker="o", markersize=4, label="Train")
+    ax1.plot(x, history["val_loss"],   color="#DD8452", marker="o", markersize=4, label="Validación")
+    ax1.set_xlabel("Epoch"); ax1.set_ylabel("Loss")
+    ax1.set_title("Loss por epoch")
+    ax1.legend(); ax1.grid(alpha=0.3); ax1.set_xticks(x)
+
+    # Línea en el epoch con menor val loss
+    best_loss_epoch = int(np.argmin(history["val_loss"]))
+    ax1.axvline(x[best_loss_epoch], color="gray", linestyle="--", linewidth=1,
+                label=f"Mejor val (epoch {x[best_loss_epoch]})")
+    ax1.legend()
+
+    # ── Accuracy ─────────────────────────────────────────────────────────────
+    ax2.plot(x, history["train_acc"], color="#4C72B0", marker="o", markersize=4, label="Train")
+    ax2.plot(x, history["val_acc"],   color="#DD8452", marker="o", markersize=4, label="Validación")
+    ax2.set_xlabel("Epoch"); ax2.set_ylabel("Accuracy (%)")
+    ax2.set_title("Accuracy por epoch")
+    ax2.set_ylim(0, 105); ax2.legend(); ax2.grid(alpha=0.3); ax2.set_xticks(x)
+
+    # Línea y anotación en el epoch con mayor val acc
+    best_acc_epoch = int(np.argmax(history["val_acc"]))
+    ax2.axvline(x[best_acc_epoch], color="gray", linestyle="--", linewidth=1,
+                label=f"Mejor val (epoch {x[best_acc_epoch]})")
+    ax2.annotate(
+        f"{history['val_acc'][best_acc_epoch]:.1f}%",
+        xy=(x[best_acc_epoch], history["val_acc"][best_acc_epoch]),
+        xytext=(8, -15), textcoords="offset points",
+        fontsize=9, color="#DD8452", fontweight="bold"
+    )
+    ax2.legend()
+
+    plt.tight_layout()
+    plt.show()
 
 def plot_results(true_labels, pred_labels, probs, class_names):
     """
@@ -525,7 +672,8 @@ def plot_results(true_labels, pred_labels, probs, class_names):
 
 
 def main():
-    downstream()
+    fine_tune()
+    #downstream()
 
 
 if __name__ == "__main__":
