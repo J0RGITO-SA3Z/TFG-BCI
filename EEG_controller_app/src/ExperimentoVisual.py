@@ -6,6 +6,8 @@ from brainaccess.utils.acquisition import EEG
 from brainaccess.core.eeg_manager import EEGManager
 import brainaccess.core.eeg_channel as eeg_channel
 
+from EEGRecorder import EEGRecorder
+from eeg_live_server import EEGLiveServer
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
@@ -19,7 +21,6 @@ from utils import RECORD_DIR
 from ventanaExperimentoVisual import ventanaExperimentoVisual
 
 import winsound
-
 
 class ExperimentoVisual:
 
@@ -59,10 +60,6 @@ class ExperimentoVisual:
         Graba EEG desde BrainAccess MIDI y devuelve un RawArray de MNE.
         La duración se pide por consola.
         """
-
-        bias = [ch.index for ch in channelsConfig if ch.is_bias]
-        electrodes = {ch.index: ch.electrode for ch in channelsConfig if ch.enabled}
-
         self.console.clear()
         self.console.print("En el modo experimento visual, las acciones anotadas siempre son hizquierda, derecha, abajo, descanso. Si quieres anotaciones personalizadas, usa el modo de grabación manual.")
         self.console.input("Pulse Enter para continuar...")
@@ -74,15 +71,9 @@ class ExperimentoVisual:
             return
 
         raw = None
-        eeg = EEG()
+        eeg = EEGRecorder()
         with EEGManager() as mgr:
-            eeg.setup(
-                mgr=mgr,
-                port=puerto_COM,
-                cap=electrodes,
-                gain=8,
-                bias=bias
-            )
+            eeg.configAndConect(mgr=mgr, COM_port=puerto_COM, channelConfig=channelsConfig, gain=8)
 
             self.console.print("[green]EEG configurado correctamente[/green]\n")
 
@@ -95,43 +86,53 @@ class ExperimentoVisual:
             entrada += ".fif"
             fileOutput = RECORD_DIR / entrada
 
+            live_server = EEGLiveServer(
+                ch_names=eeg.get_ch_names_ordered(),
+                sfreq=eeg.get_sfreq(),
+                ch_types=eeg.get_ch_types_ordered(),
+                total_epochs= self.numTrials,
+                initial_action="Empezando"
+            )
+            live_server.start()
+            eeg.register_callback(live_server.newChunk)
+
             ventana = ventanaExperimentoVisual()
             ventana.open()
 
-            eeg.start_acquisition()
+            eeg.iniciarGrabacion()
 
-            self.console.print("Baseline")
             ventana.draw_text("Baseline")
+            live_server.setAction("Baseline")
             time.sleep(self.tmpBaselineInicial)
-            self.console.print("Concéntrate")
             ventana.draw_text("Concéntrate")
+            live_server.setAction("Concéntrate")
 
             time.sleep(9.5)
             winsound.Beep(1000, 500)
 
-            self.console.print("YA")
-
             for trial in trials:
+                live_server.setAction(trial)
                 ventana.draw_text("+")
-                eeg.annotate("CROSS")
+                eeg.anotar("CROSS")
                 time.sleep(self.tmpBaselineEpoch-0.5)
                 winsound.Beep(1000, 500)
 
                 ventana.draw_text(self.__trialToText(trial))
-                eeg.annotate(trial)
+                eeg.anotar(trial)
 
                 time.sleep(self.tmpIM)
                 ventana.draw_text("")
-                eeg.annotate("BLANK")
+                eeg.anotar("BLANK")
 
                 time.sleep(self.tmpBreack)
                 
             raw = eeg.get_mne()
-            eeg.stop_acquisition()
+            eeg.detenerGrabacion()
             mgr.disconnect()
+            live_server.stop()
             ventana.close()
 
-        eeg.close()
+        eeg.cerrarLibreria()
 
         raw.save(fileOutput, overwrite=True)
         self.console.clear()

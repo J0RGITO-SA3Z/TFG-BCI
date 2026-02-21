@@ -3,6 +3,7 @@ import mne
 import numpy as np
 from scipy.spatial.distance import cdist
 import matplotlib.pyplot as plt
+import matplotlib
 
 # codigo reutilizada de MIrepNet en la ruta MIrepNet/utils/channel_positions.py
 channel_positions = {
@@ -117,7 +118,16 @@ def __main__():
     archivo = input("Introduce el nombre del archivo a evaluar: ")
     raw = mne.io.read_raw_fif(archivo, preload=True)
 
-    raw.plot(scalings='auto', verbose=False)
+    raw.filter(8,30)
+
+    data = raw.get_data()
+    for i in range(data.shape[0]):
+        plt.figure()
+        plt.plot(data[i])
+        plt.title(f"Canal {raw.ch_names[i]}")
+        plt.xlabel("Tiempo (muestras)")
+        plt.ylabel("Amplitud")
+        plt.show()
 
     events, event_id = mne.events_from_annotations(raw)
 
@@ -134,11 +144,12 @@ def __main__():
     )
     
     epochs = epochs.copy().pick("eeg")
+    raw.filter(1,40).plot(scalings='auto', verbose=False)
 
     actual_channels_names = [ elem.upper() for elem in epochs.ch_names]
     epochs_data = epochs.get_data()
     transpolated_data = pad_missing_channels_diff(epochs_data, use_channels_names, actual_channels_names)
-    print ("Shape raw epochs:", raw.shape)
+    input("Presiona Enter para mostrar los epochs transpolados...")
     """
     info = mne.create_info(
         ch_names=[validar_nombre_electrodo(elem) for elem in use_channels_names],
