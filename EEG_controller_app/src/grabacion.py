@@ -13,6 +13,7 @@ from rich.text import Text
 from rich.columns import Columns
 from utils import seleccionarPuertoCOM
 from utils import RECORD_DIR
+import matplotlib
 
 def build_recording_panel(acciones):
     header = Columns()
@@ -53,6 +54,8 @@ def startRecording(channelsConfig, acciones, console):
     La duración se pide por consola.
     """
 
+    matplotlib.use("TKAgg", force=True)
+
     bias = [ch.index for ch in channelsConfig if ch.is_bias]
     electrodes = {ch.index: ch.electrode for ch in channelsConfig if ch.enabled}
     puerto_COM = seleccionarPuertoCOM(console)
@@ -60,6 +63,7 @@ def startRecording(channelsConfig, acciones, console):
     if puerto_COM is None:
         return
 
+    raw = None
     eeg = EEG(mode="accumulate") 
 
     with EEGManager() as mgr:
@@ -104,12 +108,11 @@ def startRecording(channelsConfig, acciones, console):
             if entrada > 1 and entrada <= len(acciones)+1:
                 eeg.annotate(acciones[entrada-2])
             
+        raw = eeg.get_mne()
         eeg.stop_acquisition()
         mgr.disconnect()
 
-    raw = eeg.get_mne()
     raw.save(fileOutput, overwrite=True)
-
     console.print(f"\nEEG grabado y guardado en [green]{fileOutput}[/green]")
     eeg.data.mne_raw.plot(scalings='auto', verbose=False)
     console.input("[dim]Pulse Enter para continuar...[/dim]")

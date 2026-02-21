@@ -74,7 +74,6 @@ class ExperimentoVisual:
             return
 
         raw = None
-
         eeg = EEG()
         with EEGManager() as mgr:
             eeg.setup(
@@ -95,8 +94,6 @@ class ExperimentoVisual:
             entrada = self.console.input("Introduce el nombre del archivo de salida (sin extensión): ")
             entrada += ".fif"
             fileOutput = RECORD_DIR / entrada
-
-            self.console.print(f"[bold]Grabando EEG hasta que se detenga la grabación...[/bold]")
 
             ventana = ventanaExperimentoVisual()
             ventana.open()
