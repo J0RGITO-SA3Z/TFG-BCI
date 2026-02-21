@@ -111,7 +111,7 @@ def startRecording(channelsConfig, acciones, console):
     raw.save(fileOutput, overwrite=True)
 
     console.print(f"\nEEG grabado y guardado en [green]{fileOutput}[/green]")
-    eeg.data.mne_raw.filter(1, 40).plot(scalings='auto', verbose=False)
+    eeg.data.mne_raw.plot(scalings='auto', verbose=False)
     console.input("[dim]Pulse Enter para continuar...[/dim]")
     
     eeg.close()

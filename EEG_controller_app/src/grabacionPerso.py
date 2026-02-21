@@ -2,6 +2,7 @@ import time
 import mne
 
 from EEGRecorder import EEGRecorder
+from eeg_live_server import EEGLiveServer
 from brainaccess.core.eeg_manager import EEGManager
 import brainaccess.core.eeg_channel as eeg_channel
 
@@ -52,9 +53,6 @@ def startRecording(channelsConfig, acciones, console):
     Graba EEG desde BrainAccess MIDI y devuelve un RawArray de MNE.
     La duración se pide por consola.
     """
-
-    bias = [ch.index for ch in channelsConfig if ch.is_bias]
-    electrodes = {ch.index: ch.electrode for ch in channelsConfig if ch.enabled}
     puerto_COM = seleccionarPuertoCOM(console)
 
     if puerto_COM is None:
@@ -69,8 +67,18 @@ def startRecording(channelsConfig, acciones, console):
         fileOutput = RECORD_DIR / fileOutput
 
         console.print(f"[bold]Grabando EEG hasta que se detenga la grabación...[/bold]")
+        eeg.configAndConect(mgr=mgr, COM_port=puerto_COM, channelConfig=channelsConfig, gain=8)
+        info = eeg.get_info()
 
-        eeg.iniciarGrabacion(mgr=mgr, COM_port=puerto_COM, channelConfig=channelsConfig, gain=8)
+        live_server = EEGLiveServer(
+            ch_names=eeg.get_ch_names_ordered(),
+            sfreq=eeg.get_sfreq(),
+            ch_types=eeg.get_ch_types_ordered(),
+        )
+        live_server.start()
+        eeg.register_callback(live_server.newChunk)
+
+        eeg.iniciarGrabacion()
         entrada = -2
         
         while entrada != 1:
@@ -90,18 +98,19 @@ def startRecording(channelsConfig, acciones, console):
                 except ValueError:
                     entrada = -2
                 
-                
             if entrada > 1 and entrada <= len(acciones)+1:
                 eeg.anotar(acciones[entrada-2])
-        
-        raw = eeg.get_mne()
+
         eeg.detenerGrabacion()
+        raw = eeg.get_mne()
+        live_server.stop()
         eeg.desconectar()
+        live_server.stop()
 
     raw.save(fileOutput, overwrite=True)
 
     console.print(f"\nEEG grabado y guardado en [green]{fileOutput}[/green]")
-    eeg.data.mne_raw.filter(1, 40).plot(scalings='auto', verbose=False)
+    eeg.data.mne_raw.plot(scalings='auto', verbose=False)
     console.input("[dim]Pulse Enter para continuar...[/dim]")
     
     eeg.cerrarLibreria()

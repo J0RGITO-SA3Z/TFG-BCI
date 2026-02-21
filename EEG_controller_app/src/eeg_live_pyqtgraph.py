@@ -7,6 +7,8 @@ Visualización de canales EEG en tiempo real con PyQtGraph.
 """
 
 import sys
+import json
+import socket
 import threading
 import numpy as np
 import mne
@@ -215,6 +217,7 @@ class EEGWindow(QtWidgets.QMainWindow):
             }
             """
         )
+
         progress_inner = QtWidgets.QHBoxLayout(progress_frame)
         progress_inner.setContentsMargins(10, 6, 10, 6)
 
@@ -256,7 +259,7 @@ class EEGWindow(QtWidgets.QMainWindow):
         self._total_epochs = 0
         self._current_epoch = 0
         self.set_total_epochs(40)
-        self.set_current_epoch(17)  # demo
+        self.set_current_epoch(17)  #demo
 
         # -- Panel 2: Acción en curso + cronómetro -------------------- #
         action_frame = QtWidgets.QFrame()
@@ -273,11 +276,11 @@ class EEGWindow(QtWidgets.QMainWindow):
         action_inner = QtWidgets.QHBoxLayout(action_frame)
         action_inner.setContentsMargins(10, 6, 10, 6)
 
-        self._action_label = QtWidgets.QLabel("Reposo")
+        self._action_label = QtWidgets.QLabel("Reposo:")
         self._action_label.setStyleSheet(
             "color: #00bfff; font-size: 13px; font-weight: bold;"
         )
-        self._action_label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self._action_label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         action_inner.addWidget(self._action_label, stretch=1)
 
         self._action_timer_label = QtWidgets.QLabel("00:00")
@@ -288,12 +291,16 @@ class EEGWindow(QtWidgets.QMainWindow):
         self._action_timer_label.setAlignment(QtCore.Qt.AlignCenter)
         action_inner.addWidget(self._action_timer_label)
 
-        bottom_row.addWidget(action_frame, stretch=1)
+        action_frame.setSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred
+        )
+        bottom_row.addWidget(action_frame, stretch=0)
 
         layout.addLayout(bottom_row)
 
         # Cronómetro interno para la acción
         self._action_elapsed = QtCore.QElapsedTimer()
+        self._action_elapsed.start()          # arranca ya para que isValid() sea True
         self._action_clock = QtCore.QTimer()
         self._action_clock.timeout.connect(self._tick_action_timer)
         self._action_clock.start(200)
@@ -343,26 +350,28 @@ class EEGWindow(QtWidgets.QMainWindow):
             self._action_timer_label.setText(f"{mins:02d}:{secs:02d}")
 
     # ------------------------------------------------------------------ #
-    def start(self, data_callback=None):
+    # Recepción de epoch desde TCP
+    # ------------------------------------------------------------------ #
+    def _on_epoch_received(self, current: int, total: int):
+        """Slot para actualizar progreso desde el hilo TCP."""
+        self.set_total_epochs(total)
+        self.set_current_epoch(current)
+
+    # ------------------------------------------------------------------ #
+    def start(self, demo: bool = True):
         """
         Inicia el refresco del gráfico.
 
         Parameters
         ----------
-        data_callback : callable or None
-            Si es None se generan datos aleatorios de prueba internamente.
-            Si se proporciona, debe ser una función sin argumentos que
-            devuelva ``(n_channels, n_samples)``.
-            En uso real con BrainAccess no hace falta callback: la propia
-            adquisición llama a ``plot_widget.push_chunk`` directamente.
+        demo : bool
+            Si True genera datos aleatorios de prueba internamente.
+            Si False solo inicia el refresco visual (los datos llegan
+            por TCP u otra vía externa).
         """
         self._refresh_timer.start(self.update_ms)
 
-        if data_callback is not None:
-            self._data_callback = data_callback
-            self._data_timer.start(self.update_ms)
-        elif data_callback is None:
-            # Modo demo: generar datos aleatorios
+        if demo:
             self._data_timer.start(self.update_ms)
 
     def _inject_random(self):
@@ -376,30 +385,250 @@ class EEGWindow(QtWidgets.QMainWindow):
 
 
 # ---------------------------------------------------------------------- #
-# Ejecución standalone (demo con datos aleatorios)
+# Diálogo de conexión
 # ---------------------------------------------------------------------- #
-def main():
-    channel_names = [
-        "Fp1", "Fp2", "F3", "Fz", "F4",
-        "C3", "Cz", "C4", "P3", "Pz",
-        "P4", "O1", "O2", "T7", "T8",
-    ]
-    sfreq = 250.0
+class ConnectionDialog(QtWidgets.QDialog):
+    """Pide IP, puerto y permite elegir modo demo (sin conexión)."""
 
-    # Crear mne.Info como lo hace BrainAccess
-    info = mne.create_info(ch_names=channel_names, sfreq=sfreq, ch_types="eeg")
-    info.set_montage("standard_1005")
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Conectar al servidor EEG")
+        self.setMinimumWidth(340)
+        self.setStyleSheet(
+            """
+            QDialog   { background-color: #1e1e2e; color: #ccc; }
+            QLabel    { color: #ccc; font-size: 13px; }
+            QLineEdit, QSpinBox {
+                background-color: #111; color: #eee;
+                border: 1px solid #444; border-radius: 4px;
+                padding: 4px;
+            }
+            QCheckBox { color: #ccc; font-size: 13px; }
+            QPushButton {
+                background-color: #1e90ff; color: white;
+                border: none; border-radius: 4px; padding: 6px 18px;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: #00bfff; }
+            """
+        )
 
+        layout = QtWidgets.QFormLayout(self)
+
+        self.host_edit = QtWidgets.QLineEdit("127.0.0.1")
+        self.port_edit = QtWidgets.QSpinBox()
+        self.port_edit.setRange(1, 65535)
+        self.port_edit.setValue(12345)
+
+        self.demo_check = QtWidgets.QCheckBox("Modo demo (datos aleatorios, sin conexión)")
+
+        layout.addRow("IP:", self.host_edit)
+        layout.addRow("Puerto:", self.port_edit)
+        layout.addRow(self.demo_check)
+
+        buttons = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
+        )
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addRow(buttons)
+
+        # Deshabilitar campos de red cuando demo está marcado
+        self.demo_check.toggled.connect(lambda on: (
+            self.host_edit.setEnabled(not on),
+            self.port_edit.setEnabled(not on),
+        ))
+
+    def get_connection(self):
+        """Devuelve (host, port, demo)."""
+        return self.host_edit.text().strip(), self.port_edit.value(), self.demo_check.isChecked()
+
+
+# ---------------------------------------------------------------------- #
+# Hilo receptor TCP
+# ---------------------------------------------------------------------- #
+class TCPReceiverThread(QtCore.QThread):
+    """
+    Hilo que lee mensajes JSON delimitados por ``\\n`` desde un socket ya
+    conectado y emite señales Qt para cada tipo de mensaje.
+
+    Protocolo (JSON-lines):
+    -----------------------
+    Cada línea es un objeto JSON con un campo ``"type"``.
+
+    ``init``  (primer mensaje obligatorio — se lee antes de crear este hilo)
+        ``{"type":"init", "ch_names":["Fp1","Fp2",...], "sfreq":250,
+          "total_epochs":40, "action":"Reposo:"}``
+
+    ``action``
+        ``{"type":"action", "text":"Mano izquierda:"}``
+
+    ``epoch``
+        ``{"type":"epoch", "current":3, "total":40}``
+
+    ``data``
+        ``{"type":"data", "samples":[[ch0_s0,ch0_s1,...],[ch1_s0,...],...]}``
+        ``samples`` tiene forma (n_channels, n_samples).
+    """
+
+    action_received = QtCore.pyqtSignal(str)
+    epoch_received = QtCore.pyqtSignal(int, int)
+    data_received = QtCore.pyqtSignal(np.ndarray)
+    disconnected = QtCore.pyqtSignal()
+
+    def __init__(self, sock: socket.socket, initial_buffer: str = "", parent=None):
+        super().__init__(parent)
+        self._sock = sock
+        self._buffer = initial_buffer
+        self._running = True
+
+    # ------------------------------------------------------------------ #
+    def run(self):
+        self._sock.settimeout(1.0)
+
+        while self._running:
+            # Procesar mensajes completos que ya estén en el buffer
+            while "\n" in self._buffer:
+                line, self._buffer = self._buffer.split("\n", 1)
+                line = line.strip()
+                if line:
+                    try:
+                        self._dispatch(json.loads(line))
+                    except json.JSONDecodeError:
+                        pass
+
+            # Leer más datos del socket
+            try:
+                raw = self._sock.recv(8192)
+                if not raw:
+                    break
+                self._buffer += raw.decode("utf-8")
+            except socket.timeout:
+                continue
+            except Exception:
+                break
+
+        try:
+            self._sock.close()
+        except Exception:
+            pass
+        self.disconnected.emit()
+
+    # ------------------------------------------------------------------ #
+    def _dispatch(self, msg: dict):
+        t = msg.get("type", "")
+        if t == "action":
+            self.action_received.emit(msg.get("text", ""))
+        elif t == "epoch":
+            self.epoch_received.emit(
+                int(msg.get("current", 0)),
+                int(msg.get("total", 0)),
+            )
+        elif t == "data":
+            samples = np.asarray(msg["samples"], dtype=np.float64)
+            if samples.ndim == 2:
+                self.data_received.emit(samples)
+
+    # ------------------------------------------------------------------ #
+    def stop(self):
+        self._running = False
+        self.wait(3000)
+
+
+# ---------------------------------------------------------------------- #
+# Ejecución standalone / cliente TCP
+# ---------------------------------------------------------------------- #
+def ejecutar_cliente_visualizacion():
     app = QtWidgets.QApplication(sys.argv)
-    win = EEGWindow(
-        info=info,
-        buffer_seconds=6.0,
-        update_ms=10,
-    )
-    win.start()  # sin callback → datos aleatorios de prueba
-    win.show()
-    sys.exit(app.exec_())
+
+    # -- Diálogo de conexión ------------------------------------------ #
+    dialog = ConnectionDialog()
+    if dialog.exec_() != QtWidgets.QDialog.Accepted:
+        sys.exit(0)
+
+    host, port, demo = dialog.get_connection()
+
+    # ================================================================== #
+    #  Modo DEMO (datos aleatorios, sin conexión)
+    # ================================================================== #
+    if demo:
+        channel_names = [
+            "Fp1", "Fp2", "F3", "Fz", "F4",
+            "C3", "Cz", "C4", "P3", "Pz",
+            "P4", "O1", "O2", "T7", "T8",
+        ]
+        info = mne.create_info(ch_names=channel_names, sfreq=250.0, ch_types="eeg")
+        info.set_montage("standard_1005")
+
+        win = EEGWindow(info=info, buffer_seconds=6.0, update_ms=10)
+        win.start(demo=True)
+        win.show()
+        sys.exit(app.exec_())
+    else:
+        # ================================================================== #
+        #  Modo TCP — conectar y esperar Init
+        # ================================================================== #
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(10.0)
+            sock.connect((host, port))
+
+            # Leer hasta obtener el mensaje Init
+            buf = ""
+            init_msg = None
+            while init_msg is None:
+                raw = sock.recv(4096)
+                if not raw:
+                    raise ConnectionError("Conexión cerrada antes de recibir Init")
+                buf += raw.decode("utf-8")
+                while "\n" in buf:
+                    line, buf = buf.split("\n", 1)
+                    line = line.strip()
+                    if not line:
+                        continue
+                    msg = json.loads(line)
+                    if msg.get("type") == "init":
+                        init_msg = msg
+                        break
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(None, "Error de conexión", str(e))
+            sys.exit(1)
+
+        # Construir mne.Info desde Init
+        ch_names = init_msg["ch_names"]
+        ch_types = init_msg.get("ch_types", "eeg")
+        sfreq = float(init_msg["sfreq"])
+        info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types=ch_types)
+        info.set_montage(init_msg.get("montage", "standard_1005"))
+
+        # Crear ventana
+        win = EEGWindow(
+            info=info,
+            buffer_seconds=init_msg.get("buffer_seconds", 6.0),
+            update_ms=10,
+        )
+        win.set_total_epochs(init_msg.get("total_epochs", 0))
+        win.set_current_epoch(0)
+        if init_msg.get("action"):
+            win.set_action(init_msg["action"])
+
+        # Hilo receptor TCP (le pasamos el socket ya conectado + buffer sobrante)
+        receiver = TCPReceiverThread(sock, buf)
+        receiver.action_received.connect(win.set_action)
+        receiver.epoch_received.connect(win._on_epoch_received)
+        receiver.data_received.connect(
+            lambda d: win.plot_widget.push_chunk(d, d.shape[1])
+        )
+        receiver.disconnected.connect(win.close)
+        receiver.start()
+
+        win.start(demo=False)  # solo refresco visual, datos vienen por TCP
+        win.show()
+
+        ret = app.exec_()
+        receiver.stop()
+        sys.exit(ret)
 
 
 if __name__ == "__main__":
-    main()
+    ejecutar_cliente_visualizacion()

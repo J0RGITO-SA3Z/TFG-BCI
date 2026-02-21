@@ -16,7 +16,7 @@ class EEGRecorder:
         self.mgr: EEGManager = None
         self.callbackFunctions = []
         self.gain: GainMode = GainMode.X8
-        self.lock = threading.Lock()
+        self.dataLock = threading.Lock()
         self.indices_canales_habilitados = {}
         self.indiceCanales = {}
         self.nombreCanales = {}
@@ -24,7 +24,8 @@ class EEGRecorder:
         bacore.init(bacore.Version(2, 0, 0))
 
     def _callbackFunction(self, chunk, chunk_size):
-        self.data.data.append(np.array(chunk))
+        with self.dataLock:
+            self.data.data.append(np.array(chunk))
 
         for func in self.callbackFunctions:
             func(chunk, chunk_size)
@@ -58,7 +59,7 @@ class EEGRecorder:
         self.indiceCanales[eeg_channel.DIGITAL_INPUT] = 0
         self.indiceCanales[eeg_channel.SAMPLE_NUMBER] = 0
 
-    def _create_info(self):
+    def get_info(self):
         sfreq = self.mgr.get_sample_frequency()
         ch_names = [x for x in self.nombreCanales.values()]
 
@@ -76,6 +77,36 @@ class EEGRecorder:
     def obtenerIndicesCanalesActivos(self):
         for key in self.indiceCanales.keys():
             self.indiceCanales[key] = self.mgr.get_channel_index(key)
+
+    def get_ch_names_ordered(self) -> list[str]:
+        """Devuelve los nombres de canal ordenados por su índice en el buffer de datos."""
+        # indiceCanales:  {ba_key: row_index, ...}
+        # nombreCanales:  {ba_key: name, ...}
+        ordered = sorted(self.indiceCanales.items(), key=lambda kv: kv[1])
+        return [self.nombreCanales[key] for key, _ in ordered]
+
+    def get_ch_types_ordered(self) -> list[str]:
+        """Devuelve los tipos de canal ordenados por su índice en el buffer de datos."""
+        ordered = sorted(self.indiceCanales.items(), key=lambda kv: kv[1])
+        types = []
+        eeg_keys = {eeg_channel.ELECTRODE_MEASUREMENT + ch.index
+                     for ch in self.channelConfig if ch.enabled}
+        accel_keys = {eeg_channel.ACCELEROMETER + i for i in range(3)}
+        for key, _ in ordered:
+            if key in eeg_keys:
+                types.append("eeg")
+            elif key in accel_keys:
+                types.append("misc")
+            elif key == eeg_channel.DIGITAL_INPUT:
+                types.append("stim")
+            elif key == eeg_channel.SAMPLE_NUMBER:
+                types.append("syst")
+            else:
+                types.append("misc")
+        return types
+
+    def get_sfreq(self) -> float:
+        return self.mgr.get_sample_frequency()
 
     async def configurarEEG(self):
         for ch in self.channelConfig:
@@ -106,16 +137,17 @@ class EEGRecorder:
     async def _conectar(self, COM_port):
         return await self.mgr.connect(COM_port)
 
-    def iniciarGrabacion(self, mgr:EEGManager, COM_port, channelConfig: list[ChannelConfig], gain):
+    def configAndConect(self, mgr:EEGManager, COM_port, channelConfig: list[ChannelConfig], gain):
         self.mgr = mgr
         asyncio.run(self._conectar(COM_port))
 
         self.channelConfig = channelConfig
         self.gain = multiplier_to_gain_mode(gain)
         self._init_channel_mappings() # inicializa indiceCanal y nombreCanal
-        self.info = self._create_info()
-        self.data = EEGData(self.info, lock=self.lock, zeros_at_start=0)
+        self.info = self.get_info()
+        self.data = EEGData(self.info, lock=self.dataLock, zeros_at_start=0)
 
+    def iniciarGrabacion(self):
         asyncio.run(self._inicarGrabacion())
         print(self.indiceCanales)
         print(self.nombreCanales)
