@@ -112,6 +112,7 @@ class ExperimentoVisual:
 
             for trial in trials:
                 live_server.setAction(trial)
+                live_server.increaseEpoch()
                 ventana.draw_text("+")
                 eeg.anotar("CROSS")
                 time.sleep(self.tmpBaselineEpoch-0.5)

@@ -118,8 +118,7 @@ def __main__():
     archivo = input("Introduce el nombre del archivo a evaluar: ")
     raw = mne.io.read_raw_fif(archivo, preload=True)
 
-    raw.filter(8,30)
-
+    raw.plot(scalings='auto', verbose=False)
     data = raw.get_data()
     for i in range(data.shape[0]):
         plt.figure()

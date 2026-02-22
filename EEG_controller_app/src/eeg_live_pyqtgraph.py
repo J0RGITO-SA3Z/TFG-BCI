@@ -12,6 +12,7 @@ import socket
 import threading
 import numpy as np
 import mne
+from scipy.signal import butter, sosfiltfilt
 from PyQt5 import QtWidgets, QtCore
 import pyqtgraph as pg
 
@@ -84,6 +85,9 @@ class EEGPlotWidget(pg.PlotWidget):
             zeros_at_start=self.buffer_len,
         )
 
+        # ---- Filtro paso-banda 1-40 Hz (Butterworth orden 4) -------- #
+        self._sos_filter = butter(4, [1.0, 40.0], btype='band', fs=self.sfreq, output='sos')
+
         # ---- Apariencia --------------------------------------------- #
         cmap = pg.colormap.get("CET-C6")
         self.colors = [
@@ -141,9 +145,15 @@ class EEGPlotWidget(pg.PlotWidget):
 
     # ------------------------------------------------------------------ #
     def refresh(self):
-        """Lee el buffer del EEGData_roll, reescala y repinta las curvas."""
+        """Lee el buffer del EEGData_roll, filtra 1-40 Hz, reescala y repinta."""
         with self.lock:
             data = self.eeg_data.data.copy()
+
+        # Aplicar filtro paso-banda 1-40 Hz (zero-phase)
+        try:
+            data = sosfiltfilt(self._sos_filter, data, axis=1)
+        except ValueError:
+            pass  # buffer demasiado corto al inicio
 
         t = np.arange(self.buffer_len) / self.sfreq
 
