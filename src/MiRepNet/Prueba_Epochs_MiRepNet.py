@@ -343,7 +343,13 @@ def downstream(archivo=None):
         archivo: Ruta al .fif. Si es None, se pide por consola.
     """
     # — Cargar modelo —
-    model = load_model(WEIGHT_PATH, device)
+    weight_path = input("Introduce la ruta del archivo de pesos .pth: ").strip()
+
+    if weight_path == "":
+        weight_path = WEIGHT_PATH
+        print(f"Usando ruta por defecto: {weight_path}")
+
+    model = load_model(weight_path, device)
     le    = LabelEncoder().fit(CLASS_NAMES)
 
     # — Cargar archivo —
@@ -357,8 +363,8 @@ def downstream(archivo=None):
         bandpass=(8.0, 30.0),
         notch=None,
         resample_freq=None,
-        apply_car=False,
-        apply_ica=True,
+        apply_car=True,
+        apply_ica=False,
         apply_ea=True,
     )
 
@@ -450,7 +456,24 @@ def fine_tune(archivo_train=None, archivo_val=None, epochs=10, lr=1e-3, save_pat
 
     # — Optimizador y loss —
     loss_fn = torch.nn.CrossEntropyLoss()
-    opt     = torch.optim.Adam(model.parameters(), lr=lr) # Ajusta pesos de todas las capas (puede ser problemático)
+
+    for name, param in model.named_parameters():
+        print(name, param.shape)
+    # 1. Congelar TODOS los pesos del modelo
+    for param in model.parameters():
+        param.requires_grad = False
+
+    # 2. Descongelar solo la cabeza de clasificación
+    # Solo los 2 tensores finales
+    model.clshead.weight.requires_grad = True
+    model.clshead.bias.requires_grad   = True
+
+    # 3. Solo actualiza los que tienen requires_grad=True
+    opt = torch.optim.Adam(
+        filter(lambda p: p.requires_grad, model.parameters()),
+        lr=lr)
+
+    #opt     = torch.optim.Adam(model.parameters(), lr=lr) # Ajusta pesos de todas las capas (puede ser problemático)
 
     # — Historial para la gráfica —
     history = {
@@ -672,8 +695,8 @@ def plot_results(true_labels, pred_labels, probs, class_names):
 
 
 def main():
-    fine_tune()
-    #downstream()
+    #fine_tune(save_path="src/MiRepNet/Pesos/MIRepNet_finetuned.pth")
+    downstream()
 
 
 if __name__ == "__main__":
