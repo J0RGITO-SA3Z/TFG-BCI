@@ -263,7 +263,7 @@ def _euclidean_alignment(data: np.ndarray) -> np.ndarray:
     whitening = eigvecs @ np.diag(1.0 / np.sqrt(eigvals)) @ eigvecs.T
     return whitening @ data
 
-def normalize_eeg_data(X, axis=1):
+def normalize_eeg_data(X):
     """
     Normaliza los datos EEG usando z-score normalización por canal.
     
@@ -274,8 +274,8 @@ def normalize_eeg_data(X, axis=1):
     Returns:
         X_normalized: Datos normalizados
     """
-    mean = X.mean(axis=axis, keepdims=True)
-    std = X.std(axis=axis, keepdims=True)
+    mean = X.mean(axis=(1,2), keepdims=True)
+    std = X.std(axis=(1,2), keepdims=True)
     X_normalized = (X - mean) / (std + 1e-8)
     return X_normalized
 
@@ -314,7 +314,7 @@ def predict_batch(model, eeg_data, device, normalize=True):
     
     # Normalizar si se especifica
     if normalize:
-        eeg_data = normalize_eeg_data(eeg_data, axis=2)  # Normalizar por tiempo
+        eeg_data = normalize_eeg_data(eeg_data)  # Normalizar por canal y por muestra
     
     # Convertir a tensor de PyTorch
     X_tensor = torch.tensor(eeg_data, dtype=torch.float32).to(device)
@@ -695,7 +695,7 @@ def plot_results(true_labels, pred_labels, probs, class_names):
 
 
 def main():
-    #fine_tune(save_path="src/MiRepNet/Pesos/MIRepNet_finetuned.pth")
+    #fine_tune(save_path="src/MiRepNet/Pesos/MIRepNet_finetuned2.pth")
     downstream()
 
 
