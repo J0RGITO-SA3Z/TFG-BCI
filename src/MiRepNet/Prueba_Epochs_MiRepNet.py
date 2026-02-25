@@ -69,7 +69,7 @@ LABEL_MAP = {
     "DERECHA"   : "right_hand",
     "ABAJO"     : "feet",
 }
-CLASS_NAMES = ["left_hand", "right_hand", "feet"]
+CLASS_NAMES = ["feet", "left_hand", "right_hand"]   # orden alfabético = orden real de LabelEncoder
 
 # Fucnion reutilizada de MIrepNet en la ruta MIrepNet/utils/utils.py
 def pad_missing_channels_diff(x, target_channels, actual_channels):
@@ -168,8 +168,6 @@ def preprocess_eeg_data(
     apply_ica       = False,         # ICA para eliminar artefactos
     ica_n_components= 15,            # número de componentes ICA
     ica_method      = "fastica",     # "fastica" | "infomax" | "picard"
-    # ── Normalización ────────────────────────────────────
-    apply_ea        = False,         # Euclidean Alignment (usado en MIRepNet)
 ):
     """
     Preprocesa un objeto mne.io.Raw aplicando los pasos indicados en orden.
@@ -196,7 +194,7 @@ def preprocess_eeg_data(
     Returns:
         np.ndarray de forma (n_canales, n_muestras) con los datos preprocesados
     """
-
+    print(raw.info['sfreq'])
     # Trabajamos sobre una copia para no modificar el original
     raw = raw.copy()
 
@@ -235,33 +233,13 @@ def preprocess_eeg_data(
     # ── 6. Extraer datos en numpy ─────────────────────────────────────────────
     data, times = raw[:]   # shape: (n_canales, n_muestras)
 
-    # ── 7. Euclidean Alignment ────────────────────────────────────────────────
-    if apply_ea:
-        data = _euclidean_alignment(data)
-    
-    # ── 8. Reconstruir Raw preservando annotations ────────────────────────────
+
+    # ── 7. Reconstruir Raw preservando annotations ────────────────────────────
     info = raw.info
     raw_preprocessed = mne.io.RawArray(data, info, verbose=False)
     raw_preprocessed.set_annotations(raw.annotations)
 
     return raw_preprocessed
-
-def _euclidean_alignment(data: np.ndarray) -> np.ndarray:
-    """
-    Euclidean Alignment (He & Wu, 2019).
-    Blanquea los datos para que su covarianza sea la identidad.
-
-    Args:
-        data: (n_canales, n_muestras)
-
-    Returns:
-        np.ndarray (n_canales, n_muestras) alineado
-    """
-    cov = np.cov(data)                          # (C, C)
-    eigvals, eigvecs = np.linalg.eigh(cov)
-    eigvals = np.maximum(eigvals, 1e-10)        # evitar división por cero
-    whitening = eigvecs @ np.diag(1.0 / np.sqrt(eigvals)) @ eigvecs.T
-    return whitening @ data
 
 def normalize_eeg_data(X):
     """
@@ -279,6 +257,25 @@ def normalize_eeg_data(X):
     X_normalized = (X - mean) / (std + 1e-8)
     return X_normalized
 
+def euclidean_alignment_epochs(X: np.ndarray) -> np.ndarray:
+    """
+    Euclidean Alignment aplicado correctamente sobre epochs (B, C, T).
+    Calcula la covarianza media sobre todos los trials y la usa para blanquear
+    cada trial individualmente — igual que hace MIRepNet en preentrenamiento.
+
+    Args:
+        X: (B, C, T)
+
+    Returns:
+        np.ndarray (B, C, T) alineado
+    """
+    B, C, T = X.shape
+    # Covarianza media entre todos los trials
+    R_mean = np.mean([X[i] @ X[i].T / T for i in range(B)], axis=0)  # (C, C)
+    eigvals, eigvecs = np.linalg.eigh(R_mean)
+    eigvals = np.maximum(eigvals, 1e-10)
+    whitening = eigvecs @ np.diag(1.0 / np.sqrt(eigvals)) @ eigvecs.T  # R^{-1/2}
+    return np.stack([whitening @ X[i] for i in range(B)], axis=0)  # (B, C, T)
 
 def predict_batch(model, eeg_data, device, normalize=True):
     """
@@ -362,14 +359,14 @@ def downstream(archivo=None):
         raw,
         bandpass=(8.0, 30.0),
         notch=None,
-        resample_freq=None,
+        resample_freq=250,
         apply_car=True,
         apply_ica=False,
-        apply_ea=True,
     )
 
     # — Epochs + etiquetas reales —
     epochs_x45, true_labels_raw = raw_to_epochs(raw)
+    epochs_x45 = euclidean_alignment_epochs(epochs_x45)
     # Traducir etiquetas del experimento al formato del modelo
     true_labels = [LABEL_MAP[l] for l in true_labels_raw]
 
@@ -434,7 +431,6 @@ def fine_tune(archivo_train=None, archivo_val=None, epochs=10, lr=1e-3, save_pat
         resample_freq=250,      # MIRepNet espera 250 Hz
         apply_car=True,
         apply_ica=False,
-        apply_ea=True,
     )
     raw_t = preprocess_eeg_data(raw_t, **preprocess_cfg)
     raw_v = preprocess_eeg_data(raw_v, **preprocess_cfg)
@@ -442,6 +438,10 @@ def fine_tune(archivo_train=None, archivo_val=None, epochs=10, lr=1e-3, save_pat
     # — Epochs + etiquetas —
     X_train, labels_train_raw = raw_to_epochs(raw_t)
     X_val,   labels_val_raw   = raw_to_epochs(raw_v)
+
+    # — Euclidean Alignment sobre epochs (correcto, por separado train y val) —
+    X_train = euclidean_alignment_epochs(X_train)
+    X_val   = euclidean_alignment_epochs(X_val)
 
     # Traducir etiquetas experimento -> formato modelo -> índice numérico
     labels_train = [LABEL_MAP[l] for l in labels_train_raw]
@@ -695,7 +695,7 @@ def plot_results(true_labels, pred_labels, probs, class_names):
 
 
 def main():
-    #fine_tune(save_path="src/MiRepNet/Pesos/MIRepNet_finetuned2.pth")
+    #fine_tune(epochs=10,save_path="src/MiRepNet/Pesos/MIRepNet_finetuned3.pth")
     downstream()
 
 
