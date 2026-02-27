@@ -22,7 +22,6 @@ from .NotchFilter import NotchFilter
 from .Resampler import Resampler
 from .CARReference import CARReference
 from .ICAProcessor import ICAProcessor
-from .SpatialInterpolator import SpatialInterpolator
 from .AnnotationRenamer import AnnotationRenamer
 from .RawProcessorPipeline import RawProcessorPipeline
 

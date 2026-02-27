@@ -17,6 +17,7 @@ from pathlib import Path
 from collections import deque
 from sklearn.preprocessing import LabelEncoder
 from scipy.spatial.distance import cdist
+import torch.nn as _nn
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 MIREPNET_DIR = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
@@ -333,7 +334,53 @@ def predict_batch(model, eeg_data, device, normalize=True):
     
     return predictions, probabilities, logits
 
+def predict_sample(model, eeg_data, device):
+
+    ## Comprobar tipos de entrada ------------------------------------------------------------------------
+    if not isinstance(model, _nn.Module):
+        raise TypeError("`model` debe ser una instancia de torch.nn.Module")
+
+    if not isinstance(device, torch.device):
+        raise TypeError("`device` deve ser una instancia de torch.device")
+
+    if isinstance(eeg_data, torch.Tensor):
+        eeg_data = eeg_data.cpu().numpy()
+
+    if not isinstance(eeg_data, np.ndarray):
+        raise TypeError("`eeg_data` debe ser un np.ndarray o un torch.Tensor convertible a numpy")
+
+    # eegData debe ser 2D: (C, T)
+    if eeg_data.ndim != 2:
+        raise ValueError(f"`eeg_data` debe ser 2D (C, T); se recibieron {eeg_data.ndim} dimensiones")
+
+    # Asegurar dtype float32
+    eeg_data = np.array(eeg_data, dtype=np.float32)
+
+    # Expandir a batch de tamaño 1 y validar canales
+    eeg_batch = np.expand_dims(eeg_data, axis=0)  # (1, C, T)
+    if eeg_batch.shape[1] != 45:
+        raise ValueError(f"Se esperan 45 canales (C=45), pero se recibieron {eeg_batch.shape[1]}")
     
+    ## Uso del modelo -------------------------------------------------------------------------------
+
+    # Convertir a tensor y mover a device
+    X_tensor = torch.tensor(eeg_batch, dtype=torch.float32).to(device)
+
+    # Inferencia
+    model.eval()
+    with torch.no_grad():
+        outputs = model(X_tensor)
+        # soportar modelos que devuelven (aux, logits) o solo logits
+        if isinstance(outputs, tuple) or isinstance(outputs, list):
+            logits = outputs[1]
+        else:
+            logits = outputs
+
+    probabilities = torch.softmax(logits, dim=1)
+    pred_idx = int(torch.argmax(probabilities, dim=1).cpu().numpy()[0])
+
+    return pred_idx, probabilities[0].cpu().numpy(), logits[0].cpu().numpy()
+
 def predict_batch_prueba(model, eeg_data, device):
     """
     Realiza predicciones en un lote de datos EEG.

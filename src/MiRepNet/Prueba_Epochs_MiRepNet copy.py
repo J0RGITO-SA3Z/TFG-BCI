@@ -28,7 +28,7 @@ from raw_processing import (
     Resampler,
     CARReference,
     ICAProcessor,
-    SpatialInterpolator,
+    #SpatialInterpolator, (interpolacion espacial se hace sobre el epoch)
     AnnotationRenamer,
 )
 
