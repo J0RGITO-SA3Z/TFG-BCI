@@ -8,10 +8,12 @@ con 45 canales de EEG.
 import sys
 import os, sys, torch, numpy as np
 import mne
+import re
 import torch
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from pathlib import Path
 from collections import deque
 from sklearn.preprocessing import LabelEncoder
 from scipy.spatial.distance import cdist
@@ -68,8 +70,13 @@ LABEL_MAP = {
     "IZQUIERDA" : "left_hand",
     "DERECHA"   : "right_hand",
     "ABAJO"     : "feet",
+    "DESCANSO"  : "nothing",
 }
 CLASS_NAMES = ["feet", "left_hand", "right_hand"]   # orden alfabético = orden real de LabelEncoder
+CLASS_NAMES_4 = ["feet", "left_hand", "nothing", "right_hand"]  # 4 clases incluyendo DESCANSO
+
+# Umbral de confianza por defecto: si max(softmax) < CONFIDENCE_THRESHOLD → DESCANSO
+DEFAULT_CONFIDENCE_THRESHOLD = 0.5
 
 # Fucnion reutilizada de MIrepNet en la ruta MIrepNet/utils/utils.py
 def pad_missing_channels_diff(x, target_channels, actual_channels):
@@ -326,6 +333,89 @@ def predict_batch(model, eeg_data, device, normalize=True):
     
     return predictions, probabilities, logits
 
+    
+def predict_batch_prueba(model, eeg_data, device):
+    """
+    Realiza predicciones en un lote de datos EEG.
+    
+    Args:
+        model: Modelo MIRepNet cargado
+        eeg_data: Datos EEG en formato (B, C, T) donde C=45
+        device: Dispositivo (cuda/cpu)
+        normalize: Si normalizar los datos antes de pasar al modelo
+    
+    Returns:
+        predictions: Lista de predicciones (etiquetas)
+        probabilities: Tensor con probabilidades [B, n_classes]
+        raw_outputs: Tensor de salida bruto del modelo [B, n_classes]
+    """
+    # Asegurar que es numpy array
+    if isinstance(eeg_data, torch.Tensor):
+        eeg_data = eeg_data.cpu().numpy()
+    
+    eeg_data = np.array(eeg_data, dtype=np.float32)
+    
+    # Validar dimensiones
+    if eeg_data.ndim == 2:
+        # Si es (C, T), agregar dimensión de batch
+        eeg_data = np.expand_dims(eeg_data, axis=0)
+    
+    if eeg_data.shape[1] != 45:
+        raise ValueError(f"Se esperan 45 canales, pero se recibieron {eeg_data.shape[1]}")
+    
+    B, C, T = eeg_data.shape
+    print(f"Datos de entrada: Batch={B}, Canales={C}, Tiempo={T}")
+    
+    # Convertir a tensor de PyTorch
+    X_tensor = torch.tensor(eeg_data, dtype=torch.float32).to(device)
+    
+    # Forward pass
+    with torch.no_grad():
+        _, logits = model(X_tensor)  # logits shape: [B, 3]
+    
+    # Obtener predicciones
+    probabilities = torch.softmax(logits, dim=1)
+    predictions = logits.argmax(dim=1).cpu().numpy()
+    
+    return predictions, probabilities, logits
+
+def predict_with_rest_threshold(model, eeg_data, device, confidence_threshold=DEFAULT_CONFIDENCE_THRESHOLD, normalize=True):
+    """
+    Predice la clase de cada epoch, pero si la probabilidad máxima del modelo
+    no supera `confidence_threshold`, clasifica el epoch como 'nothing' (DESCANSO).
+
+    La idea es que el modelo 3-clases (feet / left_hand / right_hand) sólo
+    "se compromete" cuando está suficientemente seguro. Cuando no lo está,
+    interpretamos esa incertidumbre como ausencia de intención motora → DESCANSO.
+
+    Args:
+        model               : Modelo MIRepNet cargado en eval mode.
+        eeg_data            : Array (B, C, T) con C=45 canales.
+        device              : Dispositivo torch.
+        confidence_threshold: float en (0, 1). Por debajo → 'nothing'.
+                              Valores típicos: 0.45–0.65.
+        normalize           : Si aplicar z-score por epoch antes de inferir.
+
+    Returns:
+        pred_labels_4  : list[str] — etiquetas predichas con 4 clases.
+        probs          : Tensor [B, 3] — softmax del modelo (siempre 3 clases base).
+        max_conf       : np.ndarray [B] — confianza máxima de cada epoch.
+        threshold_mask : np.ndarray [B] bool — True donde se aplicó el umbral (→ nothing).
+    """
+    predictions, probs, _ = predict_batch(model, eeg_data, device, normalize=normalize)
+    le = LabelEncoder().fit(CLASS_NAMES)
+
+    max_conf       = probs.max(dim=1).values.cpu().numpy()          # [B]
+    threshold_mask = max_conf < confidence_threshold                 # True → reclasificar
+
+    pred_labels_4 = []
+    for i, pred_idx in enumerate(predictions):
+        if threshold_mask[i]:
+            pred_labels_4.append("nothing")
+        else:
+            pred_labels_4.append(le.inverse_transform([pred_idx])[0])
+
+    return pred_labels_4, probs, max_conf, threshold_mask
 
 ##############################################################################
 #  FUNCIÓN DOWNSTREAM
@@ -370,165 +460,386 @@ def downstream(archivo=None):
     # Traducir etiquetas del experimento al formato del modelo
     true_labels = [LABEL_MAP[l] for l in true_labels_raw]
 
-    # — Predicciones —
-    predictions, probs, _ = predict_batch(model, epochs_x45, device, normalize=True)
-    pred_labels = [le.inverse_transform([p])[0] for p in predictions]
+    # — Umbral de confianza para DESCANSO —
+    umbral_str = input(f"\nUmbral de confianza para DESCANSO (Enter = {DEFAULT_CONFIDENCE_THRESHOLD}): ").strip()
+    try:
+        umbral = float(umbral_str) if umbral_str else DEFAULT_CONFIDENCE_THRESHOLD
+    except ValueError:
+        print(f"⚠️  Valor inválido, usando umbral por defecto: {DEFAULT_CONFIDENCE_THRESHOLD}")
+        umbral = DEFAULT_CONFIDENCE_THRESHOLD
+
+    # — Predicciones con umbral —
+    pred_labels, probs, max_conf, threshold_mask = predict_with_rest_threshold(
+        model, epochs_x45, device, confidence_threshold=umbral, normalize=True
+    )
 
     # — Resumen en consola —
     n        = len(true_labels)
     correct  = [t == p for t, p in zip(true_labels, pred_labels)]
     accuracy = sum(correct) / n * 100
 
-    print("\n" + "─" * 60)
-    print("RESULTADOS DOWNSTREAM")
-    print("─" * 60)
-    for i in range(n):
-        mark = "✅" if correct[i] else "❌"
-        conf = probs[i].max().item() * 100
-        print(f" {mark} Epoch {i:>2} | Real: {true_labels[i]:<12} | Pred: {pred_labels[i]:<12} | Conf: {conf:.1f}%")
-    print("─" * 60)
-    print(f" Accuracy total: {sum(correct)}/{n} = {accuracy:.1f}%")
-    print("─" * 60)
+    n_reclasificados = threshold_mask.sum()
 
-    # — Gráfica —
-    plot_results(true_labels, pred_labels, probs, CLASS_NAMES)
+    print("\n" + "─" * 70)
+    print(f"RESULTADOS DOWNSTREAM  (umbral DESCANSO = {umbral:.2f})")
+    print("─" * 70)
+    for i in range(n):
+        mark   = "✅" if correct[i] else "❌"
+        umbral_flag = " [umbral]" if threshold_mask[i] else ""
+        print(f" {mark} Epoch {i:>2} | Real: {true_labels[i]:<12} | Pred: {pred_labels[i]:<12} | Conf: {max_conf[i]*100:.1f}%{umbral_flag}")
+    print("─" * 70)
+    print(f" Epochs reclasificados como DESCANSO por umbral: {n_reclasificados}/{n}")
+    print(f" Accuracy total: {sum(correct)}/{n} = {accuracy:.1f}%")
+    print("─" * 70)
+
+    # — Gráfica con 4 clases —
+    plot_results(true_labels, pred_labels, probs, CLASS_NAMES_4, umbral=umbral, max_conf=max_conf)
 
 
 ##############################################################################
 #  FUNCIÓN FINE-TUNE
 ##############################################################################  
-def fine_tune(archivo_train=None, archivo_val=None, epochs=10, lr=1e-3, save_path=None):
+RECORDINGS_DIR = "EEG_controller_app/recordings/"
+N_TRAIN_TRIALS = 30   # Igual que en el paper MIRepNet
+
+
+def _cargar_epochs_sujeto(nombre_sujeto):
     """
-    Fine-tunea el modelo MIRepNet con datos propios y grafica la evolución
-    de loss y accuracy en cada epoch para detectar overfitting.
+    Busca todos los .fif cuyo nombre de archivo contenga `nombre_sujeto`,
+    los preprocesa y concatena todos sus epochs en un único array.
+    Los epochs con etiqueta DESCANSO/nothing se descartan aquí porque el
+    fine-tune solo ajusta la cabeza de 3 clases.
 
     Args:
-        archivo_train : Ruta al .fif con los datos de entrenamiento.
-        archivo_val   : Ruta al .fif con los datos de validación.
-        epochs        : Número de épocas de fine-tuning.
-        lr            : Learning rate.
-        save_path     : Ruta donde guardar los pesos resultantes (.pth).
-                        Si es None se pide por consola al final.
+        nombre_sujeto : str — ej. "suj1". Búsqueda por substring (case-insensitive).
+
+    Returns:
+        X      : np.ndarray (B_total, C=45, T)
+        labels : list[str] — etiquetas en formato modelo ("left_hand", etc.)
+
+    Raises:
+        FileNotFoundError : Sin .fif para ese sujeto.
+        ValueError        : Sin epochs válidos de 3 clases.
     """
-    le = LabelEncoder().fit(CLASS_NAMES)
+    ruta     = Path(RECORDINGS_DIR)
+    archivos = sorted(ruta.glob("*.fif"))
 
-    # — Cargar modelo —
-    model = load_model(WEIGHT_PATH, device)
+    # Coincidencia exacta de nombre de sujeto: "suj2" casa con suj2_1.fif y suj2_3.fif
+    # pero NO con suj20_1.fif ni suj21_2.fif
+    patron = re.compile(rf"(?i)(^|_){re.escape(nombre_sujeto)}(_|\d*\.fif$)")
+    archivos_sujeto = [f for f in archivos if patron.search(f.name)]
 
-    # — Cargar archivos —
-    if archivo_train is None:
-        archivo_train = input("Introduce la ruta del .fif de ENTRENAMIENTO: ").strip()
-    if archivo_val is None:
-        archivo_val = input("Introduce la ruta del .fif de VALIDACIÓN: ").strip()
+    if not archivos_sujeto:
+        raise FileNotFoundError(
+            f"No se encontró ningún .fif con '{nombre_sujeto}' en '{RECORDINGS_DIR}'.\n"
+            f"Archivos disponibles: {[f.name for f in archivos]}"
+        )
 
-    raw_t = mne.io.read_raw_fif(archivo_train, preload=True)
-    raw_v = mne.io.read_raw_fif(archivo_val,   preload=True)
+    print(f"\n📂 Archivos encontrados para '{nombre_sujeto}':")
+    for f in archivos_sujeto:
+        print(f"   • {f.name}")
 
-    # — Preprocesar (misma config para train y val) —
     preprocess_cfg = dict(
-        bandpass=(8.0, 30.0),
-        notch=None,
-        resample_freq=250,      # MIRepNet espera 250 Hz
-        apply_car=True,
-        apply_ica=False,
+        bandpass=(8.0, 30.0), notch=None,
+        resample_freq=250, apply_car=True, apply_ica=False,
     )
-    raw_t = preprocess_eeg_data(raw_t, **preprocess_cfg)
-    raw_v = preprocess_eeg_data(raw_v, **preprocess_cfg)
 
-    # — Epochs + etiquetas —
-    X_train, labels_train_raw = raw_to_epochs(raw_t)
-    X_val,   labels_val_raw   = raw_to_epochs(raw_v)
+    X_all, labels_all = [], []
 
-    # — Euclidean Alignment sobre epochs (correcto, por separado train y val) —
-    X_train = euclidean_alignment_epochs(X_train)
-    X_val   = euclidean_alignment_epochs(X_val)
+    for archivo in archivos_sujeto:
+        print(f"\n⏳ Procesando: {archivo.name} ...", end=" ", flush=True)
+        raw    = mne.io.read_raw_fif(str(archivo), preload=True, verbose=False)
+        raw    = preprocess_eeg_data(raw, **preprocess_cfg)
+        X_file, labels_raw = raw_to_epochs(raw)
 
-    # Traducir etiquetas experimento -> formato modelo -> índice numérico
-    labels_train = [LABEL_MAP[l] for l in labels_train_raw]
-    labels_val   = [LABEL_MAP[l] for l in labels_val_raw]
+        # Solo epochs con etiquetas válidas para las 3 clases del modelo
+        indices_validos, etiquetas_validas = [], []
+        for i, lab in enumerate(labels_raw):
+            mapped = LABEL_MAP.get(lab)
+            if mapped in CLASS_NAMES:
+                indices_validos.append(i)
+                etiquetas_validas.append(mapped)
 
-    y_train = torch.tensor(le.transform(labels_train), dtype=torch.long, device=device)
-    y_val   = torch.tensor(le.transform(labels_val),   dtype=torch.long, device=device)
+        if not indices_validos:
+            print("⚠️  Sin epochs de 3 clases — omitido.")
+            continue
 
-    # Normalizar y convertir a tensor
-    X_train = torch.tensor(normalize_eeg_data(X_train), dtype=torch.float32, device=device)
-    X_val   = torch.tensor(normalize_eeg_data(X_val),   dtype=torch.float32, device=device)
+        X_all.append(X_file[indices_validos])
+        labels_all.extend(etiquetas_validas)
+        print(f"✅ {len(indices_validos)} epochs válidos.")
 
-    # — Optimizador y loss —
-    loss_fn = torch.nn.CrossEntropyLoss()
+    if not X_all:
+        raise ValueError(
+            f"Ningún archivo de '{nombre_sujeto}' aportó epochs con etiquetas válidas "
+            f"(se esperan: {CLASS_NAMES})."
+        )
 
-    for name, param in model.named_parameters():
-        print(name, param.shape)
-    # 1. Congelar TODOS los pesos del modelo
+    X_total = np.concatenate(X_all, axis=0)
+    print(f"\n📦 Total epochs para '{nombre_sujeto}': {X_total.shape[0]}")
+    return X_total, labels_all
+
+def fine_tune(nombre_sujeto=None, epochs=10, lr=1e-3, save_path=None, n_train=N_TRAIN_TRIALS, seed=42):
+    """
+    Fine-tunea MIRepNet siguiendo el protocolo del paper:
+      • Carga TODOS los .fif que contengan `nombre_sujeto` en RECORDINGS_DIR.
+      • Concatena todos sus epochs (solo las 3 clases motoras) y mezcla aleatoriamente.
+      • Divide: primeros `n_train` → entrenamiento, el resto → validación.
+      • Congela el backbone; solo ajusta la cabeza de clasificación (clshead).
+
+    Args:
+        nombre_sujeto : str — ej. "suj1". Si es None se pide por consola.
+        epochs        : int — número de épocas de fine-tuning.
+        lr            : float — learning rate.
+        save_path     : str o None — ruta .pth para guardar pesos (None = preguntar al final).
+        n_train       : int — trials de entrenamiento (default: 30, como el paper).
+        seed          : int — semilla para reproducibilidad del shuffle.
+
+    Returns:
+        model : Modelo fine-tuneado en eval mode.
+    """
+    # ── Pedir sujeto si no se pasó ────────────────────────────────────────────
+    if nombre_sujeto is None:
+        nombre_sujeto = input("Nombre del sujeto (ej. suj1, suj2): ").strip()
+
+    # ── Cargar modelo ─────────────────────────────────────────────────────────
+    model = load_model(WEIGHT_PATH, device)
+    le    = LabelEncoder().fit(CLASS_NAMES)
+
+    # ── Cargar y concatenar todos los epochs del sujeto ───────────────────────
+    X_total, labels_total = _cargar_epochs_sujeto(nombre_sujeto)
+    B_total = X_total.shape[0]
+
+    if B_total <= n_train:
+        raise ValueError(
+            f"Solo hay {B_total} epochs para '{nombre_sujeto}', "
+            f"pero se necesitan >{n_train} (train={n_train} + al menos 1 de val)."
+        )
+
+    # ── Shuffle reproducible y división n_train / resto ───────────────────────
+    rng       = np.random.default_rng(seed)
+    indices   = rng.permutation(B_total)
+    idx_train = indices[:n_train]
+    idx_val   = indices[n_train:]
+
+    X_train_raw  = X_total[idx_train]
+    X_val_raw    = X_total[idx_val]
+    labels_train = [labels_total[i] for i in idx_train]
+    labels_val   = [labels_total[i] for i in idx_val]
+
+    print(f"\n📊 División de datos (seed={seed}):")
+    print(f"   Train : {len(labels_train)} trials → {dict((c, labels_train.count(c)) for c in CLASS_NAMES)}")
+    print(f"   Val   : {len(labels_val)} trials → {dict((c, labels_val.count(c)) for c in CLASS_NAMES)}")
+
+    # ── Euclidean Alignment por separado (como hace MIRepNet) ─────────────────
+    X_train_ea = euclidean_alignment_epochs(X_train_raw)
+    X_val_ea   = euclidean_alignment_epochs(X_val_raw)
+
+    # ── Convertir a tensores ──────────────────────────────────────────────────
+    y_train = torch.tensor(le.transform(labels_train), dtype=torch.long,    device=device)
+    y_val   = torch.tensor(le.transform(labels_val),   dtype=torch.long,    device=device)
+    X_train = torch.tensor(normalize_eeg_data(X_train_ea), dtype=torch.float32, device=device)
+    X_val   = torch.tensor(normalize_eeg_data(X_val_ea),   dtype=torch.float32, device=device)
+
+    # ── Congelar backbone, descongelar solo clshead ───────────────────────────
     for param in model.parameters():
         param.requires_grad = False
-
-    # 2. Descongelar solo la cabeza de clasificación
-    # Solo los 2 tensores finales
     model.clshead.weight.requires_grad = True
     model.clshead.bias.requires_grad   = True
 
-    # 3. Solo actualiza los que tienen requires_grad=True
-    opt = torch.optim.Adam(
-        filter(lambda p: p.requires_grad, model.parameters()),
-        lr=lr)
+    opt     = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=lr)
+    loss_fn = torch.nn.CrossEntropyLoss()
 
-    #opt     = torch.optim.Adam(model.parameters(), lr=lr) # Ajusta pesos de todas las capas (puede ser problemático)
+    # ── Bucle de fine-tuning ──────────────────────────────────────────────────
+    history = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": []}
 
-    # — Historial para la gráfica —
-    history = {
-        "train_loss": [], "train_acc": [],
-        "val_loss":   [], "val_acc":   [],
-    }
-
-    print(f"\nIniciando fine-tuning: {len(labels_train)} trials train | {len(labels_val)} trials val")
+    print(f"\n🚀 Iniciando fine-tuning: {n_train} trials train | {len(labels_val)} trials val")
     print("─" * 65)
 
-    for epoch in range(epochs):
-
-        # ── ENTRENAMIENTO ─────────────────────────────────────────────
+    for ep in range(epochs):
+        # Entrenamiento
         model.train()
         opt.zero_grad()
         _, out = model(X_train)
-        loss = loss_fn(out, y_train)
+        loss   = loss_fn(out, y_train)
         loss.backward()
         opt.step()
+        acc_train = (out.argmax(dim=1) == y_train).float().mean().item()
 
-        pred_train = out.argmax(dim=1)
-        acc_train  = (pred_train == y_train).float().mean().item()
-
-        # ── VALIDACIÓN (sin gradientes — no queremos actualizar pesos) ─────
+        # Validación
         model.eval()
         with torch.no_grad():
             _, out_val = model(X_val)
             loss_val   = loss_fn(out_val, y_val)
-            pred_val   = out_val.argmax(dim=1)
-            acc_val    = (pred_val == y_val).float().mean().item()
+            acc_val    = (out_val.argmax(dim=1) == y_val).float().mean().item()
 
-        # — Guardar historial —
         history["train_loss"].append(loss.item())
         history["train_acc"].append(acc_train * 100)
         history["val_loss"].append(loss_val.item())
         history["val_acc"].append(acc_val * 100)
 
-        print(f" Epoch {epoch+1:>3}/{epochs} | "
+        print(f" Epoch {ep+1:>3}/{epochs} | "
               f"Train → loss: {loss.item():.4f}  acc: {acc_train*100:.1f}% | "
               f"Val   → loss: {loss_val.item():.4f}  acc: {acc_val*100:.1f}%")
 
     print("─" * 65)
     print(f"Fine-tuning completado. Mejor val acc: {max(history['val_acc']):.1f}%")
 
-    # — Guardar pesos —
+    # ── Guardar pesos ─────────────────────────────────────────────────────────
     if save_path is None:
         save_path = input("\nRuta para guardar pesos fine-tuneados (Enter para no guardar): ").strip()
     if save_path:
         torch.save(model.state_dict(), save_path)
         print(f"Pesos guardados en {save_path}")
-    
-    # — Gráfica de entrenamiento —
-    plot_training(history, epochs) 
+
+    # ── Gráfica ───────────────────────────────────────────────────────────────
+    plot_training(history, epochs)
 
     return model
+
+def downstream_sim(model,batchs, labels, device):
+    ''' 
+        Evalúa el modelo MIRepNet preentrenado sobre un batch de datos simulados.
+        Al finalizar muestra una gráfica con los resultados.
+
+        Args:
+            model   : Modelo MIRepNet cargado.
+            batch   : np.ndarray (B, C=45, T) con epochs simulados.
+            labels  : list[str] — etiquetas reales en formato modelo.
+            device  : Dispositivo torch.
+
+        Returns:
+            None (muestra resultados en consola y gráfica)
+    '''
+    # — Umbral de confianza para DESCANSO —
+    umbral_str = input(f"\nUmbral de confianza para DESCANSO (Enter = {DEFAULT_CONFIDENCE_THRESHOLD}): ").strip()
+    try:
+        umbral = float(umbral_str) if umbral_str else DEFAULT_CONFIDENCE_THRESHOLD
+    except ValueError:
+        print(f"⚠️  Valor inválido, usando umbral por defecto: {DEFAULT_CONFIDENCE_THRESHOLD}")
+        umbral = DEFAULT_CONFIDENCE_THRESHOLD
+
+
+
+
+    # — Predicciones con umbral —
+    pred_labels, probs, max_conf, threshold_mask = predict_with_rest_threshold(
+        model, batchs, device, confidence_threshold=umbral, normalize=True
+    )
+
+
+
+
+
+
+
+
+
+
+    # — Resumen en consola —
+    n        = len(labels)
+    correct  = [t == p for t, p in zip(labels, pred_labels)]
+    accuracy = sum(correct) / n * 100
+
+    n_reclasificados = threshold_mask.sum()
+
+    print("\n" + "─" * 70)
+    print(f"RESULTADOS DOWNSTREAM  (umbral DESCANSO = {umbral:.2f})")
+    print("─" * 70)
+    for i in range(n):
+        mark   = "✅" if correct[i] else "❌"
+        umbral_flag = " [umbral]" if threshold_mask[i] else ""
+        print(f" {mark} Epoch {i:>2} | Real: {true_labels[i]:<12} | Pred: {pred_labels[i]:<12} | Conf: {max_conf[i]*100:.1f}%{umbral_flag}")
+    print("─" * 70)
+    print(f" Epochs reclasificados como DESCANSO por umbral: {n_reclasificados}/{n}")
+    print(f" Accuracy total: {sum(correct)}/{n} = {accuracy:.1f}%")
+    print("─" * 70)
+
+    # — Gráfica con 4 clases —
+    plot_results(true_labels, pred_labels, probs, CLASS_NAMES_4, umbral=umbral, max_conf=max_conf)
+
+
+    return
+def fine_tune_sim(model, batchsTraining, batchsValidation, labels_train, labels_val, le, device, save_path=None):
+    ''' 
+        Fine-tunea MIRepNet siguiendo el protocolo del paper:
+        Congela el backbone; solo ajusta la cabeza de clasificación (clshead).
+
+        Args:
+            model           : Modelo MIRepNet cargado.
+            batchsTraining  : np.ndarray (B_train, C=45, T) con epochs de entrenamiento.
+            batchsValidation : np.ndarray (B_val, C=45, T) con epochs de validación.
+            labels_train    : list[str] — etiquetas de entrenamiento en formato modelo.
+            labels_val      : list[str] — etiquetas de validación en formato modelo.
+            le              : LabelEncoder ya ajustado con las clases del modelo.
+            device          : Dispositivo torch.
+            save_path       : str o None — ruta .pth para guardar pesos (None = no guardar).
+
+        Returns:
+            model           : Modelo fine-tuneado en eval mode.
+    '''
+
+    epochs = 10
+    n_train = 30
+    # ── Convertir a tensores ──────────────────────────────────────────────────
+    y_train = torch.tensor(le.transform(labels_train), dtype=torch.long,    device=device)
+    y_val   = torch.tensor(le.transform(labels_val),   dtype=torch.long,    device=device)
+    X_train = torch.tensor(normalize_eeg_data(batchsTraining), dtype=torch.float32, device=device)
+    X_val   = torch.tensor(normalize_eeg_data(batchsValidation),   dtype=torch.float32, device=device)
+
+    # ── Congelar backbone, descongelar solo clshead ───────────────────────────
+    for param in model.parameters():
+        param.requires_grad = False
+    model.clshead.weight.requires_grad = True
+    model.clshead.bias.requires_grad   = True
+
+    lr=1e-3
+    opt     = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=lr)
+    loss_fn = torch.nn.CrossEntropyLoss()
+
+    # ── Bucle de fine-tuning ──────────────────────────────────────────────────
+    history = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": []}
+
+    print(f"\nIniciando fine-tuning: {n_train} trials train | {len(labels_val)} trials val")
+    print("─" * 65)
+
+    for ep in range(epochs):
+        # Entrenamiento
+        model.train()
+        opt.zero_grad()
+        _, out = model(X_train)
+        loss   = loss_fn(out, y_train)
+        loss.backward()
+        opt.step()
+        acc_train = (out.argmax(dim=1) == y_train).float().mean().item()
+
+        # Validación
+        model.eval()
+        with torch.no_grad():
+            _, out_val = model(X_val)
+            loss_val   = loss_fn(out_val, y_val)
+            acc_val    = (out_val.argmax(dim=1) == y_val).float().mean().item()
+
+        history["train_loss"].append(loss.item())
+        history["train_acc"].append(acc_train * 100)
+        history["val_loss"].append(loss_val.item())
+        history["val_acc"].append(acc_val * 100)
+
+        print(f" Epoch {ep+1:>3}/{epochs} | "
+              f"Train → loss: {loss.item():.4f}  acc: {acc_train*100:.1f}% | "
+              f"Val   → loss: {loss_val.item():.4f}  acc: {acc_val*100:.1f}%")
+
+    print("─" * 65)
+    print(f"Fine-tuning completado. Mejor val acc: {max(history['val_acc']):.1f}%")
+
+    # ── Guardar pesos ─────────────────────────────────────────────────────────
+    if save_path:
+        torch.save(model.state_dict(), save_path)
+        print(f"Pesos guardados en {save_path}")
+
+    # ── Gráfica ───────────────────────────────────────────────────────────────
+    plot_training(history, epochs)
+
+    return model,history,epochs 
 
 ##############################################################################
 #  FUNCIONES PARA GRÁFICAR DE RESULTADOS
@@ -579,18 +890,23 @@ def plot_training(history, epochs):
     plt.tight_layout()
     plt.show()
 
-def plot_results(true_labels, pred_labels, probs, class_names):
+def plot_results(true_labels, pred_labels, probs, class_names, umbral=None, max_conf=None):
     """
     Genera tres gráficas en una sola ventana:
-      1. Comparación epoch a epoch (real vs predicho)
+      1. Comparación epoch a época (real vs predicho), con barra de confianza opcional
       2. Matriz de confusión simple
-      3. Accuracy global con indicador visual
-    
+      3. Accuracy global por clase
+
+    Soporta tanto 3 clases (predicción pura del modelo) como 4 clases
+    cuando se aplica umbral de confianza para DESCANSO ('nothing').
+
     Args:
-        true_labels : list[str] — etiquetas reales (en formato modelo, ej. "left_hand")
-        pred_labels : list[str] — etiquetas predichas
-        probs       : Tensor [B, n_classes] — probabilidades del modelo
-        class_names : list[str]
+        true_labels : list[str] — etiquetas reales
+        pred_labels : list[str] — etiquetas predichas (pueden incluir 'nothing')
+        probs       : Tensor [B, 3] — probabilidades del modelo base (siempre 3 clases)
+        class_names : list[str] — nombres de clases a mostrar (3 o 4 clases)
+        umbral      : float o None — umbral de confianza usado (para anotación en gráfica)
+        max_conf    : np.ndarray [B] o None — confianza máxima por epoch
     """
     n        = len(true_labels)
     correct  = [t == p for t, p in zip(true_labels, pred_labels)]
@@ -600,28 +916,31 @@ def plot_results(true_labels, pred_labels, probs, class_names):
         "left_hand"  : "#4C72B0",
         "right_hand" : "#DD8452",
         "feet"       : "#55A868",
+        "nothing"    : "#8172B2",   # morado para DESCANSO
     }
     bar_colors = [colors_map.get(c, "#999999") for c in class_names]
 
-    fig = plt.figure(figsize=(16, 10))
-    fig.suptitle("Resultados MIRepNet — Downstream Evaluation", fontsize=15, fontweight="bold")
+    # Si hay confianza por epoch → añadimos un subplot extra inferior
+    n_rows = 3 if max_conf is not None else 2
+    fig = plt.figure(figsize=(16, 5 * n_rows))
+    titulo_umbral = f" — umbral DESCANSO={umbral:.2f}" if umbral is not None else ""
+    fig.suptitle(f"Resultados MIRepNet — Downstream Evaluation{titulo_umbral}",
+                 fontsize=15, fontweight="bold")
+
+    label_to_idx = {c: i for i, c in enumerate(class_names)}
 
     # ── Subplot 1: epoch a epoch ─────────────────────────────────────────────
-    ax1 = fig.add_subplot(2, 2, (1, 2))   # ocupa las dos columnas superiores
+    ax1 = fig.add_subplot(n_rows, 2, (1, 2))
 
     x = np.arange(n)
-    width = 0.35
 
-    # Convertir etiquetas a índices para el eje Y
-    label_to_idx = {c: i for i, c in enumerate(class_names)}
-    true_idx = [label_to_idx[l] for l in true_labels]
-    pred_idx = [label_to_idx[l] for l in pred_labels]
+    true_idx = [label_to_idx.get(l, 0) for l in true_labels]
+    pred_idx = [label_to_idx.get(l, 0) for l in pred_labels]
 
-    # Un círculo por epoch: verde si acertó, rojo si falló
-    # Si falla, se anota debajo qué predijo el modelo
     for i in range(n):
         color = "#2ecc71" if correct[i] else "#e74c3c"
-        ax1.scatter(i, true_idx[i], marker="o", s=120, color=color, zorder=3, edgecolors="white", linewidths=0.8)
+        ax1.scatter(i, true_idx[i], marker="o", s=120, color=color, zorder=3,
+                    edgecolors="white", linewidths=0.8)
         if not correct[i]:
             ax1.annotate(
                 pred_labels[i],
@@ -642,16 +961,19 @@ def plot_results(true_labels, pred_labels, probs, class_names):
     legend_items = [
         mpatches.Patch(color="#2ecc71", label="Acierto"),
         mpatches.Patch(color="#e74c3c", label="Fallo"),
+        mpatches.Patch(color="#8172B2", label="Reclasificado como DESCANSO (umbral)"),
     ]
     ax1.legend(handles=legend_items, loc="upper right")
 
     # ── Subplot 2: matriz de confusión ───────────────────────────────────────
-    ax2 = fig.add_subplot(2, 2, 3)
+    ax2 = fig.add_subplot(n_rows, 2, 2 * (n_rows - 1) + 1)
 
     nc = len(class_names)
     conf_matrix = np.zeros((nc, nc), dtype=int)
     for t, p in zip(true_labels, pred_labels):
-        conf_matrix[label_to_idx[t], label_to_idx[p]] += 1
+        ti = label_to_idx.get(t, 0)
+        pi = label_to_idx.get(p, 0)
+        conf_matrix[ti, pi] += 1
 
     im = ax2.imshow(conf_matrix, cmap="Blues")
     ax2.set_xticks(range(nc)); ax2.set_xticklabels(class_names, rotation=25, ha="right", fontsize=9)
@@ -666,10 +988,9 @@ def plot_results(true_labels, pred_labels, probs, class_names):
                      color="white" if conf_matrix[i, j] > conf_matrix.max() / 2 else "black",
                      fontsize=11, fontweight="bold")
 
-    # ── Subplot 3: accuracy global ───────────────────────────────────────────
-    ax3 = fig.add_subplot(2, 2, 4)
+    # ── Subplot 3: accuracy por clase ────────────────────────────────────────
+    ax3 = fig.add_subplot(n_rows, 2, 2 * (n_rows - 1) + 2)
 
-    # Accuracy por clase
     acc_per_class = []
     for c in class_names:
         indices = [i for i, t in enumerate(true_labels) if t == c]
@@ -690,14 +1011,31 @@ def plot_results(true_labels, pred_labels, probs, class_names):
         ax3.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 2,
                  f"{val:.1f}%", ha="center", va="bottom", fontsize=10, fontweight="bold")
 
+    # ── Subplot 4 (opcional): confianza por epoch ────────────────────────────
+    if max_conf is not None and umbral is not None:
+        ax4 = fig.add_subplot(n_rows, 2, (3, 4))
+
+        bar_conf_colors = ["#8172B2" if c < umbral else "#4C72B0" for c in max_conf]
+        ax4.bar(x, max_conf * 100, color=bar_conf_colors, edgecolor="white", linewidth=0.6)
+        ax4.axhline(umbral * 100, color="red", linestyle="--", linewidth=1.5,
+                    label=f"Umbral DESCANSO ({umbral*100:.0f}%)")
+        ax4.set_xlabel("Epoch")
+        ax4.set_ylabel("Confianza máxima (%)")
+        ax4.set_title("Confianza del modelo por epoch  (morado = reclasificado como DESCANSO)")
+        ax4.set_ylim(0, 105)
+        ax4.set_xticks(x)
+        ax4.legend(fontsize=10)
+        ax4.grid(axis="y", alpha=0.3)
+
     plt.tight_layout()
     plt.show()
 
 
 def main():
-    #fine_tune(epochs=10,save_path="src/MiRepNet/Pesos/MIRepNet_finetuned3.pth")
+    #fine_tune(epochs=10,save_path="src/MiRepNet/Pesos/MIRepNet_finetuned4.pth")
     downstream()
 
 
 if __name__ == "__main__":
     main()
+
