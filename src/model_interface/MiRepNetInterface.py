@@ -14,6 +14,7 @@ import torch.optim as optim
 
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
+from sklearn.preprocessing import LabelEncoder
 
 # Asegurar que pretrainedModels está en el path
 _PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -24,6 +25,8 @@ from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding
 from model_interface.ModelInterface import ModelInterface
 from pretrainedModels.MiRepNet.utils.utils import train
 from pretrainedModels.MiRepNet.utils.utils import validate
+
+CLASS_NAMES = ["feet", "left_hand", "right_hand"]
 
 class MiRepNetInterface(ModelInterface):
     """
@@ -81,12 +84,15 @@ class MiRepNetInterface(ModelInterface):
             T_max=10
         )
 
+        encoder = LabelEncoder()
+        self.le = encoder.fit(CLASS_NAMES)
+
     # ------------------------------------------------------------------
     # Clases auxiliares
     # ------------------------------------------------------------------
     def _getLoader(self, data: np.ndarray, labels: np.ndarray) -> DataLoader:
         X_tensor = torch.tensor(data, dtype=torch.float32)
-        y_tensor = torch.tensor(labels, dtype=torch.long)
+        y_tensor = torch.tensor(self.le.transform(labels), dtype=torch.long)
 
         dataset = TensorDataset(X_tensor, y_tensor)
         loader = DataLoader(

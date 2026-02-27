@@ -33,6 +33,7 @@ class EpochProcessor(ABC):
             data,
             info=info,
             events=original.events,
+            event_id=original.event_id,
             tmin=original.tmin,
             verbose=False,
         )

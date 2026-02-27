@@ -37,16 +37,13 @@ from epoch_processing.EpochNormalizer import EpochNormalizer
 from epoch_processing.SpatialInterpolator import SpatialInterpolator
 from epoch_processing.EuclideanAlignment import EuclideanAlignment
 
-# === Configuración del Dispositivo ===
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Usando dispositivo: {device}")
-
 # Etiquetas del experimento → etiquetas del modelo
 LABEL_MAP = {
     "IZQUIERDA": "left_hand",
     "DERECHA":   "right_hand",
     "ABAJO":     "feet",
 }
+
 CLASS_NAMES = ["feet", "left_hand", "right_hand"]  # orden alfabético = orden real de LabelEncoder
 
 # Pipeline de preprocesamiento 
@@ -55,7 +52,7 @@ raw_pipeline = RawProcessorPipeline([
     NotchFilter(50.0),
     Resampler(250),
     CARReference(),
-    ICAProcessor(n_components=15),
+    ICAProcessor(),
     AnnotationRenamer(LABEL_MAP),
 ])
 
@@ -82,10 +79,10 @@ def raw_to_epochs(raw, tmin=0.0, tmax=4.0):
         tmin=tmin, tmax=tmax,
         baseline=None, preload=True,
     )
-
+    
     return epochs
 
-def eopch_to_numpy(epochs):
+def epoch_to_numpy(epochs):
     """
     Convierte un mne.Epochs a un array numpy (B, C, T) y las etiquetas correspondientes.
     Asume que las etiquetas ya están codificadas como enteros (0, 1, 2) en el orden de CLASS_NAMES.
@@ -98,6 +95,10 @@ def eopch_to_numpy(epochs):
     return epochs.get_data(), true_labels
 
 def experimento(fineTuneFile, validationFile, epochs=10):
+    # === Configuración del Dispositivo ===
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Usando dispositivo: {device}")
+
     # Cargar modelo preentrenado
     model = MiRepNetInterface(weight_path=WEIGHT_PATH)
 
@@ -118,8 +119,8 @@ def experimento(fineTuneFile, validationFile, epochs=10):
     processed_epochs_val = epoch_pipeline.process(epochs_val)
 
     #convertimos los epochs a numpy arrays (B, C, T) y etiquetas correspondientes
-    X_finetune, y_finetune = eopch_to_numpy(processed_epochs_finetune)
-    X_val, y_val = eopch_to_numpy(processed_epochs_val)
+    X_finetune, y_finetune = epoch_to_numpy(processed_epochs_finetune)
+    X_val, y_val = epoch_to_numpy(processed_epochs_val)
 
     # fine-tunea el modelo con los epochs de finetune y evalúa con los epochs de validación
     model.finetuning(X_finetune, y_finetune, epochs=epochs, valData=X_val, valLabels=y_val)

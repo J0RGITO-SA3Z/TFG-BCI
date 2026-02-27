@@ -154,6 +154,7 @@ def validate(model, val_loader, criterion, device):
     running_loss = 0.0
     correct = 0
     total = 0
+    
     with torch.no_grad():
         for data, labels in val_loader:
             data, labels = data.to(device), labels.to(device)
@@ -167,6 +168,7 @@ def validate(model, val_loader, criterion, device):
 
     epoch_loss = running_loss / len(val_loader)
     accuracy = correct / total * 100
+
     return epoch_loss, accuracy
 
 def run_experiment(args, log_file):

@@ -18,7 +18,7 @@ class ICAProcessor(RawProcessor):
 
     def __init__(
         self,
-        n_components: int = 15,
+        n_components: int = 0.999999,
         method: str = "fastica",
         random_state: int = 42,
     ) -> None:
