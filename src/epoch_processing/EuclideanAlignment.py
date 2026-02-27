@@ -5,7 +5,7 @@ import os, sys
 import numpy as np
 import mne
 
-from .EpochProcessor import EpochProcessor
+from epoch_processing.EpochProcessor import EpochProcessor
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # sube desde src/epoch_processing -> src
 if ROOT not in sys.path:

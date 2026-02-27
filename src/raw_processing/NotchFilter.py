@@ -3,8 +3,7 @@ Procesador: filtro notch sobre MNE Raw.
 """
 
 import mne
-from .Processor import RawProcessor
-
+from raw_processing.RawProcessor import RawProcessor
 
 class NotchFilter(RawProcessor):
     """

@@ -3,8 +3,7 @@ Procesador: resampleo (cambio de frecuencia de muestreo) sobre MNE Raw.
 """
 
 import mne
-from .Processor import RawProcessor
-
+from raw_processing.RawProcessor import RawProcessor
 
 class Resampler(RawProcessor):
     """

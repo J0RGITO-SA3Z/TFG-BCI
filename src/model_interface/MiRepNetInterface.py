@@ -22,8 +22,8 @@ if _PROJECT_ROOT not in sys.path:
 
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding
 from model_interface.ModelInterface import ModelInterface
-from pretrainedModels.MiRepNet.utils import train
-from pretrainedModels.MiRepNet.utils import validate
+from pretrainedModels.MiRepNet.utils.utils import train
+from pretrainedModels.MiRepNet.utils.utils import validate
 
 class MiRepNetInterface(ModelInterface):
     """
@@ -45,12 +45,15 @@ class MiRepNetInterface(ModelInterface):
     def __init__(
         self,
         weight_path: str,
-        device: str | torch.device = "cpu",
+        device: str | torch.device = None,
         emb_size: int = 256,
         depth: int = 6,
         n_classes: int = 3,
         num_channels: int = 45,
     ):
+        if device is None:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            
         if not isinstance(device, torch.device):
             device = torch.device(device)
 

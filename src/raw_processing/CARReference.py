@@ -3,8 +3,7 @@ Procesador: Common Average Reference (CAR) sobre MNE Raw.
 """
 
 import mne
-from .Processor import RawProcessor
-
+from raw_processing.RawProcessor import RawProcessor
 
 class CARReference(RawProcessor):
     """

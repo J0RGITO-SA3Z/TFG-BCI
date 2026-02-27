@@ -3,8 +3,7 @@ Procesador: eliminación de artefactos mediante ICA sobre MNE Raw.
 """
 
 import mne
-from .Processor import RawProcessor
-
+from raw_processing.RawProcessor import RawProcessor
 
 class ICAProcessor(RawProcessor):
     """
@@ -38,13 +37,12 @@ class ICAProcessor(RawProcessor):
         )
         ica.fit(raw, verbose=False)
 
-        # Detección automática de artefactos oculares y musculares
-        eog_indices: list[int] = []
-        if "eog" in [ch.lower() for ch in raw.ch_names]:
-            eog_indices, _ = ica.find_bads_eog(raw, verbose=False)
-
+        #Detección automática de componentes relacionados con EOG, EMG y ECG
+        
         muscle_indices, _ = ica.find_bads_muscle(raw, verbose=False)
-        ica.exclude = list(set(eog_indices + muscle_indices))
+        #ecg_indices, _ = ica.find_bads_ecg(raw, verbose=False)
+        #eog_indices, _ = ica.find_bads_eog(raw, verbose=False) # EOG = parpadeo y movimientos oculares pero no se puede eliminar porque para ello hay que teber un electrodo específico
+        ica.exclude = list(set( muscle_indices))
 
         raw = ica.apply(raw, verbose=False)
         return raw

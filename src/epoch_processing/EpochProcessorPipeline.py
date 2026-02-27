@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import Iterable
 import mne
 
-from .EpochProcessor import EpochProcessor
+from epoch_processing.EpochProcessor import EpochProcessor
 
 class EpochProcessorPipeline:
 

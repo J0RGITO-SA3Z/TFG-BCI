@@ -2,7 +2,6 @@ import numpy as np
 from sklearn import preprocessing
 from torch.utils.data import Dataset, DataLoader
 from scipy.signal import resample
-from utils.utils import *
 import torch
 from mne.filter import resample
 from scipy.spatial.distance import cdist

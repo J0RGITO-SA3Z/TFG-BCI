@@ -9,7 +9,7 @@ calculan sobre los ejes canal × tiempo de cada trial.
 import numpy as np
 import mne
 
-from .EpochProcessor import EpochProcessor
+from epoch_processing.EpochProcessor import EpochProcessor
 
 class EpochNormalizer(EpochProcessor):
     """

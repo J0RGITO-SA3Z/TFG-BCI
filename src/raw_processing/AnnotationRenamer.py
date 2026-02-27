@@ -9,8 +9,7 @@ experimento al formato que espera un modelo.
 from __future__ import annotations
 
 import mne
-from .Processor import RawProcessor
-
+from raw_processing.RawProcessor import RawProcessor
 
 class AnnotationRenamer(RawProcessor):
     """

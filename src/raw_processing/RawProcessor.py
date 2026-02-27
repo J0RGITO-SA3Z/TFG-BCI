@@ -5,7 +5,6 @@ Interfaz abstracta para procesadores de señales EEG sobre objetos MNE Raw.
 from abc import ABC, abstractmethod
 import mne
 
-
 class RawProcessor(ABC):
     """
     Clase base abstracta para cualquier procesador de señales EEG.

@@ -25,12 +25,10 @@ También se puede construir de una vez::
 """
 
 from __future__ import annotations
-
 from typing import Iterable
-
 import mne
 
-from .Processor import RawProcessor
+from raw_processing.RawProcessor import RawProcessor
 
 class RawProcessorPipeline:
 

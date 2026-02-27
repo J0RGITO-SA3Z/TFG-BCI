@@ -12,13 +12,13 @@ import os, sys
 import numpy as np
 import mne
 
-from .EpochProcessor import EpochProcessor
+from epoch_processing.EpochProcessor import EpochProcessor
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # sube desde src/epoch_processing -> src
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from pretrainedModels.MiRepNet.utils import (
+from pretrainedModels.MiRepNet.utils.channel_list import (
     channel_positions as DEFAULT_CHANNEL_POSITIONS,
     use_channels_names as DEFAULT_TARGET_CHANNELS,
 )
@@ -55,7 +55,21 @@ class SpatialInterpolator(EpochProcessor):
             data, self.target_channels, actual_channels,
         )  # (B, C_target, T)
 
-        return self._to_epochs(interpolated, epochs)
+        newMneChannels = [self.validar_nombre_electrodo(ch) for ch in self.target_channels]
+
+        return self._to_epochs(interpolated,epochs,newMneChannels)
+    
+    # ------------------------------------------------------------------
+    # Funciones auxiliares
+    # ------------------------------------------------------------------
+    def validar_nombre_electrodo(self,nombre):
+        montage = mne.channels.make_standard_montage("standard_1005")
+        nombres_mne = montage.ch_names
+
+        nombre = nombre.strip().upper()
+        mapa = {ch.upper(): ch for ch in nombres_mne}
+
+        return mapa.get(nombre, None)
 
     def __repr__(self) -> str:
         return f"SpatialInterpolator(n_target={len(self.target_channels)})"

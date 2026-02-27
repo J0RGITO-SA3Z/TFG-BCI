@@ -3,6 +3,7 @@ Interfaz abstracta para procesadores de señales EEG sobre objetos MNE Epochs.
 """
 
 from abc import ABC, abstractmethod
+import numpy as np
 import mne
 
 class EpochProcessor(ABC):
@@ -18,11 +19,19 @@ class EpochProcessor(ABC):
         pass
 
     @staticmethod
-    def _to_epochs(data: np.ndarray, original: mne.Epochs) -> mne.Epochs:
+    def _to_epochs(data: np.ndarray, original: mne.Epochs, new_channels = None) -> mne.Epochs:
         """Reconstruye ``mne.EpochsArray`` preservando info y eventos."""
+        info = original.info.copy()
+        if new_channels is not None:
+            info = mne.create_info(
+                ch_names=new_channels,
+                sfreq=original.info['sfreq'],
+                ch_types=['eeg'] * len(new_channels)
+            )
+
         new_epochs = mne.EpochsArray(
             data,
-            original.info.copy(),
+            info=info,
             events=original.events,
             tmin=original.tmin,
             verbose=False,
