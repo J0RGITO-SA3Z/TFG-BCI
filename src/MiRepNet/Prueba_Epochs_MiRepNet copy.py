@@ -14,6 +14,9 @@ import torch
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from sklearn.preprocessing import LabelEncoder
+import warnings
+warnings.filterwarnings("ignore", message=".*frozen.*", module="pydantic")
+warnings.filterwarnings("ignore", message=".*repr.*", module="pydantic")
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 MIREPNET_DIR = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
