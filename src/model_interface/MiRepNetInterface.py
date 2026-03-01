@@ -116,6 +116,7 @@ class MiRepNetInterface(ModelInterface):
         if validation:
             val_loader = self._getLoader(valData, valLabels)
 
+        history = []
         final_val_acc = 0.0
         for epoch in range(epochs):
             train_loss, train_acc, curr_lr = train(
@@ -130,14 +131,22 @@ class MiRepNetInterface(ModelInterface):
                 )
                 final_val_acc = val_acc
 
+            history.append({
+                "train_loss": train_loss,
+                "train_acc": train_acc,
+                "val_loss": val_loss,
+                "val_acc": val_acc,
+                "lr": curr_lr
+            })
+
             print(
                 f"Epoch: {epoch+1}\n"
-                f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2%}, "
-                f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2%}, "
+                f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2}%, "
+                f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2}%, "
                 f"LR: {curr_lr:.6f}\n"
             )
         
-        return final_val_acc
+        return final_val_acc, history
     
     def predict(self, data):
         self._model.eval()

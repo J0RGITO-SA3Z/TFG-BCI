@@ -40,6 +40,8 @@ from epoch_processing.EpochNormalizer import EpochNormalizer
 from epoch_processing.SpatialInterpolator import SpatialInterpolator
 from epoch_processing.EuclideanAlignment import EuclideanAlignment
 
+from utils.Performance_Viewer import PerformanceViewer
+
 # Etiquetas del experimento → etiquetas del modelo
 LABEL_MAP = {
     "IZQUIERDA": "left_hand",
@@ -126,8 +128,12 @@ def experimento(fineTuneFile, validationFile, epochs=10):
     X_val, y_val = epoch_to_numpy(processed_epochs_val)
 
     # fine-tunea el modelo con los epochs de finetune y evalúa con los epochs de validación
-    model.finetuning(X_finetune, y_finetune, epochs=epochs, valData=X_val, valLabels=y_val)
+    _, history = model.finetuning(X_finetune, y_finetune, epochs=epochs, valData=X_val, valLabels=y_val)
     res = model.predict_batch(X_val)
+
+    viewer = PerformanceViewer(history)
+    viewer.plot_fine_tune()
+
 
 
 def main():
