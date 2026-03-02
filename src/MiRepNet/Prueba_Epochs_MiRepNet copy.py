@@ -24,6 +24,7 @@ WEIGHT_PATH  = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
 sys.path.append(PROJECT_ROOT)
 sys.path.append(MIREPNET_DIR)
 
+from model_interface.MiRepNetManualInterface import MiRepNetManualInterface
 from model_interface.MiRepNetInterface import MiRepNetInterface
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding
 
@@ -105,7 +106,7 @@ def experimento(fineTuneFile, validationFile, epochs=10):
     print(f"Usando dispositivo: {device}")
 
     # Cargar modelo preentrenado
-    model = MiRepNetInterface(weight_path=WEIGHT_PATH)
+    model = MiRepNetManualInterface(weight_path=WEIGHT_PATH)
 
     # Cargar datos raw
     finetuneRaw = mne.io.read_raw_fif(fineTuneFile, preload=True)
@@ -129,7 +130,7 @@ def experimento(fineTuneFile, validationFile, epochs=10):
 
     # fine-tunea el modelo con los epochs de finetune y evalúa con los epochs de validación
     finetune_result = model.finetuning(X_finetune, y_finetune, epochs=epochs, valData=X_val, valLabels=y_val)
-    downstream_result = model.predict_batch(X_val)
+    #downstream_result = model.predict_batch(X_val)
 
     # visualiza las métricas de entrenamiento
     viewer = PerformanceViewer()
@@ -137,7 +138,7 @@ def experimento(fineTuneFile, validationFile, epochs=10):
     viewer.summary(finetune_result)
 
     # visualiza la matriz de confusión y el reporte de clasificación
-    viewer.plot_downstream(y_val, downstream_result)
+    #viewer.plot_downstream(y_val, downstream_result)
 
 
 
