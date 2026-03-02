@@ -128,11 +128,16 @@ def experimento(fineTuneFile, validationFile, epochs=10):
     X_val, y_val = epoch_to_numpy(processed_epochs_val)
 
     # fine-tunea el modelo con los epochs de finetune y evalúa con los epochs de validación
-    _, history = model.finetuning(X_finetune, y_finetune, epochs=epochs, valData=X_val, valLabels=y_val)
-    res = model.predict_batch(X_val)
+    finetune_result = model.finetuning(X_finetune, y_finetune, epochs=epochs, valData=X_val, valLabels=y_val)
+    downstream_result = model.predict_batch(X_val)
 
-    viewer = PerformanceViewer(history)
-    viewer.plot_fine_tune()
+    # visualiza las métricas de entrenamiento
+    viewer = PerformanceViewer()
+    viewer.plot_fine_tune(finetune_result)
+    viewer.summary(finetune_result)
+
+    # visualiza la matriz de confusión y el reporte de clasificación
+    viewer.plot_downstream(y_val, downstream_result)
 
 
 
