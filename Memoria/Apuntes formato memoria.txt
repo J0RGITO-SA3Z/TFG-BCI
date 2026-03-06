@@ -59,7 +59,7 @@ Ideas generales sobre el texto:
 	- Todas las imágenes y figuras deben ser útiles.
 	- Las imágenes, figuras, tablas y demás tienen que estar numeradas con esquema (Tabla 2.5) y tener un pie que describa PERFECTAMENTE lo que se ve.
 	- Los títulos tienen que ser descriptivos (y si hacen falta, largos), no atractivos (ambas mejor).
-	- No se escribe nada en "personal" (nada de "hemos aprendido mucho") y nada de primera persona del singular, en ve de eso se usa la segunda del plural o impersonal.
+	- No se escribe nada en "personal" (nada de "hemos aprendido mucho") y nada de primera persona del singular, en ve de eso se usa la primera del plural o impersonal.
 	- Repetir cosas no es malo, dentro de lo razonable.
 
 

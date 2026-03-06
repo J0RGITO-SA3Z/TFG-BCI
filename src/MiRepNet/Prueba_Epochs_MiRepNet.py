@@ -278,7 +278,6 @@ def euclidean_alignment_epochs(X: np.ndarray) -> np.ndarray:
         np.ndarray (B, C, T) alineado
     """
     B, C, T = X.shape
-    print(X.shape)
 
     # Covarianza media entre todos los trials
     R_mean = np.mean([X[i] @ X[i].T / T for i in range(B)], axis=0)  # (C, C)
