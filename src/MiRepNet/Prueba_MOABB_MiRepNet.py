@@ -37,6 +37,9 @@ from moabb.datasets import BNCI2014_001, BNCI2014_004, BNCI2015_001
 from moabb.paradigms import MotorImagery
 moabb.set_log_level("ERROR")
 
+# ── DataProviders ─────────────────────────────────────────────────────────────────────
+from DataProvider.MoabbDataProvider import MoabbDataProvider
+
 # =============================================================================
 # CONFIG — cambia aquí para probar distintos datasets/sujetos
 # =============================================================================
@@ -78,6 +81,8 @@ def load_moabb_data(dataset_name: str, subject_idx: int):
     classes   = sorted(set(labels))
     label_map = {c: i for i, c in enumerate(classes)}
     y = np.array([label_map[l] for l in labels], dtype=np.int64)
+    print(f"  Clases originales: {set(labels)}")
+    print(f"  Clases codificadas: {set(y)}  |  Mapeo: {label_map}")
 
     print(f"  Shape X: {X.shape}  |  clases: {classes}")
     return X, y, classes
@@ -112,7 +117,9 @@ def run(dataset_name, subject_idx, epochs, batch_size, lr, val_split, seed):
     print(f"Device: {device}\n")
 
     # 1. Datos
-    X, y, classes = load_moabb_data(dataset_name, subject_idx)
+    dataProvider = MoabbDataProvider(dataset_name=dataset_name, subject_idx=subject_idx)
+    X, y, classes = dataProvider.get_data()
+
     train_loader, val_loader = build_loaders(
         X, y, dataset_name, val_split, batch_size, seed
     )
