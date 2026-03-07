@@ -20,5 +20,5 @@ class EuclideanAlignment(EpochProcessor):
 
     def process(self, epochs: mne.Epochs) -> mne.Epochs:
         data = epochs.get_data()  # (B, C, T)
-        aligned = EA(data)
+        aligned = EA(data).astype(np.float32)  
         return self._to_epochs(aligned, epochs)

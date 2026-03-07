@@ -156,7 +156,7 @@ class PerformanceViewer:
         print(f"  Epochs totales     : {len(history)}")
         print(f"  Mejor val loss     : {val_loss[best_loss_epoch]:.4f}"
               f"  (epoch {x[best_loss_epoch]})")
-        print(f"  Mejor val accuracy : {val_acc[best_acc_epoch] * 100:.1f}%"
+        print(f"  Mejor val accuracy : {val_acc[best_acc_epoch] :.1f}%"
               f"  (epoch {x[best_acc_epoch]})")
         print(f"  LR final           : {lr[-1]:.6f}")
         print("─" * 50)

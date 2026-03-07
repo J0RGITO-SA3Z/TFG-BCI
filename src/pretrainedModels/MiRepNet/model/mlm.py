@@ -8,7 +8,6 @@ import torch.nn.functional as F
 from torch import Tensor
 from einops import rearrange, reduce, repeat
 from einops.layers.torch import Rearrange, Reduce
-import wandb
 import math
 
 class PatchEmbedding(nn.Module):

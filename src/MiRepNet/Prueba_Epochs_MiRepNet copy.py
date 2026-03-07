@@ -15,8 +15,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from sklearn.preprocessing import LabelEncoder
 import warnings
-warnings.filterwarnings("ignore", message=".*frozen.*", module="pydantic")
-warnings.filterwarnings("ignore", message=".*repr.*", module="pydantic")
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 MIREPNET_DIR = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
@@ -24,8 +22,9 @@ WEIGHT_PATH  = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
 sys.path.append(PROJECT_ROOT)
 sys.path.append(MIREPNET_DIR)
 
-from model_interface.MiRepNetManualInterface import MiRepNetManualInterface
+#from model_interface.MiRepNetManualInterface import MiRepNetManualInterface
 from model_interface.MiRepNetInterface import MiRepNetInterface
+from model_interface.modeloGuarro import ModeloGuarro
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding
 
 from raw_processing.RawProcessorPipeline import RawProcessorPipeline
@@ -40,6 +39,7 @@ from epoch_processing.EpochProcessorPipeline import EpochProcessorPipeline
 from epoch_processing.EpochNormalizer import EpochNormalizer
 from epoch_processing.SpatialInterpolator import SpatialInterpolator
 from epoch_processing.EuclideanAlignment import EuclideanAlignment
+from epoch_processing.EuclideanAlignmentNotCentred import EuclideanAlignmentNotCentred
 
 from utils.Performance_Viewer import PerformanceViewer
 
@@ -54,19 +54,22 @@ CLASS_NAMES = ["feet", "left_hand", "right_hand"]  # orden alfabético = orden r
 
 # Pipeline de preprocesamiento 
 raw_pipeline = RawProcessorPipeline([
+    # NotchFilter(50.0),
     BandpassFilter(8.0, 30.0),
-    NotchFilter(50.0),
-    Resampler(250),
+    # Resampler(250),
+    # ICAProcessor(),
     CARReference(),
-    ICAProcessor(),
     AnnotationRenamer(LABEL_MAP),
 ])
 
 # Pipeline de procesamiento sobre epochs (se ejecuta después de epoquizar)
 epoch_pipeline = EpochProcessorPipeline([
+    
     SpatialInterpolator(),        # interpola/reordena canales a la topología objetivo
     EuclideanAlignment(),         # alineamiento euclídeo (EA)
-    EpochNormalizer(),            # normalización z-score por epoch
+    
+    #EuclideanAlignmentNotCentred(), # alineamiento euclídeo sin centrar (EA sin restar media)
+    #EpochNormalizer(),            # normalización z-score por epoch
 ])
 
 # Función para convertir un Raw (ya preprocesado por el pipeline) a epochs (B, C, T)
@@ -88,6 +91,28 @@ def raw_to_epochs(raw, tmin=0.0, tmax=4.0):
     
     return epochs
 
+def raws_to_epochs(raw_list, tmin=0.0, tmax=4.0):
+    epochs_list = []
+
+    for raw in raw_list:
+        events, event_id = mne.events_from_annotations(raw)
+        event_id_filtrado = {k: v for k, v in event_id.items() if k in CLASS_NAMES}
+
+        epochs = mne.Epochs(
+            raw,
+            events=events,
+            event_id=event_id_filtrado,
+            tmin=tmin,
+            tmax=tmax,
+            baseline=None,
+            preload=True,
+        )
+
+        epochs_list.append(epochs)
+    combined_epochs = mne.concatenate_epochs(epochs_list)
+
+    return combined_epochs
+
 def epoch_to_numpy(epochs):
     """
     Convierte un mne.Epochs a un array numpy (B, C, T) y las etiquetas correspondientes.
@@ -100,25 +125,25 @@ def epoch_to_numpy(epochs):
 
     return epochs.get_data(), true_labels
 
-def experimento(fineTuneFile, validationFile, epochs=10):
+def experimento(archivosTraining,archivosTest, epochs=10):
     # === Configuración del Dispositivo ===
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Usando dispositivo: {device}")
 
     # Cargar modelo preentrenado
-    model = MiRepNetManualInterface(weight_path=WEIGHT_PATH)
+    model = ModeloGuarro(weight_path=WEIGHT_PATH, device=device)
 
     # Cargar datos raw
-    finetuneRaw = mne.io.read_raw_fif(fineTuneFile, preload=True)
-    valRaw = mne.io.read_raw_fif(validationFile, preload=True)
+    rawsTraining = [mne.io.read_raw_fif(archivo, preload=True) for archivo in archivosTraining]
+    rawsTest = [mne.io.read_raw_fif(archivo, preload=True) for archivo in archivosTest]
 
     #aplica preprocesado al raw
-    finetuneRaw = raw_pipeline.process(finetuneRaw)
-    valRaw      = raw_pipeline.process(valRaw)
+    rawsTraining = [raw_pipeline.process(raw) for raw in rawsTraining]
+    rawsTest = [raw_pipeline.process(raw) for raw in rawsTest]
 
     #separamos los raws en eopchs
-    epochs_finetune = raw_to_epochs(finetuneRaw)
-    epochs_val = raw_to_epochs(valRaw)
+    epochs_finetune = raws_to_epochs(rawsTraining)
+    epochs_val = raws_to_epochs(rawsTest)
 
     #aplica el procesamiento sobre los epochs
     processed_epochs_finetune = epoch_pipeline.process(epochs_finetune)
@@ -130,7 +155,7 @@ def experimento(fineTuneFile, validationFile, epochs=10):
 
     # fine-tunea el modelo con los epochs de finetune y evalúa con los epochs de validación
     finetune_result = model.finetuning(X_finetune, y_finetune, epochs=epochs, valData=X_val, valLabels=y_val)
-    #downstream_result = model.predict_batch(X_val)
+    downstream_result = model.predict_batch(X_val)
 
     # visualiza las métricas de entrenamiento
     viewer = PerformanceViewer()
@@ -138,15 +163,20 @@ def experimento(fineTuneFile, validationFile, epochs=10):
     viewer.summary(finetune_result)
 
     # visualiza la matriz de confusión y el reporte de clasificación
-    #viewer.plot_downstream(y_val, downstream_result)
-
-
+    viewer.plot_downstream(y_val, downstream_result)
 
 def main():
-    fineTuneFile = os.path.join(PROJECT_ROOT,"..", "EEG_controller_app","recordings", "suj2_1.fif")
-    validationFile = os.path.join(PROJECT_ROOT,"..", "EEG_controller_app","recordings", "suj2_2.fif")
+    archivos = []
+    recording_dir = os.path.join(PROJECT_ROOT, "..", "EEG_controller_app", "recordings")
+    
+    archivos.append(os.path.join(recording_dir, "suj2_1.fif"))
+    archivos.append(os.path.join(recording_dir, "suj2_2.fif"))
+    archivos.append(os.path.join(recording_dir, "suj2_3.fif"))
+    archivos.append(os.path.join(recording_dir, "suj2_4.fif"))
+    archivos.append(os.path.join(recording_dir, "suj2_5.fif"))
+    archivos.append(os.path.join(recording_dir, "suj2_6.fif"))
 
-    experimento(fineTuneFile, validationFile, epochs=10)
+    experimento(None, archivosTest=archivos, epochs=10)
 
 
 if __name__ == "__main__":
