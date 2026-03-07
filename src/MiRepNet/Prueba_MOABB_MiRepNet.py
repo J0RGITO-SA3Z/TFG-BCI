@@ -24,6 +24,9 @@ WEIGHT_PATH   = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
 sys.path.append(PROJECT_ROOT)
 sys.path.append(MIREPNET_DIR)
 
+# ── Imports modelInterface ──────────────────────────────────────────────────────────
+from model_interface.modeloGuarro import ModeloGuarro
+
 # ── Imports MiRepNet ──────────────────────────────────────────────────────────
 from pretrainedModels.MiRepNet.utils.utils import train, validate, process_and_replace_loader
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask
@@ -116,54 +119,15 @@ def run(dataset_name, subject_idx, epochs, batch_size, lr, val_split, seed):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}\n")
 
+   
     # 1. Datos
     dataProvider = MoabbDataProvider(dataset_name=dataset_name, subject_idx=subject_idx)
     X, y, classes = dataProvider.get_data()
 
-    train_loader, val_loader = build_loaders(
-        X, y, dataset_name, val_split, batch_size, seed
-    )
+    num_clases = len(set(y))
 
-    # 2. Modelo
-    n_classes = NUM_CLASSES_MAP[dataset_name]
-    model = mlm_mask(
-        emb_size=256,
-        depth=6,
-        n_classes=n_classes,
-        pretrainmode=False,
-        pretrain=WEIGHT_PATH
-    ).to(device)
-
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
-
-    # 3. Bucle de entrenamiento — construimos history para PerformanceViewer
-    history = []
-    print(f"Entrenando {epochs} épocas...\n")
-
-    for epoch in range(epochs):
-        train_loss, train_acc, curr_lr = train(
-            model, train_loader, criterion, optimizer, device, scheduler
-        )
-        val_loss, val_acc = validate(model, val_loader, criterion, device)
-
-        history.append({
-            "train_loss": train_loss,
-            "val_loss":   val_loss,
-            "train_acc":  train_acc,      # viene en % desde utils
-            "val_acc":    val_acc,
-            "lr":         curr_lr,
-        })
-
-        print(f"  Epoch {epoch+1:>3}/{epochs} | "
-              f"train_loss={train_loss:.4f}  train_acc={train_acc:.1f}%  |  "
-              f"val_loss={val_loss:.4f}  val_acc={val_acc:.1f}%  |  lr={curr_lr:.6f}")
-
-    # 4. Visualización
-    viewer = PerformanceViewer()
-    viewer.summary(history)
-    viewer.plot_fine_tune(history)
+    modelo = ModeloGuarro(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
+    history = modelo.experimento(X, y, val_split=val_split, batch_size=batch_size, seed=seed, epochs=epochs)
 
     return history
 

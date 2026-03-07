@@ -27,3 +27,14 @@ class DataProvider(ABC):
             classes : lista ordenada de nombres de clase originales
         """
         ...
+
+    @abstractmethod
+    def get_channel_names(self) -> List[str]:
+        """
+        Devuelve la lista de nombres de canales del dataset.
+
+        Returns:
+            Lista de strings con los nombres de los canales EEG.
+        """
+        ...
+

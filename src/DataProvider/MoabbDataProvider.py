@@ -14,6 +14,16 @@ from moabb.datasets import BNCI2014_001, BNCI2014_004, BNCI2015_001
 from moabb.paradigms import MotorImagery
 
 from DataProvider.DataProvider import DataProvider
+import os, sys
+
+PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+MIREPNET_DIR  = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
+WEIGHT_PATH   = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
+
+sys.path.append(PROJECT_ROOT)
+sys.path.append(MIREPNET_DIR)
+
+from pretrainedModels.MiRepNet.utils.channel_list import BNCI2014001_chn_names, BNCI2014004_chn_names, BNCI2015001_chn_names, AlexMI_chn_names
 
 moabb.set_log_level("ERROR")
 
@@ -88,3 +98,17 @@ class MoabbDataProvider(DataProvider):
         y = np.array([label_map[l] for l in labels], dtype=np.int64)
 
         return X, y, classes
+    
+    def get_channel_names(self):
+        if self.dataset_name == 'BNCI2014001':
+            channels_names = BNCI2014001_chn_names
+        elif self.dataset_name == 'BNCI2014004':
+            channels_names = BNCI2014004_chn_names
+        elif self.dataset_name == 'BNCI2014001-4':
+            channels_names = BNCI2014001_chn_names
+        elif self.dataset_name == 'AlexMI':
+            channels_names = AlexMI_chn_names
+        elif self.dataset_name =='BNCI2015001':
+            channels_names = BNCI2015001_chn_names
+    
+        return channels_names

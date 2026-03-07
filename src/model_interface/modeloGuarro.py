@@ -15,16 +15,25 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
 
-# Asegurar que pretrainedModels está en el path
-_PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if _PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, _PROJECT_ROOT)
+# ── Rutas ─────────────────────────────────────────────────────────────────────
+PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+MIREPNET_DIR  = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
+WEIGHT_PATH   = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
+
+sys.path.append(PROJECT_ROOT)
+sys.path.append(MIREPNET_DIR)
+
+# ── Imports visualización ─────────────────────────────────────────────────────
+from utils.Performance_Viewer import PerformanceViewer
+
+# ── Imports MiRepNet ──────────────────────────────────────────────────────────
+from pretrainedModels.MiRepNet.utils.utils import train, validate, process_and_replace_loader
+from pretrainedModels.MiRepNet.model.mlm import mlm_mask
 
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding
 from model_interface.ModelInterface import ModelInterface
-from pretrainedModels.MiRepNet.utils.utils import train
-from pretrainedModels.MiRepNet.utils.utils import validate
 from pretrainedModels.MiRepNet.utils.utils import EA
 from pretrainedModels.MiRepNet.utils.utils import pad_missing_channels_diff
 from pretrainedModels.MiRepNet.utils.channel_list import use_channels_names
@@ -63,7 +72,7 @@ def process_and_replace_loader(loader,ischangechn,channels_names):
         
         return torch.utils.data.DataLoader(new_dataset, **loader_args)
 
-class ModeloGuarro(ModelInterface):
+class ModeloGuarro():
     """
     Wrapper de MIRepNet que cumple la interfaz ``ModelInterface``.
 
@@ -73,7 +82,6 @@ class ModeloGuarro(ModelInterface):
         emb_size:    Tamaño del embedding del transformer (por defecto 256).
         depth:       Número de bloques transformer (por defecto 6).
         n_classes:   Número de clases de salida (por defecto 3).
-        num_channels:Número de canales EEG esperados (por defecto 45).
     """
 
     # ------------------------------------------------------------------
@@ -86,8 +94,8 @@ class ModeloGuarro(ModelInterface):
         device: str | torch.device = None,
         emb_size: int = 256,
         depth: int = 6,
-        n_classes: int = 3,
-        num_channels: int = 45,
+        num_clases: int = 3,
+        channels_names: list[str] = None
     ):
         if device is None:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -95,176 +103,114 @@ class ModeloGuarro(ModelInterface):
         if not isinstance(device, torch.device):
             device = torch.device(device)
 
+        self.channels_names = channels_names
         self.device = device
-        self.num_channels = num_channels
-        self.n_classes = n_classes
+        self.n_classes = 3
 
         # Crear modelo
         self._model: nn.Module = mlm_mask(
             emb_size=emb_size,
             depth=depth,
-            n_classes=n_classes,
+            n_classes=num_clases,
             pretrainmode=False,
             pretrain=weight_path
         ).to(self.device)
 
-        self.optimizer = optim.Adam(
-            self._model.parameters(), 
-            lr=0.001,
-            weight_decay=1e-6
+    def experimento(self,X, y, val_split=0.2, batch_size=32, seed=42, epochs=20):
+        train_loader, val_loader = self._build_loaders(
+            X, y, val_split, batch_size, seed
         )
 
-        self.scheduler = optim.lr_scheduler.CosineAnnealingLR(
-           self.optimizer, 
-            T_max=10
-        )
-
-        encoder = LabelEncoder()
-        self.le = encoder.fit(CLASS_NAMES)
-
-    # ------------------------------------------------------------------
-    # Clases auxiliares
-    # ------------------------------------------------------------------
-    def _getLoader(self, data: np.ndarray, labels: np.ndarray) -> DataLoader:
-        X_tensor = torch.tensor(data, dtype=torch.float32)
-        y_tensor = torch.tensor(self.le.transform(labels), dtype=torch.long)
-
-        dataset = TensorDataset(X_tensor, y_tensor)
-        loader = DataLoader(
-            dataset, 
-            batch_size=8, 
-            shuffle=True, 
-            num_workers=4
-        )
-        return loader
-
-    # ------------------------------------------------------------------
-    # Interfaz pública
-    # ------------------------------------------------------------------
-
-    def finetuning(self, trainingData: np.ndarray, trainingLabels: np.ndarray,epochs: int, valData: np.ndarray = None, valLabels: np.ndarray = None):
-        validation = valData is not None and valLabels is not None
+        # 2. Modelo
         criterion = nn.CrossEntropyLoss()
+        self.optimizer = optim.Adam(self._model.parameters(), lr=1e-3,weight_decay=1e-4)
+        self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=epochs)
 
-        train_loader = self._getLoader(trainingData, trainingLabels)
+        # 3. Bucle de entrenamiento — construimos history para PerformanceViewer
+        history = []
+        print(f"Entrenando {epochs} épocas...\n")
 
-        if validation:
-            val_loader = self._getLoader(valData, valLabels)
-
-        final_val_acc = 0.0
         for epoch in range(epochs):
             train_loss, train_acc, curr_lr = train(
-                self._model, train_loader, criterion, 
-                self.optimizer, self.device, self.scheduler
+                self._model, train_loader, criterion, self.optimizer, self.device, self.scheduler
             )
+            val_loss, val_acc = validate(self._model, val_loader, criterion, self.device)
 
-            val_loss, val_acc = 0.0, 0.0
-            if validation:
-                val_loss, val_acc = validate(
-                    self._model, val_loader, criterion, self.device
-                )
-                final_val_acc = val_acc
+            history.append({
+                "train_loss": train_loss,
+                "val_loss":   val_loss,
+                "train_acc":  train_acc,      # viene en % desde utils
+                "val_acc":    val_acc,
+                "lr":         curr_lr,
+            })
 
-            print(
-                f"Epoch: {epoch+1}\n"
-                f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2%}, "
-                f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2%}, "
-                f"LR: {curr_lr:.6f}\n"
+            print(f"  Epoch {epoch+1:>3}/{epochs} | "
+                f"train_loss={train_loss:.4f}  train_acc={train_acc:.1f}%  |  "
+                f"val_loss={val_loss:.4f}  val_acc={val_acc:.1f}%  |  lr={curr_lr:.6f}")
+
+        # 4. Visualización
+        viewer = PerformanceViewer()
+        viewer.summary(history)
+        viewer.plot_fine_tune(history)
+
+        return history
+            
+    def _build_loaders(self,X, y, val_split=0.2, batch_size=32, seed=42):
+        """Divide en train/val y aplica el preprocesado de MiRepNet."""
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=val_split, random_state=seed, stratify=y
+        )
+
+        def to_loader(data, labels, shuffle):
+            ds = TensorDataset(
+                torch.from_numpy(data).float(),
+                torch.from_numpy(labels)
             )
-        
-        return final_val_acc
+            return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0)
+
+        train_loader = to_loader(X_train, y_train, shuffle=True)
+        val_loader   = to_loader(X_val,   y_val,   shuffle=False)
+
+        # Preprocesado MiRepNet: EA + alineación espacial al channel template
+        train_loader = self._process_and_replace_loader(train_loader, ischangechn=True)
+        val_loader   = self._process_and_replace_loader(val_loader,   ischangechn=True)
+
+        return train_loader, val_loader
     
-    def _extract_from_epochs(self, data):
-        """
-        Extrae datos, etiquetas y nombres de canales de un objeto MNE Epochs.
-
-        Returns:
-            X             : np.ndarray (B, C, T) con los datos EEG.
-            Y             : list[str]  etiquetas textuales por epoch.
-            channel_names : list[str]  nombres de los canales EEG.
-        """
-        channel_names = data.ch_names
-        channel_names = [ch.upper() for ch in channel_names]
-        X = data.get_data()
-
-        true_labels_numeric = data.events[:, 2]
-        inv_event_id = {v: k for k, v in data.event_id.items()}
-        Y = [inv_event_id[i] for i in true_labels_numeric]
-
-        return X, Y, channel_names
-
-    def predict(self, data):
-        X, Y, channel_names = self._extract_from_epochs(data)
-
-        self._model.eval()
+    """
+    Función reutilizada del repositorio de MiRepNet
+    Con modificaciones para aceptar cualquier dataset (canales alineados al template + EA) y devolver un DataLoader nuevo con los datos preprocesados.
+    """
+    def _process_and_replace_loader(self,loader,ischangechn):
+        all_data = []
+        all_labels = []
+        for i in range(len(loader.dataset)):
+            data, label = loader.dataset[i]
+            all_data.append(data.numpy())
+            all_labels.append(label)
         
-        with torch.no_grad():
-            data_tensor = torch.from_numpy(X).float().unsqueeze(0).to(self.device)
-            _, outputs = self._model(data_tensor)
-            
-            # Obtener probabilidades con softmax
-            probabilities = torch.nn.functional.softmax(outputs, dim=1)
-            
-            probs_np = probabilities.cpu().numpy()[0]
+        data_np = np.stack(all_data, axis=0)
+        labels_tensor = torch.stack(all_labels)
         
-        return probs_np, Y, channel_names
+        processed_data = EA(data_np).astype(np.float32)  
 
-    def epochs_to_dataset(self, data):
-        """
-        Convierte un objeto MNE Epochs al mismo formato que ``EEGDataset``:
-          - X : np.ndarray (B, C, T)  float
-          - y : np.ndarray (B,)       int  (etiquetas codificadas con LabelEncoder)
+        if ischangechn and self.channels_names is not None:
+            print("before processed：", processed_data.shape)
+            channels_names = self.channels_names
+            processed_data = pad_missing_channels_diff(processed_data,use_channels_names,channels_names)
+            print("after processed：", processed_data.shape)
 
-        Útil para pasar directamente a ``train_test_split(X, y, ...)``.
-        """
-        X, Y_str, channel_names = self._extract_from_epochs(data)
-        y = self.le.transform(Y_str)            # list[str] → np.ndarray[int]
-        X = torch.tensor(X, dtype=torch.float32)
-        y = torch.tensor(y, dtype=torch.long)
-
-        return X, y, channel_names
-
-    #Data es un objeto MNE Epochs, se convierte a numpy array (B, C, T) y se predice batch-wise
-    def predict_batch(self, data):
-        self._model.eval()
-        X, y, channel_names = self.epochs_to_dataset(data)
-        val_dataset = TensorDataset(X, y)
-
-        val_loader = DataLoader(
-            val_dataset,
-            batch_size=8,
-            shuffle=False,
-            num_workers=4
+        new_dataset = TensorDataset(
+            torch.from_numpy(processed_data).float(),  
+            labels_tensor
         )
-
-        val_loader = process_and_replace_loader(
-            val_loader, 
-            ischangechn=True,
-            channels_names=channel_names
-        )
-
-        # --- Validación con criterion (reutiliza validate de utils) ---
-        criterion = nn.CrossEntropyLoss()
-        val_loss, val_acc = validate(
-            self._model, val_loader, criterion, self.device
-        )
-        print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
-
-        # --- Recoger probabilidades por batch → (B, 3) ---
-        all_probs = []
-        with torch.no_grad():
-            for batch_data, _ in val_loader:
-                batch_data = batch_data.to(self.device)
-                _, outputs = self._model(batch_data)
-                probabilities = torch.softmax(outputs, dim=1)
-                all_probs.append(probabilities.cpu().numpy())
-
-        probs_np = np.concatenate(all_probs, axis=0)   # (epochs, 3)
-
-        return probs_np
-
-    def __repr__(self) -> str:
-        return (
-            f"MiRepNetInterface(device={self.device}, "
-            f"num_channels={self.num_channels}, n_classes={self.n_classes})"
-        )
+        
+        loader_args = {
+            'batch_size': loader.batch_size,
+            'num_workers': loader.num_workers,
+            'pin_memory': loader.pin_memory,
+            'drop_last': loader.drop_last,
+            'shuffle': isinstance(loader.sampler, torch.utils.data.RandomSampler)
+        }
+        
+        return torch.utils.data.DataLoader(new_dataset, **loader_args)
