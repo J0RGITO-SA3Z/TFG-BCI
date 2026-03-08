@@ -33,10 +33,18 @@ class SpatialInterpolator(EpochProcessor):
     def __init__(
         self,
         target_channels: Optional[List[str]] = None,
-        channel_positions: Optional[Dict[str, Tuple[float, float]]] = None,
+        actual_channel_positions: Optional[List[str]] = None,
     ) -> None:
         self.target_channels = target_channels if target_channels is not None else DEFAULT_TARGET_CHANNELS
-        self.channel_positions = channel_positions if channel_positions is not None else DEFAULT_CHANNEL_POSITIONS
+        self.channel_positions =  DEFAULT_CHANNEL_POSITIONS
+
+        if actual_channel_positions is not None:
+            self.actual_channel_positions = [ch.upper() for ch in actual_channel_positions]
+            for ch in self.actual_channel_positions:
+                if ch.upper() not in self.channel_positions:
+                    raise Exception("Nombre de canal no valido")
+        else:
+            self.actual_channel_positions = None
 
     # ------------------------------------------------------------------
     # Interfaz pública
@@ -58,6 +66,16 @@ class SpatialInterpolator(EpochProcessor):
         newMneChannels = [self.validar_nombre_electrodo(ch) for ch in self.target_channels]
 
         return self._to_epochs(interpolated,epochs,newMneChannels)
+    
+    def process_np(self, X: np.ndarray, Y: np.ndarray | None = None):
+        if self.actual_channel_positions is None:
+            raise Exception("No se han proporcionado las posiciones de los canales reales, no se puede interpolar.")
+        
+        interpolated = pad_missing_channels_diff(
+            X, self.target_channels, self.actual_channel_positions,
+        )
+
+        return interpolated, Y
     
     # ------------------------------------------------------------------
     # Funciones auxiliares

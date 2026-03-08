@@ -33,6 +33,13 @@ moabb.set_log_level("ERROR")
 from DataProvider.MoabbDataProvider import MoabbDataProvider
 from DataProvider.FifDataProvider import FifDataProvider
 
+# ── Data Processing ─────────────────────────────────────────────────────────────────────
+from epoch_processing.EpochProcessorPipeline import EpochProcessorPipeline
+from epoch_processing.EpochNormalizer import EpochNormalizer
+from epoch_processing.SpatialInterpolator import SpatialInterpolator
+from epoch_processing.EuclideanAlignment import EuclideanAlignment
+from epoch_processing.EuclideanAlignmentNotCentred import EuclideanAlignmentNotCentred
+
 # =============================================================================
 # CONFIG — cambia aquí para probar distintos datasets/sujetos
 # =============================================================================
@@ -44,6 +51,7 @@ LR           = 1e-3
 VAL_SPLIT    = 0.2
 SEED         = 42
 # =============================================================================
+# Pipeline de procesamiento sobre epochs (se ejecuta después de epoquizar)
 
 def run_moab(dataset_name, subject_idx, epochs, batch_size, lr, val_split, seed):
     torch.manual_seed(seed)
@@ -72,7 +80,7 @@ def run_fif(fif_names, epochs, batch_size, lr, val_split, seed):
     print(f"Device: {device}\n")
    
     # 1. Datos
-    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand", "feet"])
+    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand",  "feet"])
     X, y, classes = dataProvider.get_data()
 
     num_clases = len(classes)
@@ -99,7 +107,7 @@ def run_fif_separado(fif_names, epochs, batch_size, lr, val_split, seed):
     print(f"Device: {device}\n")
    
     # 1. Datos
-    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand","feet",  "rest"])
+    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand","rest"])
     X, y, classes = dataProvider.get_data()
 
     num_clases = len(classes)
@@ -111,7 +119,7 @@ def run_fif_separado(fif_names, epochs, batch_size, lr, val_split, seed):
         X, y, test_size=val_split, random_state=seed, stratify=y
     )
 
-    history = modelo.finetuning(X_train, y_train, epochs=20, seed=seed, batch_size=batch_size)
+    history = modelo.finetuning(X_train, y_train, epochs=epochs, seed=seed, batch_size=batch_size)
 
     acc, probs_Array,pred_array = modelo.validate(X_val, y_val)
     print(f"Val acc: {acc:.1f}%")
@@ -127,9 +135,44 @@ def run_fif_separado(fif_names, epochs, batch_size, lr, val_split, seed):
 
     return history
 
+def run_fif_piepline(fif_names, epochs, batch_size, lr, val_split, seed):
+    torch.manual_seed(seed)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Device: {device}\n")
+
+    # 1. Datos
+    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand","rest"])
+    X, y, classes = dataProvider.get_data()
+
+    epoch_pipeline = EpochProcessorPipeline([
+        EuclideanAlignment(),         # alineamiento euclídeo (EA)
+        SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),        # interpola/reordena canales a la topología objetivo 
+    ])
+
+    num_clases = len(classes)
+
+    modelo = ModeloGuarro(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
+
+    X_train, X_val, y_train, y_val = train_test_split(
+        X, y, test_size=val_split, random_state=seed, stratify=y
+    )
+
+    print(type(X_train))
+
+    X_train, y_train = epoch_pipeline.process_np(X_train, y_train,shuffle=False)
+    X_val, y_val = epoch_pipeline.process_np(X_val, y_val,shuffle=False)
+
+    print(type(X_train))
+
+    final_val_acc = modelo.finetuning_processed(X_train, y_train, epochs=epochs)
+    preds_array, probs_array = modelo.predict_batch_preprocessed(X_val)
+
+    viewer = PerformanceViewer()
+    viewer.plot_downstream2(probs_array, y_val, class_names = classes)
+
 
 if __name__ == "__main__":
-    input_type = input("¿Cargar datos de MOABB[1], de archivos .fif[2] o de archivos .fif con pipeline separado[3]?: ").strip().lower()
+    input_type = input("¿Cargar datos de MOABB[1], de archivos .fif[2] o de archivos .fif con pipeline separado[3] o archivos .fif con pipeline independiente[4]?: ").strip().lower()
     if input_type == "1":
         run_moab(
             dataset_name = DATASET_NAME,
@@ -172,6 +215,24 @@ if __name__ == "__main__":
             epochs       = 10,
             batch_size   = BATCH_SIZE,
             lr           = LR,
-            val_split    = 0.2,
+            val_split    = 0.6,
+            seed         = SEED,
+        )
+
+    elif input_type == "4":
+
+        fif_names = ["EEG_controller_app/recordings/suj2_1_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj2_4_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
+
+        run_fif_piepline(
+            fif_names    = fif_names,
+            epochs       = 10,
+            batch_size   = BATCH_SIZE,
+            lr           = LR,
+            val_split    = 0.6,
             seed         = SEED,
         )

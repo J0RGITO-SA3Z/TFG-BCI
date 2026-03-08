@@ -117,10 +117,12 @@ class ModeloGuarro():
             pretrain=weight_path
         ).to(self.device)
 
-    def finetuning_processed(self,trainingData: np.ndarray, trainingLabels: np.ndarray,epochs: int):
+    def finetuning_processed(self,X: np.ndarray, Y: np.ndarray,epochs: int):
         criterion = nn.CrossEntropyLoss()
+        self.optimizer = optim.Adam(self._model.parameters(), lr=1e-3,weight_decay=1e-4)
+        self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=epochs)
 
-        train_loader = self._getLoader(trainingData, trainingLabels)
+        train_loader = self._build_unprocessed_loader(X, Y, batch_size=32, shuffle=True)
 
         final_val_acc = 0.0
         for epoch in range(epochs):
@@ -129,9 +131,11 @@ class ModeloGuarro():
                 self.optimizer, self.device, self.scheduler
             )
 
+            final_val_acc = train_acc
+
             print(
                 f"Epoch: {epoch+1} OK"
-                f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2%}, "
+                f"Train Loss: {train_loss}, Train Acc: {train_acc}, "
             )
         
         return final_val_acc
@@ -151,7 +155,7 @@ class ModeloGuarro():
         )
         
         with torch.no_grad():
-            for data in loader:
+            for (data,) in loader:
                 data = data.to(self.device)
 
                 _, outputs = self._model(data)
@@ -167,7 +171,7 @@ class ModeloGuarro():
         return preds_array, probs_array
 
     def finetuning(self,X, y,batch_size=32,seed=42,epochs=20):
-        train_loader = self._build_loader(X, y, batch_size=batch_size)
+        train_loader = self._build_processed_loader(X, y, batch_size=batch_size)
 
         criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self._model.parameters(), lr=1e-3,weight_decay=1e-4)
@@ -201,7 +205,7 @@ class ModeloGuarro():
 
         y = np.zeros(X.shape[0])
 
-        val_loader = self._build_loader(X, y, batch_size=32, shuffle=False)
+        val_loader = self._build_processed_loader(X, y, batch_size=32, shuffle=False)
 
         with torch.no_grad():
             for data, labels in val_loader:
@@ -221,7 +225,7 @@ class ModeloGuarro():
     
     def validate(self, X, Y):
 
-        val_loader = self._build_loader(X, Y, batch_size=32, shuffle=False)
+        val_loader = self._build_processed_loader(X, Y, batch_size=32, shuffle=False)
 
         _, accuracy, probs_array, preds_array = self._validate_origin(val_loader, None)
 
@@ -311,12 +315,8 @@ class ModeloGuarro():
 
         return history, epoch_predictions, epoch_probabilities
     
-    def _build_loader(self,X, y, batch_size=32, shuffle=True):
-        """Divide en train/val y aplica el preprocesado de MiRepNet."""
-
-        conteo_Train = Counter(y)
-
-        print(f"Conteo clases Train: {conteo_Train}")
+    def _build_processed_loader(self,X, y, batch_size=32, shuffle=True):
+        """aplica el preprocesado de MiRepNet."""
 
         def to_loader(data, labels, shuffle):
             ds = TensorDataset(
@@ -329,6 +329,20 @@ class ModeloGuarro():
 
         # Preprocesado MiRepNet: EA + alineación espacial al channel template
         train_loader = self._process_and_replace_loader(train_loader, ischangechn=True)
+
+        return train_loader
+    
+    def _build_unprocessed_loader(self,X, Y, batch_size=32, shuffle=False):
+        
+        def to_loader(data, Y, shuffle, batch_size=32):
+            ds = TensorDataset(
+            torch.from_numpy(data).float(),
+            torch.from_numpy(Y)
+            )
+
+            return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0)
+
+        train_loader = to_loader(X, Y, shuffle=shuffle)
 
         return train_loader
             

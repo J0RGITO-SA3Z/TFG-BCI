@@ -146,8 +146,8 @@ def experimento(archivosTraining,archivosTest, epochs=10):
     epochs_val = raws_to_epochs(rawsTest)
 
     #aplica el procesamiento sobre los epochs
-    processed_epochs_finetune = epoch_pipeline.process(epochs_finetune)
-    processed_epochs_val = epoch_pipeline.process(epochs_val)
+    processed_epochs_finetune = epoch_pipeline.process_mne(epochs_finetune)
+    processed_epochs_val = epoch_pipeline.process_mne(epochs_val)
 
     #convertimos los epochs a numpy arrays (B, C, T) y etiquetas correspondientes
     X_finetune, y_finetune = epoch_to_numpy(processed_epochs_finetune)
