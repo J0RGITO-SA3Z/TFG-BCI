@@ -143,28 +143,24 @@ class ModeloGuarro():
                 f"train_loss={train_loss:.4f}  train_acc={train_acc:.1f}%  |  "
                 f"val_loss={0:.4f}  val_acc={100:.1f}%  |  lr={curr_lr:.6f}")
         
-    def predict_batch(self, X):
+        return history
+        
+    def predict_batch(self, X, batch_size=32) -> Tuple[np.ndarray, np.ndarray]:
         self._model.eval()
-        running_loss = 0.0
-        correct = 0
-        total = 0
         all_probs = []
         all_preds = []
 
-        X = torch.from_numpy(X).float()
-        
-        if X.ndim == 2:
-            X = X.unsqueeze(0)  # Añadir dimensión de batch si es necesario
+        y = np.zeros(X.shape[0])
 
-        dataset = TensorDataset(X)  # Etiquetas dummy
-        loader = DataLoader(dataset, batch_size=32, shuffle=False)
-        
+        val_loader = self._build_loader(X, y, batch_size=32)
+
         with torch.no_grad():
-            for data in loader:
-                data = data.to(self.device)
+            for data, labels in val_loader:
+                data, labels = data.to(self.device), labels.to(self.device)
+
                 _, outputs = self._model(data)
                 probs = F.softmax(outputs, dim=1)
-                _, predicted = torch.max(probs, 1)
+                _, predicted = torch.max(outputs, 1)
 
                 all_probs.append(probs.cpu())
                 all_preds.append(predicted.cpu())
@@ -174,12 +170,54 @@ class ModeloGuarro():
 
         return preds_array, probs_array
     
+    def validate(self, X, Y):
+
+        val_loader = self._build_loader(X, Y, batch_size=32)
+
+        epoch_loss, accuracy, probs_array, preds_array = self._validate_origin(self, val_loader, None)
+
+        return accuracy, probs_array, preds_array
+    
+    def _validate_origin(self, val_loader, criterion):
+        self._model.eval()
+        running_loss = 0.0
+        correct = 0
+        total = 0
+
+        all_probs = []
+        all_preds = []
+        
+        with torch.no_grad():
+            for data, labels in val_loader:
+                data, labels = data.to(self.device), labels.to(self.device)
+                _, outputs = self._model(data)
+                _, predicted = torch.max(outputs, 1)
+                probs = F.softmax(outputs, dim=1)
+                loss = criterion(outputs, labels)
+
+                running_loss += loss.item()
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+                all_probs.append(probs.cpu())
+                all_preds.append(predicted.cpu())
+
+        epoch_loss = running_loss / len(val_loader)
+        accuracy = correct / total * 100
+        probs_array = torch.cat(all_probs).numpy()
+        preds_array = torch.cat(all_preds).numpy()
+
+        return epoch_loss, accuracy, probs_array, preds_array
+    
     def predict(self, X):
         preds_array, probs_array = self.predict_batch(X)
 
         return preds_array[0], probs_array[0]
 
     def experimento(self,X, y, val_split=0.2, batch_size=32, seed=42, epochs=20):
+        epoch_predictions = []
+        epoch_probabilities = []
+
         train_loader, val_loader = self._build_loaders(
             X, y, val_split, batch_size, seed
         )
@@ -197,7 +235,10 @@ class ModeloGuarro():
             train_loss, train_acc, curr_lr = train(
                 self._model, train_loader, criterion, self.optimizer, self.device, self.scheduler
             )
-            val_loss, val_acc = validate(self._model, val_loader, criterion, self.device)
+            val_loss, val_acc, probs_array, preds_array = self._validate_origin(val_loader, criterion)
+
+            epoch_predictions.append(preds_array)
+            epoch_probabilities.append(probs_array)
 
             history.append({
                 "train_loss": train_loss,
@@ -216,7 +257,7 @@ class ModeloGuarro():
         viewer.summary(history)
         viewer.plot_fine_tune(history)
 
-        return history
+        return history, epoch_predictions, epoch_probabilities
     
     def _build_loader(self,X, y, batch_size=32):
         """Divide en train/val y aplica el preprocesado de MiRepNet."""
