@@ -61,6 +61,8 @@ def run_moab(dataset_name, subject_idx, epochs, batch_size, lr, val_split, seed)
 
     modelo = ModeloGuarro(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
     history,_,_ = modelo.experimento(X, y, val_split=val_split, batch_size=batch_size, seed=seed, epochs=epochs)
+    viewer = PerformanceViewer()
+    viewer.plot_downstream(y_val, probs_Array, class_names = classes)
 
     return history
 
@@ -70,7 +72,7 @@ def run_fif(fif_names, epochs, batch_size, lr, val_split, seed):
     print(f"Device: {device}\n")
    
     # 1. Datos
-    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand", "feet", "rest"])
+    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand", "feet"])
     X, y, classes = dataProvider.get_data()
 
     num_clases = len(classes)
@@ -83,7 +85,9 @@ def run_fif(fif_names, epochs, batch_size, lr, val_split, seed):
         X, y, test_size=val_split, random_state=seed, stratify=y
     )
 
+    
     acc, probs_Array,pred_array = modelo.validate(X_val, y_val)
+    
 
     print(f"Val acc: {acc:.1f}%")
 
@@ -95,7 +99,7 @@ def run_fif_separado(fif_names, epochs, batch_size, lr, val_split, seed):
     print(f"Device: {device}\n")
    
     # 1. Datos
-    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand", "feet", "rest"])
+    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand","feet",  "rest"])
     X, y, classes = dataProvider.get_data()
 
     num_clases = len(classes)
@@ -107,14 +111,19 @@ def run_fif_separado(fif_names, epochs, batch_size, lr, val_split, seed):
         X, y, test_size=val_split, random_state=seed, stratify=y
     )
 
-    history = modelo.finetuning(X_train, y_train, epochs=epochs, seed=seed, batch_size=batch_size)
+    history = modelo.finetuning(X_train, y_train, epochs=20, seed=seed, batch_size=batch_size)
 
     acc, probs_Array,pred_array = modelo.validate(X_val, y_val)
     print(f"Val acc: {acc:.1f}%")
 
+    print(f"Predicciones: {pred_array}\n")
+    print(f"Reales: {y_val}\n")
+    print(probs_Array)
+    print(probs_Array.shape)
+
     viewer = PerformanceViewer()
     viewer.summary(history)
-    viewer.plot_fine_tune(history)
+    viewer.plot_downstream2(probs_Array, y_val, class_names = classes)
 
     return history
 
@@ -151,14 +160,16 @@ if __name__ == "__main__":
 
     elif input_type == "3":
 
-        fif_names = ["EEG_controller_app/recordings/suj3_1_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj3_2_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj3_3_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj3_4_raw.fif"]
+        fif_names = ["EEG_controller_app/recordings/suj2_1_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj2_4_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
 
         run_fif_separado(
             fif_names    = fif_names,
-            epochs       = EPOCHS,
+            epochs       = 10,
             batch_size   = BATCH_SIZE,
             lr           = LR,
             val_split    = 0.2,

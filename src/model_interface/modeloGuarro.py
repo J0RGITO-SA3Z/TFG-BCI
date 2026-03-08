@@ -117,6 +117,55 @@ class ModeloGuarro():
             pretrain=weight_path
         ).to(self.device)
 
+    def finetuning_processed(self,trainingData: np.ndarray, trainingLabels: np.ndarray,epochs: int):
+        criterion = nn.CrossEntropyLoss()
+
+        train_loader = self._getLoader(trainingData, trainingLabels)
+
+        final_val_acc = 0.0
+        for epoch in range(epochs):
+            train_loss, train_acc, curr_lr = train(
+                self._model, train_loader, criterion, 
+                self.optimizer, self.device, self.scheduler
+            )
+
+            print(
+                f"Epoch: {epoch+1} OK"
+                f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2%}, "
+            )
+        
+        return final_val_acc
+    
+    def predict_batch_preprocessed(self, X: np.ndarray, batch_size = 32) -> Tuple[np.ndarray, np.ndarray]:
+        self._model.eval()
+        all_probs = []
+        all_preds = []
+
+        X_tensor = torch.from_numpy(X).float()
+        dataset = TensorDataset(X_tensor)
+
+        loader = DataLoader(
+            dataset,
+            batch_size=batch_size,
+            shuffle=False
+        )
+        
+        with torch.no_grad():
+            for data in loader:
+                data = data.to(self.device)
+
+                _, outputs = self._model(data)
+                probs = F.softmax(outputs, dim=1)
+                _, predicted = torch.max(outputs, 1)
+
+                all_probs.append(probs.cpu())
+                all_preds.append(predicted.cpu())
+
+        probs_array = torch.cat(all_probs).numpy()
+        preds_array = torch.cat(all_preds).numpy()
+
+        return preds_array, probs_array
+
     def finetuning(self,X, y,batch_size=32,seed=42,epochs=20):
         train_loader = self._build_loader(X, y, batch_size=batch_size)
 
@@ -152,7 +201,7 @@ class ModeloGuarro():
 
         y = np.zeros(X.shape[0])
 
-        val_loader = self._build_loader(X, y, batch_size=32)
+        val_loader = self._build_loader(X, y, batch_size=32, shuffle=False)
 
         with torch.no_grad():
             for data, labels in val_loader:
@@ -172,9 +221,9 @@ class ModeloGuarro():
     
     def validate(self, X, Y):
 
-        val_loader = self._build_loader(X, Y, batch_size=32)
+        val_loader = self._build_loader(X, Y, batch_size=32, shuffle=False)
 
-        epoch_loss, accuracy, probs_array, preds_array = self._validate_origin(self, val_loader, None)
+        _, accuracy, probs_array, preds_array = self._validate_origin(val_loader, None)
 
         return accuracy, probs_array, preds_array
     
@@ -193,19 +242,22 @@ class ModeloGuarro():
                 _, outputs = self._model(data)
                 _, predicted = torch.max(outputs, 1)
                 probs = F.softmax(outputs, dim=1)
-                loss = criterion(outputs, labels)
 
-                running_loss += loss.item()
+                if criterion is not None:
+                    loss = criterion(outputs, labels)
+                    running_loss += loss.item()
+
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-                all_probs.append(probs.cpu())
-                all_preds.append(predicted.cpu())
+                all_probs.append(probs.cpu().numpy())
+                all_preds.append(predicted.cpu().numpy())
 
         epoch_loss = running_loss / len(val_loader)
         accuracy = correct / total * 100
-        probs_array = torch.cat(all_probs).numpy()
-        preds_array = torch.cat(all_preds).numpy()
+
+        probs_array = np.concatenate(all_probs, axis=0)
+        preds_array = np.concatenate(all_preds, axis=0)
 
         return epoch_loss, accuracy, probs_array, preds_array
     
@@ -259,7 +311,7 @@ class ModeloGuarro():
 
         return history, epoch_predictions, epoch_probabilities
     
-    def _build_loader(self,X, y, batch_size=32):
+    def _build_loader(self,X, y, batch_size=32, shuffle=True):
         """Divide en train/val y aplica el preprocesado de MiRepNet."""
 
         conteo_Train = Counter(y)
@@ -273,7 +325,7 @@ class ModeloGuarro():
             )
             return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0)
 
-        train_loader = to_loader(X, y, shuffle=True)
+        train_loader = to_loader(X, y, shuffle=shuffle)
 
         # Preprocesado MiRepNet: EA + alineación espacial al channel template
         train_loader = self._process_and_replace_loader(train_loader, ischangechn=True)

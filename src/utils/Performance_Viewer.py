@@ -17,6 +17,9 @@ Uso típico
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import precision_score, recall_score
+from matplotlib.widgets import Slider
 
 # ── Paleta compartida ─────────────────────────────────────────────────────────
 _C_TRAIN = "#4C72B0"   # azul    — train
@@ -204,6 +207,7 @@ class PerformanceViewer:
             "right_hand" : "#DD8452",
             "feet"       : "#55A868",
         }
+
         bar_colors = [colors_map.get(c, "#999999") for c in class_names]
 
         fig = plt.figure(figsize=(16, 15))
@@ -315,3 +319,188 @@ class PerformanceViewer:
             plt.show()
 
         return fig, (ax1, ax_conf, ax2, ax3)
+        
+    def plot_downstream2(self, y_softmax, y_true, class_names=None):
+
+        import matplotlib.pyplot as plt
+
+        fig = plt.figure(figsize=(14,8))
+
+        gs = fig.add_gridspec(
+            2, 2,
+            width_ratios=[1, 2],   # la derecha absorbe el ancho extra
+            height_ratios=[1, 1]
+        )
+
+        # izquierda ocupa ambas filas
+        ax_cm = fig.add_subplot(gs[:, 0])
+
+        # derecha
+        ax_metrics = fig.add_subplot(gs[0, 1])
+        ax_conf = fig.add_subplot(gs[1, 1])
+
+        # dibujar
+        self.plot_matriz_confusion(
+            y_softmax, y_true,
+            class_names=class_names,
+            ax=ax_cm
+        )
+
+        self.plot_metricas_clase(
+            y_softmax, y_true,
+            class_names=class_names,
+            ax=ax_metrics
+        )
+
+        self.plot_confianza(
+            y_softmax, y_true,
+            class_names=class_names,
+            ax=ax_conf
+        )
+
+        # mantener cuadrada y usar todo el alto
+        ax_cm.set_aspect('equal', adjustable='box', anchor='W')
+
+        plt.tight_layout()
+        plt.show()
+    
+    def plot_matriz_confusion(self, y_softmax, y_true, class_names=None, ax=None):
+
+        y_pred = np.argmax(y_softmax, axis=1)
+        cm = confusion_matrix(y_true, y_pred)
+
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(6,6))
+
+        disp = ConfusionMatrixDisplay(
+            confusion_matrix=cm,
+            display_labels=class_names
+        )
+
+        disp.plot(ax=ax, cmap="Blues", colorbar=False)
+
+        ax.set_title("Confusion Matrix")
+
+        return cm
+    
+    def plot_metricas_clase(self, y_softmax, y_true, class_names=None, ax=None):
+
+        y_true = np.asarray(y_true)
+        y_softmax = np.asarray(y_softmax)
+
+        # convertir softmax -> clase predicha
+        y_pred = np.argmax(y_softmax, axis=1)
+
+        clases = np.unique(y_true)
+
+        acc_por_clase = []
+        precision = precision_score(y_true, y_pred, average=None, zero_division=0)
+        recall = recall_score(y_true, y_pred, average=None, zero_division=0)
+
+        for c in clases:
+            idx = y_true == c
+            acc = np.mean(y_pred[idx] == y_true[idx])
+            acc_por_clase.append(acc)
+
+        acc_por_clase = np.array(acc_por_clase)
+
+        # accuracy global
+        acc_total = np.mean(y_pred == y_true)
+
+        if class_names is None:
+            class_names = [str(c) for c in clases]
+
+        x = np.arange(len(class_names))
+        width = 0.25
+
+        # si no hay eje, crear figura propia
+        created_fig = False
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(8,5))
+            created_fig = True
+
+        # barras
+        ax.bar(x - width, acc_por_clase, width, label="Accuracy")
+        ax.bar(x, precision, width, label="Precision")
+        ax.bar(x + width, recall, width, label="Recall")
+
+        # linea accuracy total
+        ax.axhline(
+            acc_total,
+            linestyle="--",
+            linewidth=2,
+            label=f"Accuracy total = {acc_total:.2f}"
+        )
+
+        ax.set_xticks(x)
+        ax.set_xticklabels(class_names)
+
+        ax.set_ylabel("Score")
+        ax.set_ylim(0,1)
+
+        ax.set_title("Metricas por clase")
+        ax.legend()
+
+        if created_fig:
+            plt.tight_layout()
+            plt.show()
+
+    def plot_confianza(self, y_softmax, y_true, class_names=None, ax=None):
+
+        y_true = np.asarray(y_true)
+        y_softmax = np.asarray(y_softmax)
+
+        y_pred = np.argmax(y_softmax, axis=1)
+        confianza = np.max(y_softmax, axis=1)
+
+        clases = np.unique(y_true)
+
+        data = []
+        labels = []
+
+        for c in clases:
+
+            idx = y_pred == c
+
+            correct = confianza[idx & (y_true == c)]
+            errors  = confianza[idx & (y_true != c)]
+
+            data.append(correct)
+            data.append(errors)
+
+            if class_names:
+                name = class_names[c]
+            else:
+                name = str(c)
+
+            labels.append(f"{name}\nCorrect")
+            labels.append(f"{name}\nError")
+
+        # crear figura solo si no se pasa ax
+        created_fig = False
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(10,5))
+            created_fig = True
+
+        box = ax.boxplot(
+            data,
+            patch_artist=True,
+            medianprops=dict(color="black", linewidth=2)
+        )
+
+        colors = ["green","red"] * len(clases)
+
+        for patch, color in zip(box["boxes"], colors):
+            patch.set_facecolor(color)
+
+        ax.set_xticks(range(1, len(labels)+1))
+        ax.set_xticklabels(labels)
+
+        ax.set_ylabel("Model confidence")
+        ax.set_ylim(0,1)
+
+        ax.set_title("Confidence distribution per class")
+
+        if created_fig:
+            plt.tight_layout()
+            plt.show()
