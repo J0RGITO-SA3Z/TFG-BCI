@@ -11,11 +11,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
+
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from collections import Counter
 
 # ── Rutas ─────────────────────────────────────────────────────────────────────
 PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -116,6 +117,68 @@ class ModeloGuarro():
             pretrain=weight_path
         ).to(self.device)
 
+    def finetuning(self,X, y,batch_size=32,seed=42,epochs=20):
+        train_loader = self._build_loader(X, y, batch_size=batch_size)
+
+        criterion = nn.CrossEntropyLoss()
+        self.optimizer = optim.Adam(self._model.parameters(), lr=1e-3,weight_decay=1e-4)
+        self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=epochs)
+
+        history = []
+
+        for epoch in range(epochs):
+            train_loss, train_acc, curr_lr = train(
+                self._model, train_loader, criterion, self.optimizer, self.device, self.scheduler
+            )
+
+            history.append({
+                "train_loss": train_loss,
+                "val_loss":   0,
+                "train_acc":  train_acc,      # viene en % desde utils
+                "val_acc":    100,
+                "lr":         curr_lr,
+            })
+
+            print(f"  Epoch {epoch+1:>3}/{epochs} | "
+                f"train_loss={train_loss:.4f}  train_acc={train_acc:.1f}%  |  "
+                f"val_loss={0:.4f}  val_acc={100:.1f}%  |  lr={curr_lr:.6f}")
+        
+    def predict_batch(self, X):
+        self._model.eval()
+        running_loss = 0.0
+        correct = 0
+        total = 0
+        all_probs = []
+        all_preds = []
+
+        X = torch.from_numpy(X).float()
+        
+        if X.ndim == 2:
+            X = X.unsqueeze(0)  # Añadir dimensión de batch si es necesario
+
+        dataset = TensorDataset(X)  # Etiquetas dummy
+        loader = DataLoader(dataset, batch_size=32, shuffle=False)
+        
+        with torch.no_grad():
+            for data in loader:
+                data = data.to(self.device)
+                _, outputs = self._model(data)
+                probs = F.softmax(outputs, dim=1)
+                _, predicted = torch.max(probs, 1)
+
+                all_probs.append(probs.cpu())
+                all_preds.append(predicted.cpu())
+
+        probs_array = torch.cat(all_probs).numpy()
+        preds_array = torch.cat(all_preds).numpy()
+
+        return preds_array, probs_array
+    
+    def predict(self, X):
+        preds_array, probs_array = self.predict_batch(X)
+
+        return preds_array[0], probs_array[0]
+
     def experimento(self,X, y, val_split=0.2, batch_size=32, seed=42, epochs=20):
         train_loader, val_loader = self._build_loaders(
             X, y, val_split, batch_size, seed
@@ -154,12 +217,39 @@ class ModeloGuarro():
         viewer.plot_fine_tune(history)
 
         return history
+    
+    def _build_loader(self,X, y, batch_size=32):
+        """Divide en train/val y aplica el preprocesado de MiRepNet."""
+
+        conteo_Train = Counter(y)
+
+        print(f"Conteo clases Train: {conteo_Train}")
+
+        def to_loader(data, labels, shuffle):
+            ds = TensorDataset(
+                torch.from_numpy(data).float(),
+                torch.from_numpy(labels)
+            )
+            return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0)
+
+        train_loader = to_loader(X, y, shuffle=True)
+
+        # Preprocesado MiRepNet: EA + alineación espacial al channel template
+        train_loader = self._process_and_replace_loader(train_loader, ischangechn=True)
+
+        return train_loader
             
     def _build_loaders(self,X, y, val_split=0.2, batch_size=32, seed=42):
         """Divide en train/val y aplica el preprocesado de MiRepNet."""
         X_train, X_val, y_train, y_val = train_test_split(
             X, y, test_size=val_split, random_state=seed, stratify=y
         )
+
+        conteo_Train = Counter(y_train)
+        conteo_val = Counter(y_val)
+
+        print(f"Conteo clases Train: {conteo_Train}")
+        print(f"Conteo clases Val: {conteo_val}")
 
         def to_loader(data, labels, shuffle):
             ds = TensorDataset(

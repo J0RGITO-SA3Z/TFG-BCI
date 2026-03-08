@@ -15,22 +15,30 @@ from DataProvider.DataProvider import DataProvider
 from raw_processing.RawProcessorPipeline import RawProcessorPipeline
 from epoch_processing.EpochProcessorPipeline import EpochProcessorPipeline
 
+# ─────── Imports pipeline ─────────────────────────────────────────────────────
+from raw_processing.RawProcessorPipeline import RawProcessorPipeline
+from raw_processing.BandpassFilter import BandpassFilter
+from raw_processing.NotchFilter import NotchFilter
+from raw_processing.Resampler import Resampler
+from raw_processing.CARReference import CARReference
+from raw_processing.ICAProcessor import ICAProcessor
+from raw_processing.AnnotationRenamer import AnnotationRenamer
+
 LABEL_MAP = {
     "IZQUIERDA": "left_hand",
     "DERECHA":   "right_hand",
     "ABAJO":     "feet",
+    "DESCANSO":  "rest",
 }
 
-CLASS_NAMES = ["feet", "left_hand", "right_hand"]  # orden alfabético = orden real de LabelEncoder
-
-def _raw_to_epochs(raw, tmin=0.0, tmax=4.0):
+def _raw_to_epochs(raw, tmin=0.0, tmax=4.0, anotationsNames=["left_hand", "right_hand", "feet"]):
     """
     Epoquiza un Raw ya preprocesado por el pipeline.
     Las anotaciones ya están renombradas (left_hand, right_hand, feet)
     y el Raw ya tiene 45 canales gracias a SpatialInterpolator.
     """
     events, event_id = mne.events_from_annotations(raw)
-    event_id_filtrado = {k: v for k, v in event_id.items() if k in CLASS_NAMES}
+    event_id_filtrado = {k: v for k, v in event_id.items() if k in anotationsNames}
     epochs = mne.Epochs(
         raw,
         events=events,
@@ -42,11 +50,24 @@ def _raw_to_epochs(raw, tmin=0.0, tmax=4.0):
     return epochs
 
 class FifDataProvider(DataProvider):
-    def __init__(self, fif_paths: str | Sequence[str] = [], raw_pipeline: Optional[RawProcessorPipeline] = None) -> None:
+    def __init__(self, fif_paths: str | Sequence[str] = [], raw_pipeline: Optional[RawProcessorPipeline] = None, annotations_names = ["left_hand", "right_hand", "feet"]) -> None:
         if isinstance(fif_paths, str):
             fif_paths = [fif_paths]
+
         self._fif_paths = list(fif_paths)
-        self._raw_pipeline = raw_pipeline
+        self._annotations_names = annotations_names
+
+        if raw_pipeline is None:
+            self._raw_pipeline = RawProcessorPipeline([
+                # NotchFilter(50.0),
+                BandpassFilter(8.0, 30.0),
+                AnnotationRenamer(LABEL_MAP),
+                #CARReference(),
+                # Resampler(250),
+                # ICAProcessor(),
+            ])
+        else:
+            self._raw_pipeline = raw_pipeline
 
     def add_fif_path(self, path: str) -> None:
         self._fif_paths.append(path)
@@ -59,7 +80,6 @@ class FifDataProvider(DataProvider):
     
     def get_data(self):
         all_epochs_list: List[np.ndarray] = []
-        all_labels: List[str] = []
 
         for path in self._fif_paths:
             print(f"Cargando {path} ...")
@@ -68,7 +88,7 @@ class FifDataProvider(DataProvider):
             if self._raw_pipeline is not None:
                 raw = self._raw_pipeline.process(raw)
 
-            single_epoch = _raw_to_epochs(raw)
+            single_epoch = _raw_to_epochs(raw, anotationsNames = self._annotations_names)
 
             all_epochs_list.append(single_epoch)
 
@@ -92,5 +112,5 @@ class FifDataProvider(DataProvider):
         
         raw = mne.io.read_raw_fif(self._fif_paths[0], preload=False, verbose=False)
         raw = raw.pick_types(eeg=True)
-        
-        return raw.ch_names
+
+        return [ a.upper() for a in raw.ch_names]
