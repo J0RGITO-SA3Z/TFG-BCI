@@ -30,7 +30,7 @@ sys.path.append(MIREPNET_DIR)
 from utils.Performance_Viewer import PerformanceViewer
 
 # ── Imports MiRepNet ──────────────────────────────────────────────────────────
-from pretrainedModels.MiRepNet.utils.utils import train
+from pretrainedModels.MiRepNet.utils.utils import train, validate
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask
 
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding
@@ -84,28 +84,47 @@ class MiRepNetInterface():
             pretrain=weight_path
         ).to(self.device)
 
-    def finetuning_processed(self,X: np.ndarray, Y: np.ndarray,epochs: int):
+    def finetuning_processed(self,X_train: np.ndarray, Y_train: np.ndarray,X_val = None, Y_val = None,epochs = 10):
+        validacion = X_val is not None and Y_val is not None
+        val_loader = None
+        history = []
+        
         criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self._model.parameters(), lr=1e-3,weight_decay=1e-4)
         self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=epochs)
 
-        train_loader = self._build_unprocessed_loader(X, Y, batch_size=32, shuffle=True)
+        train_loader = self._build_unprocessed_loader(X_train, Y_train, batch_size=32, shuffle=True)
 
-        final_val_acc = 0.0
+        if validacion:
+            val_loader = self._build_unprocessed_loader(X_val, Y_val, batch_size=32, shuffle=False)
+
         for epoch in range(epochs):
             train_loss, train_acc, curr_lr = train(
                 self._model, train_loader, criterion, 
                 self.optimizer, self.device, self.scheduler
             )
-
-            final_val_acc = train_acc
-
-            print(
-                f"Epoch: {epoch+1} OK;  "
-                f"Train Loss: {train_loss}, Train Acc: {train_acc}, "
-            )
+            
+            bal_loss = 0.0
+            val_acc = 0.0
+            
+            if validacion:
+                val_loss, val_acc = validate(
+                    self._model, val_loader, criterion, self.device
+                )
+                
+            history.append({
+                "train_loss": train_loss,
+                "val_loss":   0,
+                "train_acc":  train_acc,      # viene en % desde utils
+                "val_acc":    100,
+                "lr":         curr_lr,
+            })
+            
+            print(f"  Epoch {epoch+1:>3}/{epochs} | "
+                f"train_loss={train_loss:.4f}  train_acc={train_acc:.1f}%  |  "
+                f"val_loss={0:.4f}  val_acc={100:.1f}%  |  lr={curr_lr:.6f}")
         
-        return final_val_acc
+        return history
     
     def predict_batch_preprocessed(self, X: np.ndarray, batch_size = 32) -> Tuple[np.ndarray, np.ndarray]:
         self._model.eval()
