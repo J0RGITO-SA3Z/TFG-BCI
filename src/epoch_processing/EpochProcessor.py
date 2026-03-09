@@ -18,6 +18,13 @@ class EpochProcessor(ABC):
         """
         pass
 
+    @abstractmethod
+    def process_np(self, X: np.ndarray, y: np.ndarray | None = None):
+        """
+        Aplica el procesamiento sobre los epochs recibidos en formato np.
+        """
+        pass
+
     @staticmethod
     def _to_epochs(data: np.ndarray, original: mne.Epochs, new_channels = None) -> mne.Epochs:
         """Reconstruye ``mne.EpochsArray`` preservando info y eventos."""
