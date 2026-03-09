@@ -30,7 +30,7 @@ sys.path.append(MIREPNET_DIR)
 from utils.Performance_Viewer import PerformanceViewer
 
 # ── Imports MiRepNet ──────────────────────────────────────────────────────────
-from pretrainedModels.MiRepNet.utils.utils import train, validate, process_and_replace_loader
+from pretrainedModels.MiRepNet.utils.utils import train
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask
 
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding
@@ -41,39 +41,7 @@ from pretrainedModels.MiRepNet.utils.channel_list import use_channels_names
 
 CLASS_NAMES = ["feet", "left_hand", "right_hand"]
 
-def process_and_replace_loader(loader,ischangechn,channels_names):
-        all_data = []
-        all_labels = []
-        for i in range(len(loader.dataset)):
-            data, label = loader.dataset[i]
-            all_data.append(data.numpy())
-            all_labels.append(label)
-        
-        data_np = np.stack(all_data, axis=0)
-        labels_tensor = torch.stack(all_labels)
-        
-        if ischangechn:
-            processed_data = pad_missing_channels_diff(data_np,use_channels_names,channels_names)
-            print("after processed：", processed_data.shape)
-
-        processed_data = EA(processed_data).astype(np.float32)  
-
-        new_dataset = TensorDataset(
-            torch.from_numpy(processed_data).float(),  
-            labels_tensor
-        )
-        
-        loader_args = {
-            'batch_size': loader.batch_size,
-            'num_workers': loader.num_workers,
-            'pin_memory': loader.pin_memory,
-            'drop_last': loader.drop_last,
-            'shuffle': isinstance(loader.sampler, torch.utils.data.RandomSampler)
-        }
-        
-        return torch.utils.data.DataLoader(new_dataset, **loader_args)
-
-class ModeloGuarro():
+class MiRepNetInterface():
     """
     Wrapper de MIRepNet que cumple la interfaz ``ModelInterface``.
 
@@ -88,7 +56,6 @@ class ModeloGuarro():
     # ------------------------------------------------------------------
     # Construcción
     # ------------------------------------------------------------------
-
     def __init__(
         self,
         weight_path: str,
@@ -134,7 +101,7 @@ class ModeloGuarro():
             final_val_acc = train_acc
 
             print(
-                f"Epoch: {epoch+1} OK"
+                f"Epoch: {epoch+1} OK;  "
                 f"Train Loss: {train_loss}, Train Acc: {train_acc}, "
             )
         

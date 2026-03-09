@@ -24,7 +24,7 @@ sys.path.append(MIREPNET_DIR)
 
 #from model_interface.MiRepNetManualInterface import MiRepNetManualInterface
 from model_interface.MiRepNetInterface import MiRepNetInterface
-from model_interface.modeloGuarro import ModeloGuarro
+from model_interface.modeloGuarro import MiRepNetInterface
 from pretrainedModels.MiRepNet.model.mlm import mlm_mask, PatchEmbedding
 
 from raw_processing.RawProcessorPipeline import RawProcessorPipeline
@@ -131,7 +131,7 @@ def experimento(archivosTraining,archivosTest, epochs=10):
     print(f"Usando dispositivo: {device}")
 
     # Cargar modelo preentrenado
-    model = ModeloGuarro(weight_path=WEIGHT_PATH, device=device)
+    model = MiRepNetInterface(weight_path=WEIGHT_PATH, device=device)
 
     # Cargar datos raw
     rawsTraining = [mne.io.read_raw_fif(archivo, preload=True) for archivo in archivosTraining]

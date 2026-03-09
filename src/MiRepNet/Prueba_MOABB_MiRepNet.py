@@ -23,7 +23,7 @@ sys.path.append(MIREPNET_DIR)
 from utils.Performance_Viewer import PerformanceViewer
 
 # ── Imports modelInterface ──────────────────────────────────────────────────────────
-from model_interface.modeloGuarro import ModeloGuarro
+from model_interface.modeloGuarro import MiRepNetInterface
 
 # ── MOABB ─────────────────────────────────────────────────────────────────────
 import moabb
@@ -67,10 +67,8 @@ def run_moab(dataset_name, subject_idx, epochs, batch_size, lr, val_split, seed)
 
     print(f"Clases: {classes}\n")
 
-    modelo = ModeloGuarro(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
-    history,_,_ = modelo.experimento(X, y, val_split=val_split, batch_size=batch_size, seed=seed, epochs=epochs)
-    viewer = PerformanceViewer()
-    viewer.plot_downstream(y_val, probs_Array, class_names = classes)
+    modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
+    history, epoch_predictions, epoch_probabilities = modelo.experimento(X, y, val_split=val_split, batch_size=batch_size, seed=seed, epochs=epochs)
 
     return history
 
@@ -86,7 +84,7 @@ def run_fif(fif_names, epochs, batch_size, lr, val_split, seed):
     num_clases = len(classes)
     print(f"Clases: {classes}\n")
 
-    modelo = ModeloGuarro(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
+    modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
     history,_,_ = modelo.experimento(X, y, val_split=val_split, batch_size=batch_size, seed=seed, epochs=epochs)
 
     X_train, X_val, y_train, y_val = train_test_split(
@@ -113,7 +111,7 @@ def run_fif_separado(fif_names, epochs, batch_size, lr, val_split, seed):
     num_clases = len(classes)
     print(f"Clases: {classes}\n")
 
-    modelo = ModeloGuarro(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
+    modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
 
     X_train, X_val, y_train, y_val = train_test_split(
         X, y, test_size=val_split, random_state=seed, stratify=y
@@ -141,7 +139,7 @@ def run_fif_piepline(fif_names, epochs, batch_size, lr, val_split, seed):
     print(f"Device: {device}\n")
 
     # 1. Datos
-    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand","rest"])
+    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand"])
     X, y, classes = dataProvider.get_data()
 
     epoch_pipeline = EpochProcessorPipeline([
@@ -151,18 +149,14 @@ def run_fif_piepline(fif_names, epochs, batch_size, lr, val_split, seed):
 
     num_clases = len(classes)
 
-    modelo = ModeloGuarro(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
+    modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
 
     X_train, X_val, y_train, y_val = train_test_split(
         X, y, test_size=val_split, random_state=seed, stratify=y
     )
 
-    print(type(X_train))
-
     X_train, y_train = epoch_pipeline.process_np(X_train, y_train,shuffle=False)
     X_val, y_val = epoch_pipeline.process_np(X_val, y_val,shuffle=False)
-
-    print(type(X_train))
 
     final_val_acc = modelo.finetuning_processed(X_train, y_train, epochs=epochs)
     preds_array, probs_array = modelo.predict_batch_preprocessed(X_val)
@@ -185,12 +179,10 @@ if __name__ == "__main__":
         )
     elif input_type == "2":
 
-        fif_names = ["EEG_controller_app/recordings/suj2_1_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_4_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
+        fif_names = ["EEG_controller_app/recordings/suj3_1_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj3_2_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj3_3_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj3_4_raw.fif"]
 
         run_fif(
             fif_names    = fif_names,
@@ -203,12 +195,10 @@ if __name__ == "__main__":
 
     elif input_type == "3":
 
-        fif_names = ["EEG_controller_app/recordings/suj2_1_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_4_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
+        fif_names = ["EEG_controller_app/recordings/suj3_1_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj3_2_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj3_3_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj3_4_raw.fif"]
 
         run_fif_separado(
             fif_names    = fif_names,
@@ -221,18 +211,16 @@ if __name__ == "__main__":
 
     elif input_type == "4":
 
-        fif_names = ["EEG_controller_app/recordings/suj2_1_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_4_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
+        fif_names = ["EEG_controller_app/recordings/suj3_1_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj3_2_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj3_3_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj3_4_raw.fif"]
 
         run_fif_piepline(
             fif_names    = fif_names,
             epochs       = 10,
             batch_size   = BATCH_SIZE,
             lr           = LR,
-            val_split    = 0.6,
+            val_split    = 0.4,
             seed         = SEED,
         )
