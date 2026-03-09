@@ -108,10 +108,11 @@ def run_fif_piepline(fif_names, epochs, val_split, seed):
     X_train, y_train = epoch_pipeline.process_np(X_train, y_train,shuffle=False)
     X_val, y_val = epoch_pipeline.process_np(X_val, y_val,shuffle=False)
 
-    final_val_acc = modelo.finetuning_processed(X_train, y_train, epochs=epochs)
+    historico = modelo.finetuning_processed(X_train, y_train, epochs=epochs)
     preds_array, probs_array = modelo.predict_batch_preprocessed(X_val)
 
     viewer = PerformanceViewer()
+    viewer.summary(historico)
     viewer.plot_downstream2(probs_array, y_val, class_names = classes)
 
 
