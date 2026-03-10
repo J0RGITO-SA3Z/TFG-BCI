@@ -3,16 +3,53 @@ import numpy as np
 from rich.console import Console
 import time
 import winsound
+import torch
+import os
+import sys
+from sklearn.model_selection import train_test_split
 
+# ── Rutas ─────────────────────────────────────────────────────────────────────
+PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+MIREPNET_DIR  = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
+WEIGHT_PATH   = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
+
+sys.path.append(PROJECT_ROOT)
+sys.path.append(MIREPNET_DIR)
+
+# ── BrainAccess ─────────────────────────────────────────────────────────────────────
 from brainaccess.utils.acquisition import EEG
 from brainaccess.core.eeg_manager import EEGManager
 import brainaccess.core.eeg_channel as eeg_channel
 
+# ── Imports modelInterface ──────────────────────────────────────────────────────────
+from model_interface.MiRepNetInterface import MiRepNetInterface
+
+# ── Imports de scripts de la aplicación ──────────────────────────────────────────────────────────
 from EEG_controller_app.src.utils import RECORD_DIR
 from EEG_controller_app.src.EEGRecorder import EEGRecorder
 from EEG_controller_app.src.eeg_live_server import EEGLiveServer
 from EEG_controller_app.src.utils import seleccionarPuertoCOM
 from EEG_controller_app.src.ventanaExperimentoVisual import ventanaExperimentoVisual
+
+# ── Imports visualización ─────────────────────────────────────────────────────
+from utils.Performance_Viewer import PerformanceViewer
+
+# ── Data Processing ─────────────────────────────────────────────────────────────────────
+from epoch_processing.EpochProcessorPipeline import EpochProcessorPipeline
+from epoch_processing.SpatialInterpolator import SpatialInterpolator
+from epoch_processing.EuclideanAlignment import EuclideanAlignment
+from epoch_processing.EpochProcessorPipeline import EpochProcessorPipeline
+
+from src.DataProvider.FifDataProvider import LABEL_MAP
+from epoch_processing.EpochProcessorPipeline import EpochProcessorPipeline
+from raw_processing.RawProcessorPipeline import RawProcessorPipeline
+from raw_processing.BandpassFilter import BandpassFilter
+from raw_processing.AnnotationRenamer import AnnotationRenamer
+from raw_processing.NotchFilter import NotchFilter
+from raw_processing.Resampler import Resampler
+
+from DataProvider.FifDataProvider import _raw_to_epochs 
+from src.DataProvider.FifDataProvider import LABEL_MAP
 
 
 class Training_real_time:
@@ -24,7 +61,12 @@ class Training_real_time:
         self.tmpBreack = 2
         self.tmpIM = 4
         self.numTrialsClase = 30
+        self.channelsnames = None
+        self.matrix = None
+        self.modelo = None
         return
+
+    # Métodos privados de la clase ─────────────────────────────────────────────────────────────────────
 
     def __generar_lista(self,acciones, total): #Podría ser un método estático, no depende de la instancia
             n = len(acciones)
@@ -47,6 +89,7 @@ class Training_real_time:
         else:
             return trial
         
+    # Cálculo de la matriz media de las matrizes de covarianza de cada trial seccion sacada de utils de MIRepNet
     def EA_Matrix(self, x):
         """
         Parameters
@@ -66,7 +109,96 @@ class Training_real_time:
 
         return refEA
 
-    def start(self,channelsConfig,lista = ["IZQUIERDA","DERECHA","ABAJO","DESCANSO"]):
+    def preprocess(self, raw,annotations_names):
+        '''
+        Parameters
+        ----------
+        raw : mne.io.Raw
+            Raw obtenido de la grabación con BrainAccess
+        annotations_names : list of str
+            Lista de nombres de anotaciones a renombrar en el pipeline de raw, por ejemplo ["left_hand", "right_hand", "feet"]
+
+        Returns
+        ----------
+        epochs : mne.Epochs
+            Epochs obtenidos tras procesar el raw y convertirlo a epochs, listos para usar en el fine-tuning del modelo.    
+        '''
+
+        # Extraemos los nombres de olos canales y los guardamos en un atributo de lista
+        raw_types = raw.pick_types(eeg=True)
+        self.channelsnames  = [ a.upper() for a in raw_types.ch_names]
+
+        _raw_pipeline = RawProcessorPipeline([
+                    # NotchFilter(50.0),
+                    BandpassFilter(8.0, 30.0),
+                    AnnotationRenamer(LABEL_MAP),
+                    #CARReference(),
+                    # Resampler(250),
+                    # ICAProcessor(),
+        ])
+
+        raw = self._raw_pipeline.process(raw)
+        epochs = _raw_to_epochs(raw, anotationsNames = self._annotations_names)
+
+        return epochs
+
+    # Función de fine-tune similar a la del script Pipeline para fif y MOABB
+    def run_finetuning_pipeline(self, data_epochs , epochs, seed, annotations_names = ["left_hand", "right_hand", "feet"]):
+        '''
+        Parameters
+        ----------
+        data_epochs : mne.Epochs
+            Epochs obtenidos tras procesar el raw y convertirlo a epochs, listos para usar en el fine-tuning del modelo.
+        epochs : int
+            Número de épocas para el fine-tuning del modelo.
+        seed : int
+            Semilla para la reproducibilidad del split entre train y test.
+        annotations_names : list of str
+            Lista de nombres de anotaciones a usar para el fine-tuning, por ejemplo ["left_hand", "right_hand", "feet"].
+
+        Returns
+        ----------
+        None'''
+        
+        torch.manual_seed(seed)
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"Device: {device}\n")
+
+        X = data_epochs.get_data()
+        true_labels_numeric = data_epochs.events[:, 2]
+        inv_event_id = {v: k for k, v in data_epochs.event_id.items()}
+        true_labels = [inv_event_id[i] for i in true_labels_numeric]
+
+        classes = sorted(set(true_labels))
+        label_map = {c: i for i, c in enumerate(classes)}
+        y = np.array([label_map[l] for l in true_labels], dtype=np.int64)
+
+
+        epoch_pipeline = EpochProcessorPipeline([
+            EuclideanAlignment(),         # alineamiento euclídeo (EA)
+            SpatialInterpolator(actual_channel_positions = self.channelsnames),        # interpola/reordena canales a la topología objetivo 
+        ])
+
+        num_clases = len(classes)
+
+        self.modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = self.channelsnames)
+
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=val_split, random_state=seed, stratify=y
+        )
+
+        X_train, y_train = epoch_pipeline.process_np(X_train, y_train,shuffle=False)
+        X_val, y_val = epoch_pipeline.process_np(X_val, y_val,shuffle=False)
+
+        historico = self.modelo.finetuning_processed(X_train, y_train, epochs=epochs)
+        preds_array, probs_array = self.modelo.predict_batch_preprocessed(X_val)
+
+        viewer = PerformanceViewer()
+        viewer.summary(historico)
+        viewer.plot_downstream2(probs_array, y_val, class_names = classes)
+
+
+    def experimento_visual(self,channelsConfig,lista = ["left_hand", "right_hand"]):
         """
         Graba EEG desde BrainAccess MIDI y devuelve un RawArray de MNE.
         La duración se pide por consola.
@@ -141,9 +273,32 @@ class Training_real_time:
 
         eeg.cerrarLibreria()
 
-        # Calcular la matriz y hacer finetune
-        raw.save(fileOutput, overwrite=True)
-        self.console.clear()
-        self.console.print(f"\nEEG grabado y guardado en [green]{fileOutput}[/green]")
-        raw.filter(1, 40).plot(scalings='auto', verbose=False)
-        self.console.input("[dim]Pulse Enter para continuar...[/dim]")
+        self.console.print(f"\n[green]Grabación de entrenamiento finalizada[/green]")
+
+        return raw
+
+    # Métodos Publicos de la clase  ─────────────────────────────────────────────────────────────────────
+
+    def getMatrix(self):
+        return self.matrix
+    
+    def getModelo(self):
+        return self.modelo
+
+    def start(self, channelsConfig,lista = ["left_hand", "right_hand"]):
+
+        # Comenzamos la grabación y sacamos raw 
+        raw = self.experimento_visual(channelsConfig, lista)
+
+        # Preprocesamos raw y convertimos a epochs de mne
+        data_epochs = self.preprocess(raw,lista)
+
+        # Extraemos las mediciones de la grabación y sacamos la matriz media de covarianzas
+        data = data_epochs.get_data()
+        self.matrix = self.EA_Matrix(data)
+
+        # Hacemos fine-tune del modelo con los epochs de la grabación
+        self.run_finetuning_pipeline(data_epochs, epochs=10, annotations_names = lista)
+
+        return
+    
