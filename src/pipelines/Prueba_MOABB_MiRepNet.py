@@ -38,6 +38,7 @@ from epoch_processing.EpochProcessorPipeline import EpochProcessorPipeline
 from epoch_processing.EpochNormalizer import EpochNormalizer
 from epoch_processing.SpatialInterpolator import SpatialInterpolator
 from epoch_processing.EuclideanAlignment import EuclideanAlignment
+from epoch_processing.ClassEventRemover import ClassEventRemover
 
 # =============================================================================
 # CONFIG — cambia aquí para probar distintos datasets/sujetos
@@ -83,18 +84,24 @@ def run_moabb_piepline(dataset, subjectIdx,epochs, val_split, seed):
     viewer = PerformanceViewer()
     viewer.plot_downstream2(probs_array, y_val, class_names = classes)
 
-def run_fif_piepline(fif_names, epochs, val_split, seed):
+def prueba_clasificarRes_sinEntrenar(fif_names, epochs, val_split, seed):
     torch.manual_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}\n")
 
     # 1. Datos
-    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand"])
+    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand", "feet", "rest"])
     X, y, classes = dataProvider.get_data()
 
-    epoch_pipeline = EpochProcessorPipeline([
+    epoch_training_pipeline = EpochProcessorPipeline([
+        ClassEventRemover(classes_to_remove = classes.index("rest") if "rest" in classes else []), # eliminar clase "rest" si existe
         EuclideanAlignment(),         # alineamiento euclídeo (EA)
-        SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),        # interpola/reordena canales a la topología objetivo 
+        SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
+    ])
+
+    epoch_validation_pipeline = EpochProcessorPipeline([
+        EuclideanAlignment(),         # alineamiento euclídeo (EA)
+        SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
     ])
 
     num_clases = len(classes)
@@ -105,8 +112,45 @@ def run_fif_piepline(fif_names, epochs, val_split, seed):
         X, y, test_size=val_split, random_state=seed, stratify=y
     )
 
-    X_train, y_train = epoch_pipeline.process_np(X_train, y_train,shuffle=False)
-    X_val, y_val = epoch_pipeline.process_np(X_val, y_val,shuffle=False)
+    X_train, y_train = epoch_training_pipeline.process_np(X_train, y_train,shuffle=False)
+    X_val, y_val = epoch_validation_pipeline.process_np(X_val, y_val,shuffle=False)
+
+    historico = modelo.finetuning_processed(X_train, y_train, epochs=epochs)
+    preds_array, probs_array = modelo.predict_batch_preprocessed(X_val)
+
+    viewer = PerformanceViewer()
+    viewer.summary(historico)
+    viewer.plot_downstream2(probs_array, y_val, class_names = classes)
+
+def run_fif_piepline(fif_names, epochs, val_split, seed):
+    torch.manual_seed(seed)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Device: {device}\n")
+
+    # 1. Datos
+    dataProvider = FifDataProvider(fif_paths = fif_names, annotations_names=["left_hand", "right_hand", "feet", "rest"])
+    X, y, classes = dataProvider.get_data()
+
+    epoch_training_pipeline = EpochProcessorPipeline([
+        EuclideanAlignment(),         # alineamiento euclídeo (EA)
+        SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
+    ])
+
+    epoch_validation_pipeline = EpochProcessorPipeline([
+        EuclideanAlignment(),         # alineamiento euclídeo (EA)
+        SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
+    ])
+
+    num_clases = len(classes)
+
+    modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = dataProvider.get_channel_names())
+
+    X_train, X_val, y_train, y_val = train_test_split(
+        X, y, test_size=val_split, random_state=seed, stratify=y
+    )
+
+    X_train, y_train = epoch_training_pipeline.process_np(X_train, y_train,shuffle=False)
+    X_val, y_val = epoch_validation_pipeline.process_np(X_val, y_val,shuffle=False)
 
     historico = modelo.finetuning_processed(X_train, y_train, epochs=epochs)
     preds_array, probs_array = modelo.predict_batch_preprocessed(X_val)
