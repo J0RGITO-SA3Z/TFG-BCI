@@ -155,6 +155,47 @@ class MiRepNetInterface():
         preds_array = torch.cat(all_preds).numpy()
 
         return preds_array, probs_array
+    
+    def predict_batch_preprocessed(self, X: np.ndarray, batch_size = 32) -> Tuple[np.ndarray, np.ndarray]:
+        self._model.eval()
+        all_probs = []
+        all_preds = []
+
+        X_tensor = torch.from_numpy(X).float()
+        dataset = TensorDataset(X_tensor)
+
+        loader = DataLoader(
+            dataset,
+            batch_size=batch_size,
+            shuffle=False
+        )
+        
+        with torch.no_grad():
+            for (data,) in loader:
+                data = data.to(self.device)
+
+                _, outputs = self._model(data)
+                probs = F.softmax(outputs, dim=1)
+                _, predicted = torch.max(outputs, 1)
+
+                all_probs.append(probs.cpu())
+                all_preds.append(predicted.cpu())
+
+        probs_array = torch.cat(all_probs).numpy()
+        preds_array = torch.cat(all_preds).numpy()
+
+        return preds_array, probs_array
+    
+    def predict_preprocessed(self, X: np.ndarray):
+        X_tensor = torch.from_numpy(X).float().unsqueeze(0).to(self.device)
+
+        with torch.no_grad():
+            _, outputs = self._model(X_tensor)
+            probs = F.softmax(outputs, dim=1)
+            _, predicted = torch.max(outputs, 1)
+
+        return predicted.cpu().numpy()[0], probs.cpu().numpy()[0]
+
 
     def finetuning(self,X, y,batch_size=32,seed=42,epochs=20):
         train_loader = self._build_processed_loader(X, y, batch_size=batch_size)

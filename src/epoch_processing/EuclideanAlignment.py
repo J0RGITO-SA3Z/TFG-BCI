@@ -26,7 +26,7 @@ class EuclideanAlignment(EpochProcessor):
     Aplica Euclidean Alignment sobre todos los trials de un ``mne.Epochs``.
     """
 
-    def __init__(self,matrix: np.ndarray | None):
+    def __init__(self,matrix: np.ndarray = None):
         self.matrix = matrix
         super().__init__()
 
