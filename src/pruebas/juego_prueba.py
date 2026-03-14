@@ -25,7 +25,7 @@ class Configuracion:
         self.respawn = self.pedir_si_no("¿Respawn automático al chocar? (s/n): ")
         
         if self.avance_auto:
-            self.velocidad = 1000 # milisegundos por paso (INICIAL)
+            self.velocidad = self.pedir_numero("¿Cada cuántos ms da un paso? (s/n): ", 0, 10000) # 1000 milisegundos por paso (INICIAL)
         else:
             self.velocidad = 0
 
