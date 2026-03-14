@@ -6,7 +6,7 @@ import threading
 import time
 import os, sys
 import numpy as np
-import real_time_raw_preprocesing_buffer
+from real_time_raw_preprocesing_buffer import RealTimeRawPreprocessingBuffer as buffer
 
 # ── Rutas ─────────────────────────────────────────────────────────────────────
 PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -35,7 +35,7 @@ class RT_pipeline:
         self.info = info
         self.channel_positions = channel_positions
 
-        self.buffer = real_time_raw_preprocesing_buffer.RealTimeRawPreprocessingBuffer(info, channel_positions)
+        self.buffer = buffer(info, channel_positions)
 
         self.epoch_pipeline = EpochProcessorPipeline([
             EuclideanAlignment(matrix = ea_matrix),         # alineamiento euclídeo (EA)
