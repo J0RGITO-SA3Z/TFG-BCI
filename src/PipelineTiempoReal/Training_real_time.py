@@ -300,5 +300,5 @@ class Training_real_time:
         # Hacemos fine-tune del modelo con los epochs de la grabación
         self.run_finetuning_pipeline(data_epochs, epochs=10, annotations_names = lista)
 
-        return
+        return self.matrix, self.modelo
     
