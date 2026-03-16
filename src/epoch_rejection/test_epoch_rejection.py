@@ -57,7 +57,7 @@ def _raw_to_epochs(raw, tmin=0.0, tmax=4.0, anotationsNames=["left_hand", "right
     return epochs
 
 
-def test_faster(path,anotationsNames=["feet"]):
+def test_faster(path,anotationsNames=["right_hand"]):
 
     raw = mne.io.read_raw_fif(path, preload=True, verbose=False)
     raw = raw.pick_types(meg=False, eeg=True, eog=False)
@@ -92,14 +92,21 @@ def test_faster(path,anotationsNames=["feet"]):
 
     epoch.info["bads"] = find_bad_channels(epoch, eeg_ref_corr=False)
     
-    # Step 2: mark bad epochs
-    dropped_epochs = find_bad_epochs(epoch)
+    # Step 2: bad epochs según FASTER
+    bad_epoch_idx = find_bad_epochs(epoch)  # devuelve lista de índices
 
+    print(f"FASTER bad channels : {epoch.info['bads']}")
+    print(f"FASTER bad epochs   : {bad_epoch_idx}")
+    print(f"Nº de epochs antes  : {len(epoch)}")
 
-    dropped_epochs = [(idx, log) for idx, log in enumerate(epoch.drop_log) if log]
-    print(f"FASTER bad channels: {epoch.info['bads']}")
-    print(f"FASTER dropped epochs: {[idx for idx, _ in dropped_epochs]}")
-    print(f"FASTER drop reasons: {dropped_epochs}")
+    # Interpolar canales malos (opcional pero recomendado antes de drop epochs)
+    if epoch.info["bads"]:
+        epoch.interpolate_bads(reset_bads=True)
+
+    # Descartar epochs malos
+    epoch.drop(bad_epoch_idx, reason="FASTER")
+
+    print(f"Nº de epochs después: {len(epoch)}")
 
 
     # Compute evoked after cleaning, using an average EEG reference
