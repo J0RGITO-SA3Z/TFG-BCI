@@ -2,6 +2,8 @@ import os
 import sys
 import numpy as np
 import mne
+import time
+import matplotlib.pyplot as plt  # noqa
 
 # ── Rutas ─────────────────────────────────────────────────────────────────────
 PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -23,7 +25,7 @@ from mne_faster import ( # -> pip install mne_faster
 )
 
 # ─────── AutoReject (Automated artifact rejection for MEG and EEG data) ─────────────────────────────────────────────────────
-from autoreject import AutoReject, get_rejection_threshold # -> pip install autoreject
+from autoreject import AutoReject, get_rejection_threshold, compute_thresholds, set_matplotlib_defaults # -> pip install autoreject
 
 # ─────── Imports pipeline ─────────────────────────────────────────────────────
 from raw_processing.RawProcessorPipeline import RawProcessorPipeline
@@ -66,12 +68,12 @@ def fif_to_epochs(path, anotationsNames=["left_hand", "right_hand", "feet"]):
     Devuelve un objeto mne.Epochs listo para aplicar FASTER.
     '''
     raw = mne.io.read_raw_fif(path, preload=True, verbose=False)
-    raw = raw.set_eeg_reference([])
+    raw = raw.set_eeg_reference('average')
     raw = raw.pick_types(meg=False, eeg=True, eog=False)
-    raw.filter(0.3, None, method="fir")
+    #raw.filter(0.3, None, method="fir") # filtro de alta frecuencia para mejorar la detección de artefactos por parte de FASTER
     _raw_pipeline = RawProcessorPipeline([
                 # NotchFilter(50.0),
-                #BandpassFilter(8.0, 30.0),
+                BandpassFilter(8.0, 30.0), # filtro de banda para mejorar la detección de artefactos por parte de AutoReject
                 AnnotationRenamer(LABEL_MAP),
                 # CARReference(),
                 # Resampler(250),
@@ -106,8 +108,7 @@ def test_faster_thresholds(epochs):
         print(f"Threshold = {th}")
         print("  Bad channels:", bad_chs)
         print("  Num bad epochs:", len(bad_eps))
-
-     
+  
 def test_faster(epoch):
 
     thres_in = input("Escribe el umbral para FASTER (default: 3.0): ").strip()
@@ -162,17 +163,25 @@ def test_faster(epoch):
 
 # AutoReject test function ─────────────────────────────────────────────────────
 
-def test_autoreject_fast(epoch):
+def test_autoreject_global(epoch):
+    ''' 
+    Opción A — umbral global automático (rápido, 1 línea)
+    Aprende el umbral óptimo por validación cruzada y descarta los epochs malos.
+    Solo sirve para decartar epochs enteros, no para interpolar canales malos dentro de un epoch.
+    '''
 
+    inicio = time.perf_counter()
     # Opción A — umbral global automático (rápido, 1 línea)
     # Aprende el umbral óptimo por validación cruzada
     reject = get_rejection_threshold(epoch)  
     # → {'eeg': 0.000087}  (en voltios, MNE usa V no µV)
     epochs_clean = epoch.drop_bad(reject=reject)
 
+    fin = time.perf_counter()
+    print(f"Tiempo de ejecución: {fin - inicio:.6f} segundos")
     # Hay que hacerlo de esta forma para obtener el log con mne
     # 1. Qué trials se descartaron y por qué canal
-    print(epochs_clean.drop_log)
+    #print(epochs_clean.drop_log)
     # → ('IGNORED',) para los buenos
     # → ('EEG 003',) para los descartados, con el canal culpable
 
@@ -185,28 +194,83 @@ def test_autoreject_fast(epoch):
     plot_epochs(epochs_clean)  # visualiza los epochs limpios después de AutoReject
 
 def test_autoreject_slow(epoch):
-     # Opción B — AutoReject completo (más potente)
+    '''
+    Completo (más potente pero más lento) 
+    que aprende umbrales distintos por canal y por trial, e interpola los canales malos en vez de descartar el trial entero.
+    '''
+
+    # Opción B — AutoReject completo (más potente)
     # Aprende umbrales DISTINTOS por electrodo, e interpola
     # los canales malos en cada trial en vez de descartar el trial entero
-    ar = AutoReject(n_interpolate=[1, 2, 4], random_state=42)
+    ar = AutoReject(n_interpolate=[1, 2, 4],consensus=[0.4],random_state=42)
+
+    inicio = time.perf_counter()
+
     ar.fit(epoch)
     epochs_clean, reject_log = ar.transform(epoch, return_log=True)
+
+    fin = time.perf_counter()
+    print(f"Tiempo de ejecución: {fin - inicio:.6f} segundos")
 
     # Ver qué trials/canales fueron problemáticos
     reject_log.plot()        # mapa de calor: trials × canales
     reject_log.plot_epochs(epoch)  # visualiza los trials rechazados
     plot_epochs(epochs_clean)  # visualiza los epochs limpios después de AutoReject
 
+    print(f"Nº de epochs después: {len(epochs_clean)}")
+    print("Bad epochs:", reject_log.bad_epochs)
+    print("Nº bad epochs:", reject_log.bad_epochs.sum())
+
+def show_thresholds(epochs):
+    picks = mne.pick_types(epochs.info, eeg=True)
+    threshes = compute_thresholds(epochs, picks=picks, method='bayesian_optimization',
+                                  random_state=42, augment=False, verbose=True)
+
+    # EEG: los umbrales vienen en Voltios → convertir a µV
+    unit    = 'µV'
+    scaling = 1e6  # V → µV
+
+    valores = scaling * np.array(list(threshes.values()))
+    print(f"Rango de umbrales: {valores.min():.1f} – {valores.max():.1f} µV")
+
+    plt.figure(figsize=(6, 5))
+    plt.hist(valores, bins=30, color='steelblue', alpha=0.6, edgecolor='white')
+    plt.xlabel(f'Umbral ({unit})')
+    plt.ylabel('Número de canales')
+    plt.xlim((valores.min() * 0.8, valores.max() * 1.2))  # ajuste automático
+    plt.tight_layout()
+    plt.show()
+
+'''
+en epoch processor
+
+ar = AutoReject(
+    n_interpolate=[1, 2, 4],
+    consensus=[0.6, 0.7, 0.8],
+    cv=10,
+    picks='eeg',
+    verbose=True
+)
+
+ar.fit(epochs_calib)          # aprende thresholds y parámetros
+------------------------------------------
+
+cuándos e vaya a usar:
+epoch_clean, log = ar.transform(epoch_rt, return_log=True)
+'''
+
+
 def main() -> None:
-    anotationsNames=["feet"]
-    fif_path = "EEG_controller_app/recordings/suj2_5_raw.fif"
+    anotationsNames=["left_hand"]
+    fif_path = "EEG_controller_app/recordings/suj4_3_raw.fif"
     epoch = fif_to_epochs(fif_path, anotationsNames=anotationsNames)
 
     #test_faster_thresholds(epochs=epoch)
     #test_faster(epoch=epoch)
 
-    #test_autoreject_fast(epoch=epoch)
+    #test_autoreject_global(epoch=epoch)
     test_autoreject_slow(epoch=epoch)
+    show_thresholds(epochs=epoch)
 
 
 if __name__ == "__main__":
