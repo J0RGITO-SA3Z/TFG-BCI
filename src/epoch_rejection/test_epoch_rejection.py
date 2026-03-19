@@ -214,7 +214,8 @@ def test_autoreject_slow(epoch):
 
     # Ver qué trials/canales fueron problemáticos
     reject_log.plot()        # mapa de calor: trials × canales
-    reject_log.plot_epochs(epoch)  # visualiza los trials rechazados
+    scalings = dict(eeg=1)
+    reject_log.plot_epochs(epoch, scalings=scalings)  # visualiza los trials rechazados
     plot_epochs(epochs_clean)  # visualiza los epochs limpios después de AutoReject
 
     print(f"Nº de epochs después: {len(epochs_clean)}")
