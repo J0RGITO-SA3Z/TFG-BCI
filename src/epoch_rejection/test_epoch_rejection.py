@@ -202,7 +202,7 @@ def test_autoreject_slow(epoch):
     # Opción B — AutoReject completo (más potente)
     # Aprende umbrales DISTINTOS por electrodo, e interpola
     # los canales malos en cada trial en vez de descartar el trial entero
-    ar = AutoReject(n_interpolate=[1, 2, 4],consensus=[0.4],random_state=42)
+    ar = AutoReject(n_interpolate=[1, 2, 4],consensus=[0.3],random_state=42)
 
     inicio = time.perf_counter()
 
@@ -259,6 +259,11 @@ ar.fit(epochs_calib)          # aprende thresholds y parámetros
 cuándos e vaya a usar:
 epoch_clean, log = ar.transform(epoch_rt, return_log=True)
 '''
+
+# Reimannian Potato test function ─────────────────────────────────────────────────────
+
+def test_riemannian_potato(epoch):
+    return
 
 
 def main() -> None:
