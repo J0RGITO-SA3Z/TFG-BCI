@@ -2,6 +2,7 @@ import time
 import csv
 import threading
 import winsound
+import pydirectinput
 
 class BEEP_interpreter:
     def __init__(self, pipe, restTime = 6, interval = 4, waitTime = 1, bestOf = 2):
@@ -27,6 +28,12 @@ class BEEP_interpreter:
         self.bestOf = bestOf
 
         self.rachaContinua = True
+
+    def pulsar(prediccion):
+        if prediccion == "right_hand":
+            pydirectinput.keyUp('d')
+        elif prediccion == "left_hand":
+            pydirectinput.keyUp('a')
 
     def _BEEP(self):
         while self.running:
@@ -54,6 +61,9 @@ class BEEP_interpreter:
                 
                 # INCREMENTAMOS BUCLE
                 i+=1
+            
+            if self.rachaContinua:
+                self.pulsar(self.actualPredictions)
 
     def _listen(self):
         while self.running:
@@ -70,6 +80,7 @@ class BEEP_interpreter:
                         self.actualPredictions = prediction
                     elif self.actualPredictions != prediction:
                         self.rachaContinua = False
+                        self.actualPredictions = None
 
                     self.predictions.append(prediction)
                     self.samples.append(last_sample)
