@@ -39,7 +39,8 @@ def build_root_menu():
     menu.append("  4) Grabar\n")
     menu.append("  5) Tiempo real\n")
     menu.append("  6) Experimento Visual\n")
-    menu.append("  7) Salir\n")
+    menu.append("  7) Experimento Tiempo real\n")
+    menu.append("  8) Salir\n")
     content = Group(
         header,
         subtitle,
@@ -98,11 +99,11 @@ def main_menu(console):
             case "5":
                 asyncio.run(visualizacion_directo(channels, console)) 
             
-            case "6":
+            case "7":
                 experimento = ExperimentoVisual(console)
                 experimento.start(channels)
 
-            case "7":
+            case "8":
                 console.print("[bold green]Saliendo del sistema BCI[/bold green]")
                 break
 

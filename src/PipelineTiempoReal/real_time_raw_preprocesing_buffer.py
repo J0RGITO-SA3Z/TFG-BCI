@@ -66,7 +66,7 @@ class RealTimeRawPreprocessingBuffer:
 
         return int(sample_data[0, -1])
 
-    def getData(self, return_last_sample: bool = False):
+    def getData(self):
         last_timestamp = None
 
         with self.lock2:
