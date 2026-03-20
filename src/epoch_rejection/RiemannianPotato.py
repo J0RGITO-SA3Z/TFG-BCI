@@ -10,7 +10,7 @@ from matplotlib.patches import Patch, Ellipse
 from pyriemann.clustering import Potato
 from pyriemann.estimation import Covariances
 from pyriemann.utils.base import nearest_sym_pos_def
-
+from pyriemann.utils.distance import distance_riemann
 
 @dataclass
 class RiemannianRejectLog:
@@ -644,5 +644,70 @@ class RiemannianEpochRejector:
         ax.set_ylabel("Componente 2")
         ax.legend()
         ax.grid(alpha=0.25)
+        plt.tight_layout()
+        plt.show()
+
+    def plot_potato_distances(
+        self,
+        epochs: Optional[mne.Epochs] = None,
+        use_last_transform: bool = True,
+        title: str = "Distancia riemanniana vs threshold",
+        figsize=(8, 3),
+    ):
+        """
+        Visualización REAL de la potato:
+        - eje X: distancia riemanniana al centro
+        - línea vertical: threshold
+        """
+
+        if not self._fitted:
+            raise RuntimeError("Debes hacer fit() antes de usar plot_potato_distances().")
+
+        # ---- 1) obtener covarianzas ----
+        if epochs is not None:
+            X = epochs.get_data(copy=True)
+            covs = self.cov.transform(X)
+            covs = self._regularize_covariances(covs)
+            potato_clean = self.potato.predict(covs).astype(bool)
+        elif use_last_transform and self._last_covs is not None:
+            covs = self._last_covs.copy()
+            potato_clean = self._last_potato_clean.copy()
+        else:
+            raise ValueError("No hay datos. Usa transform() antes o pasa epochs.")
+
+        # ---- 2) centro riemanniano ----
+        center = self.potato._mdm.covmeans_[0]
+
+        # ---- 3) distancias ----
+        distances = np.array([
+            distance_riemann(C, center)
+            for C in covs
+        ])
+
+        # ---- 4) plot ----
+        plt.figure(figsize=figsize)
+
+        plt.scatter(
+            distances,
+            np.zeros_like(distances),
+            c=potato_clean,
+            cmap="coolwarm",
+            edgecolors="black",
+            s=80
+        )
+
+        plt.axvline(
+            self.potato.threshold,
+            color="black",
+            linestyle="--",
+            linewidth=2,
+            label="threshold"
+        )
+
+        plt.xlabel("Distancia riemanniana al centro")
+        plt.yticks([])
+        plt.title(title)
+
+        plt.legend()
         plt.tight_layout()
         plt.show()

@@ -409,6 +409,7 @@ def test_riemannian_potato(epoch):
 
     rejector.plot_channel_heatmap(reject_log)
     rejector.plot_epoch_summary(reject_log)
+    rejector.plot_potato_distances()
     rejector.plot_potato()
 
     return
@@ -420,13 +421,13 @@ def main() -> None:
     epoch = fif_to_epochs(fif_path, anotationsNames=anotationsNames)
 
     #test_faster_thresholds(epochs=epoch)
-    test_faster(epoch=epoch)
+    #test_faster(epoch=epoch)
 
     #test_autoreject_global(epoch=epoch)
     #test_autoreject_slow(epoch=epoch)
     #show_thresholds(epochs=epoch)
 
-    #test_riemannian_potato(epoch=epoch)
+    test_riemannian_potato(epoch=epoch)
 
 
 if __name__ == "__main__":
