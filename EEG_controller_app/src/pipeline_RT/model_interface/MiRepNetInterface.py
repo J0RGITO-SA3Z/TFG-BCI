@@ -202,6 +202,6 @@ class MiRepNetInterface(ModelInterface):
     def _build_unprocessed_loader(self, X, Y, batch_size=32, shuffle=False):
         dataset = TensorDataset(
             torch.from_numpy(X).float(),
-            torch.from_numpy(Y)
+            torch.from_numpy(Y).long()
         )
         return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=0)

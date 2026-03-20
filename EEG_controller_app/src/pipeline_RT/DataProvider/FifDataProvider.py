@@ -96,15 +96,15 @@ class FifDataProvider(DataProvider):
         
         X = combined_epochs.get_data()
 
+        # Obtener etiquetas verdaderas (strings) a partir de las anotaciones de los epochs
         true_labels_numeric = combined_epochs.events[:, 2]
         inv_event_id = {v: k for k, v in combined_epochs.event_id.items()}
-        true_labels = [inv_event_id[i] for i in true_labels_numeric]
+        true_labels = np.array([inv_event_id[i] for i in true_labels_numeric])
 
+        # Clases únicas
         classes = sorted(set(true_labels))
-        label_map = {c: i for i, c in enumerate(classes)}
-        y = np.array([label_map[l] for l in true_labels], dtype=np.int64)
 
-        return X, y, classes
+        return X, true_labels, classes
     
     def get_channel_names(self) -> List[str]:
         if not self._fif_paths:
