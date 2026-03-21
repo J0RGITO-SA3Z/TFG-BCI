@@ -27,6 +27,7 @@ class ClassEventRemover(EpochProcessor):
         if isinstance(classes_to_remove, (int, str)):
             classes_to_remove = [classes_to_remove]
         self.classes_to_remove = classes_to_remove
+        print(f"ClassEventRemover: se eliminarán las clases {self.classes_to_remove}")
 
     # ------------------------------------------------------------------
     # Interfaz MNE
