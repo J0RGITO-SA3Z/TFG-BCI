@@ -64,15 +64,15 @@ def run_pipeline(dataProvider, model_interface, epochs, epoch_pipeline, validati
     viewer.plot_fine_tune(final_val_acc)
     viewer.plot_downstream(preds_array, probs_array, Y_val)
 
-def run_MiRepNet_pipeline(fif_paths, epochs = 10, validation_split=0.2):
+def run_MiRepNet_pipeline(fif_paths, epochs = 10, validation_split=0.6):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    dataProvider = FifDataProvider(fif_paths = fif_paths, annotations_names=["left_hand", "right_hand", "feet", "rest"])
+    dataProvider = FifDataProvider(fif_paths = fif_paths, annotations_names=["left_hand", "right_hand"])
 
     epoch_training_pipeline = EpochProcessorPipeline([
         EuclideanAlignment(),         # alineamiento euclídeo (EA)
         SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
     ])
 
-    modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, training_clases = ["left_hand", "right_hand", "feet"])
+    modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, training_clases = ["left_hand", "right_hand"])
 
-    run_pipeline(dataProvider, modelo, epochs, epoch_training_pipeline, validation_split, rename_training_classes={"rest": "feet"})
+    run_pipeline(dataProvider, modelo, epochs, epoch_training_pipeline, validation_split)
