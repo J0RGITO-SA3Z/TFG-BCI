@@ -33,6 +33,7 @@ class ExperimentoVisualDataProvider(DataProvider):
         self._channelsConfig = channelsConfig
         self._num_trials_clase = int(numTrialsClase)
         self._lista = list(lista)
+        self.raw = None
 
         if self._num_trials_clase <= 0:
             raise ValueError("numTrialsClase debe ser mayor que 0")
@@ -157,16 +158,16 @@ class ExperimentoVisualDataProvider(DataProvider):
         return raw
 
     def get_data(self, fif_path=None):
-        raw = self._ejecutar_experimento_visual()    
-
-        if self._raw_pipeline is not None:
-            raw = self._raw_pipeline.process(raw)
+        self.raw = self._ejecutar_experimento_visual()    
 
         if fif_path is not None:
-            raw.save(fif_path, overwrite=True)
+            self.raw.save(fif_path, overwrite=True)
+
+        if self._raw_pipeline is not None:
+            processed_raw = self._raw_pipeline.process(self.raw.copy())
 
         annotations_names = self._get_event_filter_names()
-        epochs = _raw_to_epochs(raw, anotationsNames=annotations_names)
+        epochs = _raw_to_epochs(processed_raw, anotationsNames=annotations_names)
 
         X = epochs.get_data()
 
@@ -188,3 +189,8 @@ class ExperimentoVisualDataProvider(DataProvider):
             )
         
         return list(self._last_channel_names)
+    
+    def get_raw(self):
+        if self.raw is None:
+            raise ValueError("Raw no disponible. Ejecuta get_data() primero.")
+        return self.raw.copy()
