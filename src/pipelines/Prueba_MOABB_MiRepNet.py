@@ -40,6 +40,7 @@ from epoch_processing.EpochNormalizer import EpochNormalizer
 from epoch_processing.SpatialInterpolator import SpatialInterpolator
 from epoch_processing.EuclideanAlignment import EuclideanAlignment
 from epoch_processing.ClassEventRemover import ClassEventRemover
+from epoch_processing.Autoreject import Autoreject
 
 # =============================================================================
 # CONFIG — cambia aquí para probar distintos datasets/sujetos
@@ -160,11 +161,13 @@ def run_fif_piepline(fif_names, epochs, val_split, seed):
     )
 
     epoch_training_pipeline = EpochProcessorPipeline([
+        Autoreject(actual_channel_positions = dataProvider.get_channel_names(), n_interpolate=[1, 2, 4], consensus=[0.3], plot=True), # AutoReject completo (aprende umbrales por canal y por trial, e interpola canales malos en vez de descartar el trial entero)
         EuclideanAlignment(),         # alineamiento euclídeo (EA)
         SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
     ])
 
     epoch_validation_pipeline = EpochProcessorPipeline([
+        Autoreject(actual_channel_positions = dataProvider.get_channel_names(), n_interpolate=[1, 2, 4], consensus=[0.3], plot=True), # AutoReject completo (aprende umbrales por canal y por trial, e interpola canales malos en vez de descartar el trial entero)
         EuclideanAlignment(),         # alineamiento euclídeo (EA)
         SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
     ])
