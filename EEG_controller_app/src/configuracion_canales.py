@@ -8,7 +8,7 @@ from rich.console import Console
 import mne
 
 from dataclasses import dataclass
-from utils import CHANNELS_CONF_DIR, DEFAULT_CHANNELS_CONFIG_FILE
+from app_utils import CHANNELS_CONF_DIR, DEFAULT_CHANNELS_CONFIG_FILE
 
 @dataclass
 class ChannelConfig:

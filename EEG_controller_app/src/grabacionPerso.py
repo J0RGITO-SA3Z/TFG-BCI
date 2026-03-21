@@ -12,8 +12,8 @@ from rich.panel import Panel
 from rich.console import Group
 from rich.text import Text
 from rich.columns import Columns
-from utils import seleccionarPuertoCOM
-from utils import RECORD_DIR
+from app_utils import seleccionarPuertoCOM
+from app_utils import RECORD_DIR
 
 def build_recording_panel(acciones):
     header = Columns()

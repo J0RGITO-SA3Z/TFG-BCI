@@ -15,9 +15,9 @@ from rich.console import Group
 from rich.text import Text
 from rich.columns import Columns
 from rich.prompt import IntPrompt
-from utils import seleccionarPuertoCOM
-from utils import lee_indice
-from utils import RECORD_DIR
+from app_utils import seleccionarPuertoCOM
+from app_utils import lee_indice
+from app_utils import RECORD_DIR
 from ventanaExperimentoVisual import ventanaExperimentoVisual
 
 import winsound

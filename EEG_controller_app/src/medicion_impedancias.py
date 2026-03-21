@@ -8,7 +8,7 @@ import numpy as np
 from brainaccess.utils import acquisition
 from brainaccess.core.eeg_manager import EEGManager
 
-from utils import seleccionarPuertoCOM
+from app_utils import seleccionarPuertoCOM
 from configuracion_canales import ChannelConfig
 from visualizar_impedancias import visualizar_impedancias
 

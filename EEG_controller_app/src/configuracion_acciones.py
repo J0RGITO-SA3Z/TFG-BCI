@@ -12,8 +12,8 @@ from rich.table import Table
 import json
 from pathlib import Path
 
-from utils import ask_validated
-from utils import ACTIONS_CONF_DIR, DEFAULT_ACTIONS_CONFIG_FILE
+from app_utils import ask_validated
+from app_utils import ACTIONS_CONF_DIR, DEFAULT_ACTIONS_CONFIG_FILE
 
 ## Valida que el nombre de la accion no contenga espacios y tenga un máximo de 20 caracteres
 def validar_nombre_accion(console,text):

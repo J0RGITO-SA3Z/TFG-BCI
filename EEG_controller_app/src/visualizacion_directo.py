@@ -4,7 +4,7 @@ from brainaccess.core.eeg_manager import EEGManager
 import brainaccess.core as bacore
 import brainaccess.core.eeg_channel as eeg_channel
 
-from utils import seleccionarPuertoCOM
+from app_utils import seleccionarPuertoCOM
 
 import asyncio
 import numpy as np

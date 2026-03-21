@@ -25,10 +25,10 @@ import brainaccess.core.eeg_channel as eeg_channel
 from model_interface.MiRepNetInterface import MiRepNetInterface
 
 # ── Imports de scripts de la aplicación ──────────────────────────────────────────────────────────
-from EEG_controller_app.src.utils import RECORD_DIR
+from EEG_controller_app.src.app_utils import RECORD_DIR
 from EEG_controller_app.src.EEGRecorder import EEGRecorder
 from EEG_controller_app.src.eeg_live_server import EEGLiveServer
-from EEG_controller_app.src.utils import seleccionarPuertoCOM
+from EEG_controller_app.src.app_utils import seleccionarPuertoCOM
 from EEG_controller_app.src.ventanaExperimentoVisual import ventanaExperimentoVisual
 
 # ── Imports visualización ─────────────────────────────────────────────────────

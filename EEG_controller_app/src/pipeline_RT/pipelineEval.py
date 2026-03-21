@@ -76,17 +76,3 @@ def run_MiRepNet_pipeline(fif_paths, epochs = 10, validation_split=0.2):
     modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, training_clases = ["left_hand", "right_hand", "feet"])
 
     run_pipeline(dataProvider, modelo, epochs, epoch_training_pipeline, validation_split, rename_training_classes={"rest": "feet"})
-
-if __name__ == "__main__":
-    fif_names = ["EEG_controller_app/recordings/suj2_1_raw.fif"]
-    fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
-    fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
-    fif_names += ["EEG_controller_app/recordings/suj2_4_raw.fif"]
-    fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
-    fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
-
-    run_MiRepNet_pipeline(
-        fif_paths    = fif_names,
-        epochs       = 10,
-        validation_split    = 0.4,
-    )

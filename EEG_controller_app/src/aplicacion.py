@@ -5,6 +5,13 @@ from rich.text import Text
 from rich.columns import Columns
 
 import asyncio
+import os, sys
+
+PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+MIREPNET_DIR  = os.path.join(PROJECT_ROOT, "pipeline_RT","pretrainedModels", "MIRepNet")
+WEIGHT_PATH   = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
+sys.path.append(PROJECT_ROOT)
+sys.path.append(MIREPNET_DIR)
 
 from visualizacion_directo import visualizacion_directo
 from ExperimentoVisual import ExperimentoVisual
@@ -15,6 +22,7 @@ from configuracion_canales import load_default_channel_config
 from configuracion_canales import ChannelConfig
 from configuracion_acciones import menu_acciones
 from configuracion_acciones import load_default_actions
+from validacion_sujeto import evaluar_sujeto_MiRepNet
     
 DIR_ACCIONES = "acciones"
 
@@ -39,8 +47,9 @@ def build_root_menu():
     menu.append("  4) Grabar\n")
     menu.append("  5) Tiempo real\n")
     menu.append("  6) Experimento Visual\n")
-    menu.append("  7) Experimento Tiempo real\n")
-    menu.append("  8) Salir\n")
+    menu.append("  7) Evaluar sujeto MiRepNet\n")
+    menu.append("  8) Experimento Tiempo real\n")
+    menu.append("  9) Salir\n")
     content = Group(
         header,
         subtitle,
@@ -99,11 +108,14 @@ def main_menu(console):
             case "5":
                 asyncio.run(visualizacion_directo(channels, console)) 
             
-            case "7":
+            case "6":
                 experimento = ExperimentoVisual(console)
                 experimento.start(channels)
 
-            case "8":
+            case "7":
+                evaluar_sujeto_MiRepNet(console)
+
+            case "9":
                 console.print("[bold green]Saliendo del sistema BCI[/bold green]")
                 break
 
