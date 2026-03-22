@@ -74,6 +74,9 @@ class EEGRecorder:
 
         return info
     
+    def get_channel_indexes(self):
+        return list(self.indiceCanales.values())
+    
     def obtenerIndicesCanalesActivos(self):
         for key in self.indiceCanales.keys():
             self.indiceCanales[key] = self.mgr.get_channel_index(key)

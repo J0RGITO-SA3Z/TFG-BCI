@@ -1,0 +1,29 @@
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from multiprocessing.connection import Connection
+from multiprocessing.synchronize import Event
+from typing import Optional, Tuple, Any
+
+
+class RT_interpreter(ABC):
+    """Interfaz base para interpretes de tiempo real usados por RT_interpreter_process."""
+
+    def __init__(self, pipe: Connection, stop_event: Event) -> None:
+        self.pipe = pipe
+        self.stop_event = stop_event
+
+    def read_msg(self) -> Tuple[Any, Any, Any]:
+        """Lee un mensaje del pipe y lo devuelve como (prediction, last_sample, last_timestamp)."""
+        msg = self.pipe.recv()
+
+        if not isinstance(msg, tuple) or len(msg) != 3:
+            raise ValueError("Formato de mensaje invalido. Se esperaba (prediction, last_sample, last_timestamp)")
+
+        prediction, last_sample, last_timestamp = msg
+        return prediction, last_sample, last_timestamp
+
+    @abstractmethod
+    def start(self, filename: Optional[str] = None) -> None:
+        """Inicia la logica del interprete y debe finalizar al activarse stop_event."""
+        raise NotImplementedError()

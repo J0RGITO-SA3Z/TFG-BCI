@@ -2,7 +2,7 @@ import time
 import mne
 
 from EEGRecorder import EEGRecorder
-from eeg_live_server import EEGLiveServer
+from EEG_controller_app.src.tcp.eeg_live_server import EEGLiveServer
 from brainaccess.core.eeg_manager import EEGManager
 import brainaccess.core.eeg_channel as eeg_channel
 

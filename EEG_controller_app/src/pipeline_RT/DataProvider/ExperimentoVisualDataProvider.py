@@ -16,7 +16,7 @@ sys.path.append(SUB_ROOT)
 from DataProvider.DataProvider import DataProvider
 from DataProvider.FifDataProvider import LABEL_MAP, _raw_to_epochs
 from EEGRecorder import EEGRecorder
-from eeg_live_server import EEGLiveServer
+from tcp.eeg_live_server import EEGLiveServer
 from raw_processing.AnnotationRenamer import AnnotationRenamer
 from raw_processing.BandpassFilter import BandpassFilter
 from raw_processing.RawProcessorPipeline import RawProcessorPipeline
