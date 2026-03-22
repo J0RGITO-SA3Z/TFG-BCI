@@ -81,7 +81,7 @@ def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral
         # acaba la grabacion
         raw = eeg.get_mne()
         raw.save(SalidaGeneral, overwrite=True)
-        
+
         eeg.detenerGrabacion()
 
         if modelPipeline is not None:

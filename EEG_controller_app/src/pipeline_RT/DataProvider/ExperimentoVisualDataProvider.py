@@ -147,6 +147,7 @@ class ExperimentoVisualDataProvider(DataProvider):
 
                 time.sleep(self._tmp_break)
 
+            print("Experimento terminado. Deteniendo grabacion...")
             raw = eeg.get_mne()
             eeg.detenerGrabacion()
             mgr.disconnect()
