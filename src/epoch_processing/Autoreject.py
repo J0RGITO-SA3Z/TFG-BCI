@@ -15,8 +15,9 @@ from autoreject import AutoReject, get_rejection_threshold, compute_thresholds, 
 
 class Autoreject(EpochProcessor):
     
-    def __init__(self, reject=None, actual_channel_positions: Optional[List[str]] = None, n_interpolate = [1, 2, 4], consensus = [0.3], plot=False, sfreq=250):
-        self.autoreject = reject
+    def __init__(self, actual_channel_positions: Optional[List[str]] = None, n_interpolate = [1, 2, 4], consensus = [0.3], plot=False, sfreq=250):
+        self.autoreject = None
+        self.reject_log = None
         self.n_interpolate = n_interpolate
         self.consensus = consensus
         self.plot = plot
@@ -31,13 +32,15 @@ class Autoreject(EpochProcessor):
         que aprende umbrales distintos por canal y por trial, e interpola los canales malos en vez de descartar el trial entero.
         '''
         if self.autoreject is None:
-            self.autoreject = AutoReject(n_interpolate=[1, 2, 4],consensus=[0.3],random_state=42)
+            self.autoreject = AutoReject(self.n_interpolate,self.consensus,random_state=42)
+            self.autoreject.fit(epochs)
         
-        self.autoreject.fit(epochs)
+        
         epochs_clean, reject_log = self.autoreject.transform(epochs, return_log=True)
 
         self.summary(reject_log, epochs, epochs_clean)
 
+        self.reject_log = reject_log
         return epochs_clean
 
     def process_np(self, X: np.ndarray, y: np.ndarray | None = None):
@@ -54,6 +57,7 @@ class Autoreject(EpochProcessor):
         Retorna: X_clean (n_trials_clean, n_channels, n_samples), y_clean
         """
         n_trials, n_ch, n_samples = X.shape
+
 
         # Construir info MNE
         ch_names = self.ch_names
@@ -74,7 +78,9 @@ class Autoreject(EpochProcessor):
             X, info=info, events=events,
             event_id={'stim': 1}, tmin=0.0, verbose=False
         )
-
+        
+        montage = mne.channels.make_standard_montage('standard_1020')
+        epochs.set_montage(montage, match_case=False, on_missing='ignore')
         # Aplicar AutoReject (reutiliza process)
         epochs_clean = self.process(epochs)
 
@@ -85,7 +91,7 @@ class Autoreject(EpochProcessor):
         y_clean = None
         if y is not None:
             # bad_epochs es un array booleano (n_trials,): True = descartado
-            keep_mask = ~self.autoreject.get_reject_log(epochs).bad_epochs
+            keep_mask = ~self.reject_log.bad_epochs
             y_clean = y[keep_mask]
 
         return X_clean, y_clean
@@ -102,7 +108,7 @@ class Autoreject(EpochProcessor):
 
         return mapa.get(nombre, None)
     
-    def plot_epochs(epochs):
+    def plot_epochs(self, epochs):
         ''' Función auxiliar para visualizar los epochs antes de aplicar FASTER. '''
         epoch_cop = epochs.copy()
         epoch_cop.set_eeg_reference("average")
