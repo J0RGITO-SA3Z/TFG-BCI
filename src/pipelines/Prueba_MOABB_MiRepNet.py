@@ -159,15 +159,15 @@ def run_fif_piepline(fif_names, epochs, val_split, seed):
     X_train, X_val, y_train, y_val = train_test_split(
         X, y, test_size=val_split, random_state=seed, stratify=y
     )
-
+    ar = Autoreject(actual_channel_positions = dataProvider.get_channel_names(), n_interpolate=[1, 2, 4], consensus=[0.5, 0.6, 0.7], plot=True)
     epoch_training_pipeline = EpochProcessorPipeline([
-        Autoreject(actual_channel_positions = dataProvider.get_channel_names(), n_interpolate=[1, 2, 4], consensus=[0.3], plot=True), # AutoReject completo (aprende umbrales por canal y por trial, e interpola canales malos en vez de descartar el trial entero)
+        ar, # AutoReject completo (aprende umbrales por canal y por trial, e interpola canales malos en vez de descartar el trial entero)
         EuclideanAlignment(),         # alineamiento euclídeo (EA)
         SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
     ])
 
     epoch_validation_pipeline = EpochProcessorPipeline([
-        Autoreject(actual_channel_positions = dataProvider.get_channel_names(), n_interpolate=[1, 2, 4], consensus=[0.3], plot=True), # AutoReject completo (aprende umbrales por canal y por trial, e interpola canales malos en vez de descartar el trial entero)
+        ar, # AutoReject completo (aprende umbrales por canal y por trial, e interpola canales malos en vez de descartar el trial entero)
         EuclideanAlignment(),         # alineamiento euclídeo (EA)
         SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
     ])
@@ -245,11 +245,11 @@ if __name__ == "__main__":
     elif input_type == "2":
 
         fif_names = ["EEG_controller_app/recordings/suj2_1_raw.fif"]
+        #fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
+        #fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
         fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_4_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
+        #fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
+        #fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
 
         run_fif_piepline(
             fif_names    = fif_names,
@@ -259,12 +259,12 @@ if __name__ == "__main__":
         )
 
     elif input_type == "3":
-        fif_names = ["EEG_controller_app/recordings/suj2_1_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_4_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
-        fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
+        fif_names = ["EEG_controller_app/recordings/suj4_1_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj4_2_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj4_3_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj4_4_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj4_5_raw.fif"]
+        fif_names += ["EEG_controller_app/recordings/suj4_6_raw.fif"]
 
         prueba_clasificarRes_sinEntrenar(
             fif_names    = fif_names,

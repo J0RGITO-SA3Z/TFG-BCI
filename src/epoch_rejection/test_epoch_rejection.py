@@ -424,10 +424,10 @@ def main() -> None:
     #test_faster(epoch=epoch)
 
     #test_autoreject_global(epoch=epoch)
-    #test_autoreject_slow(epoch=epoch)
+    test_autoreject_slow(epoch=epoch)
     #show_thresholds(epochs=epoch)
 
-    test_riemannian_potato(epoch=epoch)
+    #test_riemannian_potato(epoch=epoch)
 
 
 if __name__ == "__main__":
