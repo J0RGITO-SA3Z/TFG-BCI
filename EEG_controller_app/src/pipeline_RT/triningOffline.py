@@ -45,7 +45,7 @@ class Training_offline:
 		lista = ["left_hand", "right_hand", "feet", "rest"],
 		epochs: int = 10,
 		seed: int = 42,
-		validation_split: float = 0.2,
+		validation_split: float = 0,
 	):
 		"""
 		Entrena MiRepNet usando datos provenientes de uno o varios archivos FIF.

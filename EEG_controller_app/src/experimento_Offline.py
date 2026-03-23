@@ -6,6 +6,7 @@ from typing import Sequence
 import mne
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from matplotlib.widgets import Slider
 
 from pipeline_RT.triningOffline import Training_offline
@@ -57,6 +58,7 @@ def _plot_predictions_vs_events(
     event_samples: np.ndarray,
     event_desc: list[str],
     sfreq: float,
+    class_order: Sequence[str] | None = None,
     window_seconds: float = 30.0,
 ):
     if not predictions:
@@ -66,7 +68,15 @@ def _plot_predictions_vs_events(
     pred_samples = np.array([p.last_sample for p in predictions], dtype=np.int64)
     pred_labels = [p.prediction for p in predictions]
 
-    classes = sorted(set(pred_labels))
+    if class_order:
+        # Mantiene los valores originales de etiqueta en el eje Y.
+        classes = list(dict.fromkeys(class_order))
+        for label in pred_labels:
+            if label not in classes:
+                classes.append(label)
+    else:
+        classes = sorted(set(pred_labels))
+
     class_to_y = {c: i for i, c in enumerate(classes)}
     pred_y = np.array([class_to_y[c] for c in pred_labels], dtype=float)
 
@@ -75,10 +85,18 @@ def _plot_predictions_vs_events(
 
     scatter = ax.scatter(pred_samples, pred_y, s=18, alpha=0.85, label="Predicciones")
 
+    unique_event_types = list(dict.fromkeys(event_desc))
+    cmap = plt.get_cmap("tab20")
+    event_color_map = {
+        ev: cmap(i % cmap.N)
+        for i, ev in enumerate(unique_event_types)
+    }
+
     event_lines = []
     event_texts = []
     for sample, desc in zip(event_samples, event_desc):
-        line = ax.axvline(sample, color="tab:red", alpha=0.35, linewidth=1.0)
+        event_color = event_color_map.get(desc, "tab:red")
+        line = ax.axvline(sample, color=event_color, alpha=0.45, linewidth=1.2)
         text = ax.text(
             sample,
             len(classes) - 0.15,
@@ -87,11 +105,20 @@ def _plot_predictions_vs_events(
             va="top",
             ha="right",
             fontsize=8,
-            color="tab:red",
+            color=event_color,
             alpha=0.8,
         )
         event_lines.append(line)
         event_texts.append(text)
+
+    legend_handles = [scatter]
+    for ev in unique_event_types:
+        legend_handles.append(
+            Line2D([0], [0], color=event_color_map[ev], lw=2, label=f"Evento: {ev}")
+        )
+
+    if legend_handles:
+        ax.legend(handles=legend_handles, loc="upper right", fontsize=8, framealpha=0.9)
 
     ax.set_yticks(np.arange(len(classes)))
     ax.set_yticklabels(classes)
@@ -134,7 +161,7 @@ def _plot_predictions_vs_events(
 def experimentoOffline(
     pretrainingFif: str | Sequence[str],
     testFif: str,
-    lista = ["left_hand", "right_hand", "feet", "rest"],
+    lista = ["left_hand", "right_hand"],
     epochs: int = 10,
     seed: int = 42,
     epoch_seconds: float = 4.0,
@@ -207,6 +234,7 @@ def experimentoOffline(
         event_samples=event_samples,
         event_desc=event_desc,
         sfreq=sfreq,
+        class_order=lista,
     )
 
     return {
