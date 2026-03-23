@@ -312,7 +312,7 @@ def extract_sliding_windows_batch(
 def experimentoOffline(
     pretrainingFif: str | Sequence[str],
     testFif: str,
-    lista = ["left_hand", "right_hand"],
+    lista = ["left_hand", "right_hand", "feet", "rest"],
     epochs: int = 10,
     seed: int = 42,
     epoch_seconds: float = 4.0,
