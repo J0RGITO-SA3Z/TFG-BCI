@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 
 # ── Rutas ─────────────────────────────────────────────────────────────────────
-PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 MIREPNET_DIR  = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
 WEIGHT_PATH   = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
 
@@ -21,7 +21,7 @@ sys.path.append(PROJECT_ROOT)
 sys.path.append(MIREPNET_DIR)
 
 # ── Imports visualización ─────────────────────────────────────────────────────
-from utils.Performance_Viewer import PerformanceViewer
+from pipeline_utils.Performance_Viewer import PerformanceViewer
 
 # ── Imports modelInterface ──────────────────────────────────────────────────────────
 from model_interface.MiRepNetInterface import MiRepNetInterface
@@ -40,6 +40,7 @@ from epoch_processing.EpochNormalizer import EpochNormalizer
 from epoch_processing.SpatialInterpolator import SpatialInterpolator
 from epoch_processing.EuclideanAlignment import EuclideanAlignment
 from epoch_processing.ClassEventRemover import ClassEventRemover
+from triningOffline import Training_offline
 # =============================================================================
 # CONFIG — cambia aquí para probar distintos datasets/sujetos
 # =============================================================================
@@ -181,55 +182,36 @@ def run_fif_piepline(fif_names, epochs, val_split, seed):
     viewer.plot_downstream2(probs_array, y_val, class_names = classes)
 
     
-def run_fif_piepline2(train_fif_names,val_fif_names, epochs, val_split, seed):
+def run_fif_piepline2(train_fif_names,val_fif_names, epochs, seed):
     torch.manual_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}\n")
 
-    # 1. Datos
-    train_dataProvider = FifDataProvider(fif_paths = train_fif_names, annotations_names=["left_hand", "right_hand"])
-    validation_dataProvider = FifDataProvider(fif_paths = val_fif_names, annotations_names=["left_hand", "right_hand"])
+    trainer = Training_offline()
+    ea_matrix, modelo = trainer.start(
+        fif_paths=train_fif_names,
+        lista=["left_hand", "right_hand"],
+        epochs=epochs,
+        seed=seed,
+        validation_split=0.0,
+    )
 
-    X_train, y_train, classes = train_dataProvider.get_data()
+    validation_dataProvider = FifDataProvider(
+        fif_paths=val_fif_names,
+        annotations_names=["left_hand", "right_hand"],
+    )
     X_val, y_val, _ = validation_dataProvider.get_data()
 
-    num_clases = len(classes)
-
-    modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, num_clases = num_clases, channels_names = train_dataProvider.get_channel_names())
-
-    EA_Matrix_train = EA_Matrix(X_train)
-    EA_Matrix_val = EA_Matrix(X_val)
-
-    # ── Comparación de matrices EA ────────────────────────────────────
-    diff = EA_Matrix_train - EA_Matrix_val
-    frobenius_norm = np.linalg.norm(diff, 'fro')
-    relative_diff = frobenius_norm / np.linalg.norm(EA_Matrix_train, 'fro')
-    print(f"EA diff  — Frobenius norm: {frobenius_norm:.6f}")
-    print(f"EA diff  — Relative diff:  {relative_diff:.4%}")
-    print(f"EA diff  — Max abs diff:   {np.max(np.abs(diff)):.6f}")
-    print(f"EA diff  — Mean abs diff:  {np.mean(np.abs(diff)):.6f}")
-
-    epoch_training_pipeline = EpochProcessorPipeline([
-        EuclideanAlignment(EA_Matrix_train),         # alineamiento euclídeo (EA)
-        SpatialInterpolator(actual_channel_positions = train_dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
-    ])
-
     epoch_validation_pipeline = EpochProcessorPipeline([
-        EuclideanAlignment(EA_Matrix_train),         # alineamiento euclídeo (EA)
-        SpatialInterpolator(actual_channel_positions = validation_dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
+        EuclideanAlignment(matrix=ea_matrix),
+        SpatialInterpolator(actual_channel_positions=validation_dataProvider.get_channel_names()),
     ])
 
-    X_train, y_train = epoch_training_pipeline.process_np(X_train, y_train,shuffle=False)
-    X_val, y_val = epoch_validation_pipeline.process_np(X_val, y_val,shuffle=False)
-
-    historico = modelo.finetuning_processed(X_train, y_train, epochs=epochs)
-    preds_array, probs_array = modelo.predict_batch_preprocessed(X_val)
+    X_val, y_val = epoch_validation_pipeline.process_np(X_val, y_val, shuffle=False)
+    preds_array, probs_array = modelo.predict_batch(X_val)
 
     viewer = PerformanceViewer()
-    viewer.summary(historico)
-    viewer.plot_downstream2(probs_array, y_val, class_names = classes)
-
-
+    viewer.plot_downstream(preds_array, probs_array, y_val)
 
 if __name__ == "__main__":
     input_type = input("¿Cargar datos de MOABB[1], de archivos .fif[2]?: ").strip().lower()
@@ -279,6 +261,5 @@ if __name__ == "__main__":
             train_fif_names    = train_fif_names,
             val_fif_names      = val_fif_names,
             epochs             = 10,
-            val_split          = 0.4,
             seed               = SEED,
         )

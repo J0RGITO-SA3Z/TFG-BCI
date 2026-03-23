@@ -82,7 +82,7 @@ class Training_offline:
 		self.matrix = Calculate_EA_Matrix(X)
 
 		epoch_pipeline = EpochProcessorPipeline([
-			EuclideanAlignment(),
+			EuclideanAlignment(self.matrix),
 			SpatialInterpolator(actual_channel_positions=self.channelsnames),
 		])
 
