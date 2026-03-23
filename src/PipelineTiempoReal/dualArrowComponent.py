@@ -10,13 +10,15 @@ class DualArrowComponent:
     FILL_COLOR = (70, 190, 255)          # Azul claro brillante (relleno)
     # =========================================================
 
-    def __init__(self, left_pct=0.0, right_pct=0.0):
+    def __init__(self, left_pct=0.0, right_pct=0.0, nSteps=20):
         """
         Inicializa el componente con los porcentajes de relleno.
         Los porcentajes deben ir de 0 a 100.
         """
         self.left_pct = self._clamp(left_pct)
         self.right_pct = self._clamp(right_pct)
+        self.nSteps = nSteps
+        self.step = 100/nSteps
 
     def _clamp(self, value):
         """Asegura que el valor esté siempre entre 0 y 100"""
@@ -41,6 +43,28 @@ class DualArrowComponent:
     def get_percentages(self):
         """Devuelve una tupla: (porcentaje_izquierdo, porcentaje_derecho)"""
         return self.left_pct, self.right_pct
+    
+    def add_right(self):
+        if self.left_pct == 0:
+            self.right_pct = self._clamp(self.step + self.right_pct)
+        else:
+            self.left_pct = self._clamp(self.left_pct - self.step) # Cambiar aquí para que al "fallar" se resetee o se reste
+        
+        if self.right_pct == 100:
+            return True
+        else:
+            return False
+        
+    def add_left(self):
+        if self.right_pct == 0:
+            self.left_pct = self._clamp(self.step + self.left_pct)
+        else:
+            self.right_pct = self._clamp(self.right_pct - self.step) # Cambiar aquí para que al "fallar" se resetee o se reste
+        
+        if self.left_pct == 100:
+            return True
+        else:
+            return False
 
     # --- LÓGICA DE RENDERIZADO ---
 
@@ -66,9 +90,6 @@ class DualArrowComponent:
         arrow_w = min(max_arrow_w, max_arrow_h * 1.5)
         arrow_h = arrow_w / 1.5
 
-        # AUXILIAR PARA ARREGLAR EL DESFASE DEL RELLENO
-        apanyo = 2
-
         # Puntos base de una flecha apuntando a la DERECHA (normalizados de 0 a 1)
         # (x, y) donde x=0 es la base (centro de pantalla) y x=1 es la punta
         base_points = [
@@ -83,6 +104,9 @@ class DualArrowComponent:
 
         # Grosor del contorno dinámico según el tamaño
         line_thickness = max(2, int(arrow_h * 0.03)) # El máximo entre 2 y el 3% de la altura de la flecha
+
+        # AUXILIAR PARA ARREGLAR EL DESFASE DEL RELLENO
+        apanyo = line_thickness/2
 
         # --- DIBUJAR FLECHA DERECHA ---
         # Polígono escalado a píxeles
@@ -162,6 +186,7 @@ if __name__ == "__main__":
                 
             elif event.type == pygame.KEYDOWN:
                 l_pct, r_pct = arrows.get_percentages()
+                llena = False
                 
                 # Controles flecha izquierda (A y D)
                 if event.key == pygame.K_a:
@@ -174,10 +199,18 @@ if __name__ == "__main__":
                     arrows.set_right(r_pct - 5)
                 elif event.key == pygame.K_RIGHT:
                     arrows.set_right(r_pct + 5)
+
+                elif event.key == pygame.K_l:
+                    llena = arrows.add_right()
+                elif event.key == pygame.K_j:
+                    llena = arrows.add_left()
                     
                 # Reset
                 elif event.key == pygame.K_r:
                     arrows.reset()
+
+                if llena:
+                    print("SE HA LLENADOOO")
 
         # Dibujar el componente en la pantalla principal
         arrows.draw(screen)
