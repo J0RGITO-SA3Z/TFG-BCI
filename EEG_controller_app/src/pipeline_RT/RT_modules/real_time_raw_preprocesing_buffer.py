@@ -84,7 +84,7 @@ class RealTimeRawPreprocessingBuffer:
 
         return eeg_data, last_sample_number, last_timestamp
 
-    def receiveData(self, chunk: np.ndarray, chunk_size: int,timestamp: Optional[float] = None):
+    def receiveData(self, chunk, chunk_size: int,timestamp: Optional[float] = None):
         if timestamp is None:
                 timestamp = time.perf_counter()
 

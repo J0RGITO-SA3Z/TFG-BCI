@@ -9,12 +9,11 @@ Cada subclase debe implementar:
 
 from abc import ABC, abstractmethod
 from typing import Optional
-
-
 import numpy as np
-
+from typing import Tuple, List, Dict
 
 class ModelInterface(ABC):
+
     @abstractmethod
     def finetuning(
         self,
@@ -23,23 +22,31 @@ class ModelInterface(ABC):
         epochs: int,
         valData: Optional[np.ndarray] = None,
         valLabels: Optional[np.ndarray] = None,
-    ) -> float:
+    ) -> list:
         """
         Entrenamiento o fine-tuning del modelo.
         """
         ...
 
     @abstractmethod
-    def predict(self, data: np.ndarray) -> np.ndarray:
+    def predict(self, data: np.ndarray) -> Tuple[str, Dict[str, float]]:
         """
-        Predice la clase de una única muestra EEG (C, T).
+        Predice una muestra EEG (C, T).
+
+        Returns:
+            label: clase predicha (string)
+            probs: diccionario {clase: probabilidad}
         """
         ...
 
     @abstractmethod
-    def predict_batch(self, data: np.ndarray) -> np.ndarray:
+    def predict_batch(self, data: np.ndarray) -> Tuple[List[str], List[Dict[str, float]]]:
         """
-        Predice las clases para un lote EEG (B, C, T).
+        Predice un lote EEG (B, C, T).
+
+        Returns:
+            labels: lista de clases predichas
+            probs: lista de diccionarios {clase: probabilidad}
         """
         ...
 

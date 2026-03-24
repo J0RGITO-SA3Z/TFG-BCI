@@ -5,7 +5,7 @@ import sys
 from sklearn.model_selection import train_test_split
 
 # ── Rutas ─────────────────────────────────────────────────────────────────────
-PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 MIREPNET_DIR  = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
 WEIGHT_PATH   = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
 
@@ -16,7 +16,7 @@ sys.path.append(MIREPNET_DIR)
 from model_interface.MiRepNetInterface import MiRepNetInterface
 
 # ── Imports visualización ─────────────────────────────────────────────────────
-from utils.Performance_Viewer import PerformanceViewer
+from pipeline_utils.Performance_Viewer import PerformanceViewer
 
 # ── Data Processing ─────────────────────────────────────────────────────────────────────
 from epoch_processing.EpochProcessorPipeline import EpochProcessorPipeline
@@ -35,7 +35,7 @@ class Training_real_time:
         return
 
     # Métodos Publicos de la clase  ─────────────────────────────────────────────────────────────────────
-    def start(self,puerto_COM,channelsConfig,lista = ["left_hand", "right_hand", "feet", "rest"], numTrialsClase = 30, epochs = 10, seed = 42, fif_name = None):
+    def start(self,puerto_COM,channelsConfig,lista = ["left_hand", "right_hand", "feet", "rest"], numTrialsClase = 15, epochs = 10, seed = 42, fif_name = None):
         """
         Ejecuta un experimento visual con las clases pasadas en lista y con ello hace el fine tuning del modelo MiRepNet
         y calcula la matriz de alineamiento euclídeo (EA).
@@ -58,6 +58,7 @@ class Training_real_time:
             channelsConfig=channelsConfig,
             numTrialsClase=numTrialsClase,
             lista=lista,
+            tmp_baseline_inicial = 0,
         )
 
         X, Y, classes = data_provider.get_data(fif_path=fif_name)
@@ -68,16 +69,13 @@ class Training_real_time:
             SpatialInterpolator(actual_channel_positions = self.channelsnames),        # interpola/reordena canales a la topología objetivo 
         ])
 
-        self.modelo = MiRepNetInterface(evice=device, weight_path=WEIGHT_PATH, training_clases = lista)
+        self.modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, training_clases = lista )
 
         # Extraemos las mediciones de la grabación y sacamos la matriz media de covarianzas
         self.matrix = Calculate_EA_Matrix(X)
         X,Y = epoch_pipeline.process_np(X, Y,shuffle=False)
 
-        final_val_acc = self.modelo.finetuning(X, Y, epochs=epochs)
-
-        # Hacemos fine-tune del modelo con los epochs de la grabación
-        historico = self.run_finetuning_pipeline(X, y, classes, epochs=epochs, seed=seed)
+        historico = self.modelo.finetuning(X, Y, epochs=epochs)
 
         viewer = PerformanceViewer()
         viewer.summary(historico)

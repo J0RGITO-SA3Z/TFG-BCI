@@ -3,8 +3,9 @@ from __future__ import annotations
 import threading
 import time
 import os, sys
-from real_time_raw_preprocesing_buffer import RealTimeRawPreprocessingBuffer as buffer
+import numpy as np
 import multiprocessing as mp
+import mne
 
 # ── Rutas ─────────────────────────────────────────────────────────────────────
 PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -13,6 +14,8 @@ WEIGHT_PATH   = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
 
 sys.path.append(PROJECT_ROOT)
 sys.path.append(MIREPNET_DIR)
+
+from RT_modules.real_time_raw_preprocesing_buffer import RealTimeRawPreprocessingBuffer as buffer
 
 # ── Data Processing ─────────────────────────────────────────────────────────────────────
 from epoch_processing.EpochProcessorPipeline import EpochProcessorPipeline
@@ -62,9 +65,15 @@ class RT_pipeline:
 
         self.buffer = buffer(info, channel_positions)
 
+        eeg_picks = mne.pick_types(info, eeg=True, meg=False, eog=False, ecg=False, emg=False, misc=False, stim=False, exclude=[])
+        eeg_channel_names = [info['ch_names'][idx] for idx in eeg_picks]
+
+        if len(eeg_channel_names) == 0:
+            raise ValueError("No se encontraron canales EEG en info['ch_names']")
+
         self.epoch_pipeline = EpochProcessorPipeline([
             EuclideanAlignment(matrix = ea_matrix),         # alineamiento euclídeo (EA)
-            SpatialInterpolator(actual_channel_positions = info['ch_names']),        # interpola/reordena canales a la topología objetivo 
+            SpatialInterpolator(actual_channel_positions = eeg_channel_names),        # interpola/reordena canales a la topología objetivo 
         ])
 
     def run_loop(self,eeg_input_pipe, rt_interpreter_pipe):
@@ -117,8 +126,10 @@ class RT_pipeline:
             next_time += 0.15
             if self.predecir_event.is_set():
                 data, last_sample, last_timestamp = self.buffer.getData()
-                data, _ = self.epoch_pipeline.process_np([data], [0])[0]
-                prediction, probs = self.pretrained_model.predict_preprocessed(data)
+                data = np.expand_dims(data, axis=0)  # (1, C, T)
+                data, _ = self.epoch_pipeline.process_np(data, [0])
+                data = data[0]
+                prediction, probs = self.pretrained_model.predict(data)
                 rt_interpreter_pipe.send((prediction, last_sample, last_timestamp))
 
             time.sleep(max(0, next_time - time.perf_counter()))
@@ -136,8 +147,8 @@ class RT_pipeline:
         """
         while not self.stop_event.is_set():
             if pipe.poll(0.01):
-                data, last_timestamp = pipe.recv() # (channels, samples)
-                self.buffer.receiveData(data, data.shape[1], last_timestamp)
+                data,chunkSize ,last_timestamp = pipe.recv() # (channels, samples)
+                self.buffer.receiveData(data, chunkSize, last_timestamp)
 
 class RT_pipeline_process:
 
@@ -205,7 +216,7 @@ class RT_pipeline_process:
             raise RuntimeError("RT_pipeline_process no esta iniciado")
 
         timestamp = time.perf_counter()
-        self._eeg_input_parent_pipe.send((data, timestamp))
+        self._eeg_input_parent_pipe.send((data, dataSize,timestamp))
 
     def set_predecir(self, activo: bool):
         if activo:
@@ -220,7 +231,7 @@ class RT_pipeline_process:
         self.predecir_event.clear()
 
     def stop_process(self):
-
+        print("Deteniendo RT_pipeline_process...")
         self.stop_event.set()
 
         if self.process is not None:
@@ -234,3 +245,5 @@ class RT_pipeline_process:
         if self._eeg_input_child_pipe is not None:
             self._eeg_input_child_pipe.close()
             self._eeg_input_child_pipe = None
+
+        print("RT_pipeline_process detenido.")

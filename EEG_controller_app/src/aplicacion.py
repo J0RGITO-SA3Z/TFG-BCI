@@ -23,6 +23,7 @@ from configuracion_canales import ChannelConfig
 from configuracion_acciones import menu_acciones
 from configuracion_acciones import load_default_actions
 from validacion_sujeto import evaluar_sujeto_MiRepNet
+from experimento_RT import interfaz_experimento_RT
     
 DIR_ACCIONES = "acciones"
 
@@ -114,6 +115,9 @@ def main_menu(console):
 
             case "7":
                 evaluar_sujeto_MiRepNet(console)
+
+            case "8":
+                interfaz_experimento_RT(channels, console)
 
             case "9":
                 console.print("[bold green]Saliendo del sistema BCI[/bold green]")

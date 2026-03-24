@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 
 import moabb
 
-PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__),".." ))
 MIREPNET_DIR  = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
 WEIGHT_PATH   = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
 sys.path.append(PROJECT_ROOT)
@@ -76,3 +76,16 @@ def run_MiRepNet_pipeline(fif_paths, epochs = 10, validation_split=0.6):
     modelo = MiRepNetInterface(device=device, weight_path=WEIGHT_PATH, training_clases = ["left_hand", "right_hand"])
 
     run_pipeline(dataProvider, modelo, epochs, epoch_training_pipeline, validation_split)
+    
+def main():
+    fif_names = ["EEG_controller_app/recordings/suj2_1_raw.fif"]
+    fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
+    fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
+    fif_names += ["EEG_controller_app/recordings/suj2_4_raw.fif"]
+    fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
+    fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
+
+    run_MiRepNet_pipeline(fif_paths    = fif_names)
+
+if __name__ == "__main__":
+    main()
