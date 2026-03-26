@@ -331,9 +331,10 @@ def test_autoreject_slow(epoch):
     # los canales malos en cada trial en vez de descartar el trial entero
     ar = AutoReject(n_interpolate=[1, 2, 4],consensus=[0.3],random_state=42)
 
-    inicio = time.perf_counter()
 
     ar.fit(epoch)
+
+    inicio = time.perf_counter()
     epochs_clean, reject_log = ar.transform(epoch, return_log=True)
 
     fin = time.perf_counter()
