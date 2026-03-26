@@ -1,0 +1,33 @@
+Filtros Usados;Accuracy;Precision;Recall;F1-Score
+BandpassFilter + Resampler + ICAProcessor + AnnotationRenamer;0,875;0,8776223776223776;0,875;0,874782608695652
+NotchFilter + BandpassFilter + AnnotationRenamer;0,875;0,8776223776223776;0,875;0,874782608695652
+BandpassFilter + ICAProcessor + AnnotationRenamer;0,875;0,8776223776223776;0,875;0,874782608695652
+BandpassFilter + Resampler + AnnotationRenamer;0,875;0,8776223776223776;0,875;0,874782608695652
+NotchFilter + BandpassFilter + ICAProcessor + AnnotationRenamer;0,875;0,8776223776223776;0,875;0,874782608695652
+NotchFilter + BandpassFilter + Resampler + AnnotationRenamer;0,875;0,8776223776223776;0,875;0,874782608695652
+NotchFilter + BandpassFilter + Resampler + ICAProcessor + AnnotationRenamer;0,875;0,8776223776223776;0,875;0,874782608695652
+BandpassFilter + AnnotationRenamer;0,875;0,8776223776223776;0,875;0,874782608695652
+NotchFilter + BandpassFilter + CARReference + ICAProcessor + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+NotchFilter + BandpassFilter + CARReference + Resampler + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+NotchFilter + CARReference + Resampler + ICAProcessor + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+BandpassFilter + CARReference + ICAProcessor + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+BandpassFilter + CARReference + Resampler + ICAProcessor + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+BandpassFilter + CARReference + Resampler + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+NotchFilter + Resampler + ICAProcessor + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+NotchFilter + CARReference + ICAProcessor + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+NotchFilter + CARReference + Resampler + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+AnnotationRenamer;0,5;0,5;0,5;0,49650349650349646
+NotchFilter + BandpassFilter + CARReference + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+NotchFilter + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+Resampler + ICAProcessor + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+CARReference + Resampler + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+BandpassFilter + CARReference + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+NotchFilter + ICAProcessor + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+NotchFilter + Resampler + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+NotchFilter + CARReference + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+ICAProcessor + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+Resampler + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+CARReference + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+NotchFilter + BandpassFilter + CARReference + Resampler + ICAProcessor + AnnotationRenamer;0,5;0,25;0,5;0,3333333333333333
+CARReference + ICAProcessor + AnnotationRenamer;0,4166666666666667;0,41428571428571426;0,41666666666666663;0,41258741258741255
+CARReference + Resampler + ICAProcessor + AnnotationRenamer;0,4166666666666667;0,41428571428571426;0,41666666666666663;0,41258741258741255

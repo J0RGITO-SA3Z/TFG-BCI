@@ -21,10 +21,12 @@ from epoch_processing.EuclideanAlignment import EuclideanAlignment
 from epoch_processing.ClassEventRemover import ClassEventRemover
 from epoch_processing.EpochEventRenamer import EpochEventRenamer
 
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
 moabb.set_log_level("ERROR")
 SEED = 42
 
-def run_pipeline(dataProvider, model_interface, epochs, epoch_pipeline, validation_split=0.2, exclude_training_classes = None, rename_training_classes = None):
+def run_pipeline(dataProvider, model_interface, epochs, epoch_pipeline, validation_split=0.2, exclude_training_classes = None, rename_training_classes = None, show_plots=True):
     torch.manual_seed(SEED)
     X, Y, _ = dataProvider.get_data()
 
@@ -59,10 +61,28 @@ def run_pipeline(dataProvider, model_interface, epochs, epoch_pipeline, validati
     # Prediccion de las probabilidades de cada clase para cada muestra del set de validacion
     preds_array, probs_array = model_interface.predict_batch(X_val)
 
-    viewer = PerformanceViewer()
-    viewer.summary(final_val_acc)
-    viewer.plot_fine_tune(final_val_acc)
-    viewer.plot_downstream(preds_array, probs_array, Y_val)
+    preds_array, probs_array = model_interface.predict_batch(X_val)
+
+    # 1. Calculamos las métricas clave
+    acc = accuracy_score(Y_val, preds_array)
+    prec = precision_score(Y_val, preds_array, average='macro', zero_division=0)
+    rec = recall_score(Y_val, preds_array, average='macro', zero_division=0)
+    f1 = f1_score(Y_val, preds_array, average='macro', zero_division=0)
+
+    # 2. Mostramos las gráficas SOLO si show_plots es True
+    if show_plots:
+        viewer = PerformanceViewer()
+        viewer.summary(final_val_acc)
+        viewer.plot_fine_tune(final_val_acc)
+        viewer.plot_downstream(preds_array, probs_array, Y_val)
+
+    # 3. Devolvemos un diccionario con los resultados
+    return {
+        "Accuracy": acc,
+        "Precision": prec,
+        "Recall": rec,
+        "F1-Score": f1
+    }
 
 def run_MiRepNet_pipeline(fif_paths, epochs = 10, validation_split=0.6):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
