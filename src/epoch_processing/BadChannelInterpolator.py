@@ -1,6 +1,27 @@
+'''
+Este módulo define la clase `BadChannelInterpolator`, que es un `EpochProcessor` diseñado para detectar y corregir canales malos en datos EEG mediante interpolación espacial.
+La clase utiliza una lista de detectores de canales malos (instancias de `BadChannelDetector`) para identificar qué canales deben ser corregidos, y luego aplica interpolación espacial para reconstruir los datos de esos canales.
+Ejemplo de uso:
+    from epoch_processing import BadChannelInterpolator
+    from epoch_processing.BadChannelDetectors import VarianceBadChannelDetector
+
+    # Crear un detector de canales malos basado en la varianza
+    variance_detector = VarianceBadChannelDetector(threshold=0.5)
+
+    # Crear el interpolador de canales malos con el detector y las posiciones de los canales
+    interpolator = BadChannelInterpolator(
+        detectors=[variance_detector],
+        actual_channel_positions=...
+    )
+
+    # Procesar los datos EEG (X) con el interpolador
+    X_processed, y_processed = interpolator.process_np(X, y)
+'''
 import numpy as np
 
+from typing import List, Optional
 from collections.abc import Iterable
+
 from epoch_processing import EpochProcessor
 from epoch_processing.BadChannelDetectors.BadChannelDetector import BadChannelDetector
 
@@ -9,100 +30,107 @@ from epoch_processing.SpatialInterpolator import SpatialInterpolator
 
 class BadChannelInterpolator(EpochProcessor):
     
-    def __init__(self,detectors: Iterable[BadChannelDetector] | None = None,actual_channel_positions: Optional[List[str]] = None):
+    def __init__(self, channels_max = None, detectors: Iterable[BadChannelDetector] | None = None,actual_channel_positions: Optional[List[str]] = None):
         self.detectors: list[BadChannelDetector] = list(detectors) if detectors else []
         self.bad_channel_list = []
         self.actual_channel_positions = actual_channel_positions
+        self.channels_max = channels_max
 
     def process_epoch(self, epoch):
         return epoch
+
+    def _normalize_detector_output(self, detector_output, n_channels: int) -> list[int]:
+        if detector_output is None:
+            return []
+
+        if isinstance(detector_output, Iterable) and not isinstance(detector_output, (str, bytes)):
+            candidates = detector_output
+        else:
+            candidates = [detector_output]
+
+        bad_indices = []
+        for idx in candidates:
+            try:
+                channel_idx = int(idx)
+            except (TypeError, ValueError):
+                continue
+
+            if 0 <= channel_idx < n_channels:
+                bad_indices.append(channel_idx)
+
+        return bad_indices
+
+    def _interpolate_trial(self, trial: np.ndarray, bad_indices: list[int]) -> np.ndarray:
+        n_channels = trial.shape[0]
+
+        if not bad_indices:
+            return trial.copy()
+
+        if self.actual_channel_positions is None:
+            raise ValueError(
+                "BadChannelInterpolator necesita actual_channel_positions para "
+                "reconstruir los canales malos mediante interpolacion espacial."
+            )
+
+        if len(self.actual_channel_positions) != n_channels:
+            raise ValueError(
+                f"Length of actual_channel_positions ({len(self.actual_channel_positions)}) "
+                f"does not match C ({n_channels})"
+            )
+
+        remaining_names = [
+            channel_name
+            for idx, channel_name in enumerate(self.actual_channel_positions)
+            if idx not in bad_indices
+        ]
+        good_trial = np.delete(trial, bad_indices, axis=0)
+
+        interpolator = SpatialInterpolator(
+            target_channels=self.actual_channel_positions,
+            actual_channel_positions=remaining_names,
+        )
+        interpolated_trial, _ = interpolator.process_np(good_trial[np.newaxis, ...], None)
+
+        return interpolated_trial[0]
     
     def process_np(self, X: np.ndarray, y: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray | None]:
         """
-        Process a batch numpy array `X` with shape (B, C, T).
-        For each sample in the batch, run detectors and remove the
-        reported channel indices from that sample individually.
+        Procesa `X` con forma `(B, C, T)`, donde:
+        - `B` es el numero de trials del batch
+        - `C` es el numero de canales EEG
+        - `T` es el numero de muestras temporales por trial
 
-        If all resulting samples have the same channel count the
-        function returns a stacked ndarray `(B, C_new, T)`, otherwise
-        it returns a list of 2D arrays (C_b, T) for each batch entry.
+        Para cada trial:
+        1. Ejecuta todos los detectores de canales malos
+        2. Unifica los indices devueltos por todos ellos
+        3. Elimina temporalmente esos canales del trial
+        4. Reconstruye el trial completo mediante interpolacion espacial
+
+        La forma de salida siempre se conserva como `(B, C, T)`.
+        Las etiquetas `y` no se modifican.
         """
         if X.ndim != 3:
             raise ValueError(f"Expected X with shape (B,C,T), got shape {X.shape}")
 
-        B, C, T = X.shape
-        new_X_list = []
-        new_y_list = [] if y is not None else None
+        batch_size, n_channels, _ = X.shape
+        processed_trials = []
+        y_labels = []
 
-        for b in range(B):
-            # Pass a single-sample batch to detectors to keep behaviour consistent
-            xb_batch = X[b:b+1]  # shape (1, C, T)
+        for batch_idx in range(batch_size):
+            trial_batch = X[batch_idx:batch_idx + 1]
+            bad_indices = set()
 
-            bad_indices = []
             for detector in self.detectors:
-                out = detector.process(xb_batch)
-                if out is None:
-                    continue
-                if isinstance(out, Iterable) and not isinstance(out, (str, bytes)):
-                    for idx in out:
-                        try:
-                            i = int(idx)
-                        except Exception:
-                            continue
-                        if 0 <= i < C:
-                            bad_indices.append(i)
-                else:
-                    try:
-                        i = int(out)
-                    except Exception:
-                        continue
-                    if 0 <= i < C:
-                        bad_indices.append(i)
+                detected = detector.process(trial_batch)
+                bad_indices.update(self._normalize_detector_output(detected, n_channels))
+            if(self.channels_max is not None and len(bad_indices) <= self.channels_max):      
+                processed_trial = self._interpolate_trial(
+                    trial=X[batch_idx],
+                    bad_indices=sorted(bad_indices),
+                )
+                processed_trials.append(processed_trial)
+                y_labels.append(y[batch_idx] if y is not None else None)
 
-            bad_indices = sorted(set(bad_indices))
-
-            # Take X[b] as 2D (C, T)
-            xb2 = X[b]
-            if bad_indices:
-                # If we have actual channel names, use SpatialInterpolator to
-                # reconstruct the full original channel set via interpolation.
-                if self.actual_channel_positions is None:
-                    # fallback: delete channels if no names provided
-                    xb2 = np.delete(xb2, bad_indices, axis=0)
-                else:
-                    if len(self.actual_channel_positions) != C:
-                        raise ValueError(
-                            f"Length of actual_channel_positions ({len(self.actual_channel_positions)}) does not match C ({C})"
-                        )
-                    # remaining channel names after removing bad indices
-                    remaining_names = [ch for i, ch in enumerate(self.actual_channel_positions) if i not in bad_indices]
-
-                    # temporary array without bad channels
-                    xb_temp = np.delete(xb2, bad_indices, axis=0)
-
-                    # interpolate back to original channel set
-                    interpolator = SpatialInterpolator(
-                        target_channels=self.actual_channel_positions,
-                        actual_channel_positions=remaining_names,
-                    )
-                    try:
-                        interp_X, _ = interpolator.process_np(xb_temp[np.newaxis, ...], None)
-                        xb2 = interp_X[0]
-                    except Exception:
-                        # on failure, fallback to deletion
-                        xb2 = xb_temp
-
-            new_X_list.append(xb2)
-            if new_y_list is not None:
-                new_y_list.append(y[b])
-
-        # If all samples have same channel count, stack into ndarray
-        channel_counts = [arr.shape[0] for arr in new_X_list]
-        if all(c == channel_counts[0] for c in channel_counts):
-            X_new = np.stack(new_X_list, axis=0)  # shape (B, C_new, T)
-            y_new = (np.array(new_y_list) if new_y_list is not None else None)
-            return X_new, y_new
-
-        # Otherwise return list of arrays and corresponding y list
-        y_out = (new_y_list if new_y_list is not None else None)
-        return new_X_list, y_out
+        X_processed = np.stack(processed_trials, axis=0)
+        Y_processed = np.array(y_labels)
+        return X_processed, Y_processed
