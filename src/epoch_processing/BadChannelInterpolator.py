@@ -103,8 +103,8 @@ class BadChannelInterpolator(EpochProcessor):
         Para cada trial:
         1. Ejecuta todos los detectores de canales malos
         2. Unifica los indices devueltos por todos ellos
-        3. Elimina temporalmente esos canales del trial
-        4. Reconstruye el trial completo mediante interpolacion espacial
+        3. Si el numero de canales malos es menor o igual a `channels_max` (si se ha definido), procede a corregir el trial, sino lo descarta
+        4. Reconstruye los nuevos datos 
 
         La forma de salida siempre se conserva como `(B, C, T)`.
         Las etiquetas `y` no se modifican.
@@ -123,6 +123,7 @@ class BadChannelInterpolator(EpochProcessor):
             for detector in self.detectors:
                 detected = detector.process(trial_batch)
                 bad_indices.update(self._normalize_detector_output(detected, n_channels))
+                
             if(self.channels_max is not None and len(bad_indices) <= self.channels_max):      
                 processed_trial = self._interpolate_trial(
                     trial=X[batch_idx],
