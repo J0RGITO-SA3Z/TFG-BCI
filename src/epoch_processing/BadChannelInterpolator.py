@@ -18,11 +18,12 @@ Ejemplo de uso:
     X_processed, y_processed = interpolator.process_np(X, y)
 '''
 import numpy as np
+import mne
 
 from typing import List, Optional
 from collections.abc import Iterable
 
-from epoch_processing import EpochProcessor
+from epoch_processing.EpochProcessor import EpochProcessor
 from epoch_processing.BadChannelDetectors.BadChannelDetector import BadChannelDetector
 
 # Channel spatial interpolation
@@ -30,11 +31,12 @@ from epoch_processing.SpatialInterpolator import SpatialInterpolator
 
 class BadChannelInterpolator(EpochProcessor):
     
-    def __init__(self, channels_max = None, detectors: Iterable[BadChannelDetector] | None = None,actual_channel_positions: Optional[List[str]] = None):
+    def __init__(self, channels_max = None, detectors: Iterable[BadChannelDetector] | None = None,actual_channel_positions: Optional[List[str]] = None, print_history: bool = False):
         self.detectors: list[BadChannelDetector] = list(detectors) if detectors else []
         self.bad_channel_list = []
         self.actual_channel_positions = actual_channel_positions
         self.channels_max = channels_max
+        self.print_history_enabled = bool(print_history)
 
     def process_epoch(self, epoch):
         return epoch
@@ -115,16 +117,17 @@ class BadChannelInterpolator(EpochProcessor):
         batch_size, n_channels, _ = X.shape
         processed_trials = []
         y_labels = []
-
+        history = []
         for batch_idx in range(batch_size):
-            trial_batch = X[batch_idx:batch_idx + 1]
+            trial = X[batch_idx]
             bad_indices = set()
 
             for detector in self.detectors:
-                detected = detector.process(trial_batch)
+                detected = detector.process(trial)
                 bad_indices.update(self._normalize_detector_output(detected, n_channels))
-                
-            if(self.channels_max is not None and len(bad_indices) <= self.channels_max):      
+            bad_channels_names = [self.actual_channel_positions[idx] for idx in bad_indices] if self.actual_channel_positions else None
+            history.append(bad_channels_names if bad_channels_names else [])
+            if(self.channels_max is not None and len(bad_indices) <= self.channels_max):
                 processed_trial = self._interpolate_trial(
                     trial=X[batch_idx],
                     bad_indices=sorted(bad_indices),
@@ -132,6 +135,57 @@ class BadChannelInterpolator(EpochProcessor):
                 processed_trials.append(processed_trial)
                 y_labels.append(y[batch_idx] if y is not None else None)
 
-        X_processed = np.stack(processed_trials, axis=0)
+        if not processed_trials:
+            # No trials processed (e.g. todos descartados) -> devolver arrays vacíos
+            X_processed = np.empty((0, n_channels, X.shape[2]))
+        else:
+            X_processed = np.stack(processed_trials, axis=0)
         Y_processed = np.array(y_labels)
+
+        # Guardar el historial y, si está habilitado, imprimir el resumen
+        self.bad_channel_list = history
+        if self.print_history_enabled:
+            self._print_history(history)
+
         return X_processed, Y_processed
+
+    def process(self, epochs: mne.Epochs) -> mne.Epochs:
+        """Implementación de la interfaz `EpochProcessor.process`.
+
+        Convierte `epochs` a numpy, aplica `process_np` y reconstruye
+        un `mne.Epochs` con los datos procesados.
+        """
+        X = epochs.get_data()
+        X_processed, _ = self.process_np(X, None)
+
+        # Reconstruir epochs. Si se proporcionaron nombres de canales, úsalos.
+        new_channels = self.actual_channel_positions if self.actual_channel_positions is not None else None
+        return self._to_epochs(X_processed, epochs, new_channels=new_channels)
+
+    def _print_history(self, history: list[list[str]] | None = None) -> None:
+        """Imprime en formato tabular un resumen por epoch mostrando
+        el índice de epoch y los canales detectados como malos.
+
+        Cada fila: <epoch_index> | <canal1, canal2, ...>
+        Si no hay canales malos para una epoch, aparece '-'.
+        """
+        if history is None:
+            history = self.bad_channel_list
+
+        if not history:
+            print("No hay historial de canales malos para mostrar.")
+            return
+
+        # Calcular ancho de columnas
+        idx_width = max(len(str(len(history) - 1)), len("Epoch"))
+        channels_strs = [", ".join(ch) if ch else "-" for ch in history]
+        chan_width = max(max((len(s) for s in channels_strs), default=0), len("Bad channels"))
+
+        # Cabecera
+        header = f"{'Epoch'.ljust(idx_width)} | {'Bad channels'.ljust(chan_width)}"
+        sep = f"{'-' * idx_width}-+-{'-' * chan_width}"
+        print(header)
+        print(sep)
+
+        for i, ch_str in enumerate(channels_strs):
+            print(f"{str(i).ljust(idx_width)} | {ch_str.ljust(chan_width)}")

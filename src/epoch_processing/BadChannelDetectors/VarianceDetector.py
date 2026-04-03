@@ -1,5 +1,5 @@
 import numpy as np
-from BadChannelDetector import BadChannelDetector
+from .BadChannelDetector import BadChannelDetector
 
 class VarianceDetector(BadChannelDetector):
     """

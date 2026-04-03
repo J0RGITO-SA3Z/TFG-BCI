@@ -20,6 +20,11 @@ from epoch_processing.SpatialInterpolator import SpatialInterpolator
 from epoch_processing.EuclideanAlignment import EuclideanAlignment
 from epoch_processing.ClassEventRemover import ClassEventRemover
 from epoch_processing.EpochEventRenamer import EpochEventRenamer
+from epoch_processing.BadChannelInterpolator import BadChannelInterpolator
+
+from epoch_processing.BadChannelDetectors.AmplitudeThresholdDetector import AmplitudeThresholdDetector
+from epoch_processing.BadChannelDetectors.VarianceDetector import VarianceDetector
+from epoch_processing.BadChannelDetectors.GradientDetector import GradientDetector
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
@@ -89,6 +94,11 @@ def run_MiRepNet_pipeline(fif_paths, epochs = 10, validation_split=0.6):
     dataProvider = FifDataProvider(fif_paths = fif_paths, annotations_names=["left_hand", "right_hand"])
 
     epoch_training_pipeline = EpochProcessorPipeline([
+        BadChannelInterpolator(channels_max=4, print_history=True, actual_channel_positions=dataProvider.get_channel_names(), detectors= [
+            AmplitudeThresholdDetector(threshold=100),                  # umbral de amplitud (ej: 100 microvoltios)
+            VarianceDetector(threshold=1000.0, dead_threshold=1e-10),   # µV²
+            GradientDetector(threshold=25.0)                            # µV/muestra a 250 Hz
+        ]),  # interpolación de canales malos
         EuclideanAlignment(),         # alineamiento euclídeo (EA)
         SpatialInterpolator(actual_channel_positions = dataProvider.get_channel_names()),          # interpola/reordena canales a la topología objetivo 
     ])
