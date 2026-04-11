@@ -12,32 +12,32 @@ Gestión de bibliografía:
 
 Capítulos:
 0. Resumen:
-	- El estado actual de la tecnología es X.
-	- Sin embargo, la tecnología aún no hace Y.
+	- El estado actual de la tecnología(BCI) es X: Otros paradigmas mas fiables (SSVEP, P300, EEGNet, MIRepNEt(no tiene uso en tiempo real)), 
+	- Sin embargo, la tecnología aún no hace Y (Tiempo real sin estimulos).
 	- Usando Z, hemos hecho un sistema que hace Y.
-	- Lo hemos montado y evaluado, con resultados R.
+	- Lo hemos montado y evaluado, con resultados R. (a mai que resultado papa si no hemos hecho nada)
 
 	NOTA: Poner y ordenar las keywords.
 
 1. Capítulo de introducción: 
-	- Párrafos describiendo el estado actual del problema o de la tecnología. (Seriedad pero no en mucho detalle, eso va en el próximo capítulo).
-	- Motivación: Motivo por el que hacemos el trabajo, utilidad que podría tener, por qué la tecnología lo permite. Razones NO personales.
-	- Hipótesis de partida: Ideas iniciales que no sabemos si son ciertas pero trabajamos para demostrar. Frase enunciativa clara.
-	- Objetivos: Lista concreta de cosas que se quieren conseguir. (2-3 objetivos generales y 6-10 objetivos específicos).
-	- Metodología: Tecnologías y herramientas usadas (Scrum, Git, Discord).
-	- Plan de trabajo: Explicar el método de trabajo.
+	- Párrafos describiendo el estado actual del problema o de la tecnología. (Seriedad pero no en mucho detalle, eso va en el próximo capítulo). (Paradigmas, EEG vs MEG, EEGNet y MiRepNet, Bajo accuracy y recall con EEGNet y derivados, pocos dataset, disparidad en los datasets (canales diferentes, duraciones diferentes, metodos diferentes), Método no invasivo y barato implica mucho ruido además de el cerebro)
+	- Motivación: Motivo por el que hacemos el trabajo, utilidad que podría tener, por qué la tecnología lo permite. Razones NO personales. (Personas con discapacidad, accesibilidad, Evaluar la viabilidad actual de estos metodos, innovacion en el campo de los videojuegos)
+	- Hipótesis de partida: Ideas iniciales que no sabemos si son ciertas pero trabajamos para demostrar. Frase enunciativa clara. ()
+	- Objetivos: Lista concreta de cosas que se quieren conseguir. (2-3 objetivos generales y 6-10 objetivos específicos). (Lecturas en tiempo real y limpieza de la señal, paso por modelo con mayor precision, Usar la prediccion RT en un teclado virtual/ videojuego ) (filtros, extraccion caracteristicas, modelos, )
+	- Metodología: Tecnologías y herramientas usadas (Scrum, Git, Discord). (MNE, BrainAccessSDK, BrainAccesMidi, BrainDecode?, MOAB, python, ChatGPT?, Claude?, Discord, Git, MiRepNet, filtros(despues))
+	- Plan de trabajo: Explicar el método de trabajo. (Busqueda y lectura de papers, verificacion, pruebas offline, meter en la app, crear objetos)
 	- Estructura del resto del documento (no obligatorio pero es costumbre y ayuda): "En e capítulo 2 se estudiará el estado del arte. En el 3, 4 y 5 se escribe la propuesa basada en X...)
 
 2. Capítulo del estudio del trabajo previo (o "estado del arte"):
-Debe describir todo el trabajo sobre el que se construye nuestra propuesta. Muchas citas, etc.
-	- Trabajos parecidos o relacionados.
+Debe describir todo el trabajo sobre el que se construye nuestra propuesta. Muchas citas, etc. 
+	- Trabajos parecidos o relacionados. ( bandas de frecuencia cerebro y que cosas se ven en el EEG y relacionar con paradigmas, configuracion de electrodos (emisferios del cerebro para BCI y otros), Ruidos en el EEG (MEG,parpadeo), Suejeto perfecto (calvo(impedancias), preentrenado, TDA etcs, relajado), Precisiones obtenidas hasta el momento con EEGNet y otros, otros TFG, MIRepNet, preentrenamiento del sujeto, poner en común Datasets (habia un paper)) (ICA, )
 	- Tecnologías usadas en el trabajo.
 
 3. Capítulos de contribución (pueden y suelen ser VARIOS):
 Donde se explica lo hecho, la arquitectura, pruebas, experimentos, resultados... Idealmente primero lo general y finalmente los resultados.
 
 4. Evaluación y pruebas:
-Explicando cómo hemos evaluado el sistema.
+Explicando cómo hemos evaluado el sistema (final).
 	- Método de evaluación.
 	- Proceso de evaluación.
 	- Resultados. Tablas, gráficas y números, sin opinar.
@@ -48,8 +48,6 @@ Discute desde el punto de vista técnico las ventajas y limitaciones de nuestro 
 
 6. Conclusiones y trabajo futuro:
 Se empieza con algo parecido al abstract (el resumen) pero centrándose más en los resultados, aunq sea redundante. Después se habla de lo que se podría hacer a partir de aquí, basándose en los resultados o en el producto de la implementación.
-
-
 
 
 Ideas generales sobre el texto: 

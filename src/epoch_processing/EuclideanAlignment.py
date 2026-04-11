@@ -19,7 +19,6 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # sube de
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from pretrainedModels.MiRepNet.utils.utils import EA
 
 class EuclideanAlignment(EpochProcessor):
     """
@@ -33,21 +32,32 @@ class EuclideanAlignment(EpochProcessor):
     def process(self, epochs: mne.Epochs) -> mne.Epochs:
         data = epochs.get_data()  # (B, C, T)
 
-        # Si no se proporciona una matriz de referencia, se calcula a partir de los datos
-        if(self.matrix is None):
-            aligned = EA(data).astype(np.float32) 
-
-        # Si se proporciona una matriz de referencia, se utiliza para alinear los datos
-        else:
-            sqrtRefEA = fractional_matrix_power(self.matrix, -0.5) 
-            XEA = np.zeros(data.shape)
+        if self.matrix is None:
+            # Primera llamada: calcular y guardar la matriz de referencia
+            cov = np.zeros((data.shape[0], data.shape[1], data.shape[1]))
             for i in range(data.shape[0]):
-                XEA[i] = np.dot(sqrtRefEA, data[i])
-            aligned = XEA.astype(np.float32)
-        
-        return self._to_epochs(aligned, epochs)
-    
-    def process_np(self, X: np.ndarray, y: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray | None]:
-        aligned = EA(X).astype(np.float32)
+                cov[i] = np.cov(data[i])
+            self.matrix = np.mean(cov, axis=0)
 
-        return aligned, y
+        sqrtRefEA = fractional_matrix_power(self.matrix, -0.5)
+        XEA = np.zeros(data.shape)
+        for i in range(data.shape[0]):
+            XEA[i] = np.dot(sqrtRefEA, data[i])
+        aligned = XEA.astype(np.float32)
+
+        return self._to_epochs(aligned, epochs)
+
+    def process_np(self, X: np.ndarray, y: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray | None]:
+        if self.matrix is None:
+            # Primera llamada: calcular y guardar la matriz de referencia
+            cov = np.zeros((X.shape[0], X.shape[1], X.shape[1]))
+            for i in range(X.shape[0]):
+                cov[i] = np.cov(X[i])
+            self.matrix = np.mean(cov, axis=0)
+
+        sqrtRefEA = fractional_matrix_power(self.matrix, -0.5)
+        XEA = np.zeros(X.shape)
+        for i in range(X.shape[0]):
+            XEA[i] = np.dot(sqrtRefEA, X[i])
+
+        return XEA.astype(np.float32), y
