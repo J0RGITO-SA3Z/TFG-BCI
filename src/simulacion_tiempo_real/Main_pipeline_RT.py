@@ -49,11 +49,10 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaGeneral, SalidaPredic
     modelPipeline.run_process(interpreter_process)
 
     eeg.register_callback(modelPipeline.sendData)
-
     console.print("Cargando buffer inicial durante 10 segundos antes de activar predicciones...")
-    time.sleep(15)
+    eeg.iniciarGrabacion(15)
     modelPipeline.activar_predecir()
-    console.print("Predicciones activadas.")
+    eeg.iniciarGrabacion()
 
     # Menu de control en consola.
     running = True
@@ -74,7 +73,7 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaGeneral, SalidaPredic
         interpreter_process.stop()
 
 
-def interfaz_experimento_RT(data_provider, fif_trai, console):
+def interfaz_experimento_RT(data_provider, fif_train, console):
     console.print("=== Experimento de Simulación en Tiempo Real ===")
     nombre_experimento = ""
     while not nombre_experimento:

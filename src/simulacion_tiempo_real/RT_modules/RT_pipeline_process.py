@@ -23,35 +23,6 @@ from epoch_processing.SpatialInterpolator import SpatialInterpolator
 from epoch_processing.EuclideanAlignment import EuclideanAlignment
 
 class RT_pipeline:
-    """
-    Clase encargada de ejecutar el pipeline de procesamiento en tiempo real. 
-    Este pipeline se encarga de preprocesar, normalizar y clasificar los datos EEG recibidos en tiempo real desde el proceso de adquisición.
-    El pipeline esta pensado para ejecutarse en un proceso separado en el cual se reciben las lecturas del EEG a través de un pipe
-    y se envían las predicciones a través de otro pipe.
-
-    Parameters
-    ----------
-    ea_matrix : np.ndarray
-        Matriz precalculada para el alineamiento euclídeo (normalizacion).
-    
-    pretrained_model : ModelInterface
-        Modelo de clasificación ya entrenado y listo para hacer predicciones.
-
-    info : mne.Info
-        Objeto mne.Info con la información de los canales y la frecuencia de muestreo necesario en el buffer circular
-        para poder pasar los datos de np a "mne.raw" y así poder descartar canales no EEG y aplicar preprocesado. 
-    
-    channel_positions : dict
-        Nombres de los canales y su posicion en el array dado por el EEG. Se necesita en el buffer circular para poder 
-        pasar los datos de np a "mne.raw" y así poder descartar canales no EEG y aplicar preprocesado.
-
-    channelNames : list
-        Lista con los nombres de los canales en el orden que el modelo espera. 
-        Se necesita para la interpolación espacial y reordenamiento de canales. (Normalizacion)
-    
-    stop_event : mp.Event
-        Evento para indicar al proceso que debe parar. El proceso se mantendrá vivo hasta que este evento se active.
-    """
 
     def __init__(self,ea_matrix,pretrained_model,info,channel_positions, stop_event, predecir_event) -> None:
         self.stop_event = stop_event
@@ -76,42 +47,7 @@ class RT_pipeline:
             SpatialInterpolator(actual_channel_positions = eeg_channel_names),        # interpola/reordena canales a la topología objetivo 
         ])
 
-    def run_loop(self,eeg_input_pipe, rt_interpreter_pipe):
-        """
-        Este método inicia el bucle principal del pipeline encargado de preprocesar, normalizar y clasificar los datos EEG en tiempo real.
-
-        El pipeline recibe datos de eeg_input_pipe y envía las predicciones al proceso de interpretación en tiempo real.
-
-        1-preprocesamiento: reduce el ruido y mejora la calidad de la señal EEG. Esta función únicamente descarta canales no EEG
-        y aplica un filtro por frecuencia (entre 8 y 30 Hz) para quedarnos con las bandas de frecuencia relevantes para la tarea de MI.
-
-        2-normalización: adaptar los datos EEG a la topología de canales y al formato que el modelo espera.
-        En este caso solo se aplica alineamiento euclídeo (EA) con una matriz de transformación precalculada.
-
-        3-clasificación: modelo de aprendizaje automático previamente entrenado. En este caso se utiliza una interfaz de modelo definida en
-        model_interface.py.
-
-        Para la recepción de los datos EEG se utiliza un hilo separado que escucha continuamente el pipe de entrada y va almacenando los datos en un buffer circular.
-        El bucle se ejecuta indefinidamente hasta que se active `self.stop_event`.
-        
-        Parameters
-        ----------
-        eeg_input_pipe : multiprocessing.Connection
-            Pipe desde el que se reciben los chunks de datos EEG provenientes
-            del proceso de adquisición, junto con una marca de tiempo de cuándo se recibió el dato en el primer proceso.
-            Con el formato (data, last_timestamp).
-
-        rt_interpreter_pipe : multiprocessing.Connection
-            Pipe de salida del RT_interpreter_process utilizado para enviar las predicciones del modelo
-            junto con el número de la última muestra y la información temporal correspondiente.
-            Formato enviado: (prediction, last_sample, last_timestamp).
-
-        Notes
-        -----
-        El bucle de procesamiento se ejecuta aproximadamente cada 100 ms para
-        generar predicciones en tiempo real.
-        """
-
+    def run_loop(self,eeg_input_pipe, rt_interpreter_process):
         self.acquisition_thread = threading.Thread(
             target=self.acquisition_loop,
             args=(eeg_input_pipe,),
@@ -130,21 +66,13 @@ class RT_pipeline:
                 data, _ = self.epoch_pipeline.process_np(data, [0])
                 data = data[0]
                 prediction, probs = self.pretrained_model.predict(data)
-                rt_interpreter_pipe.send((prediction, last_sample, last_timestamp))
+                rt_interpreter_process.send(prediction, last_sample, last_timestamp)
 
             time.sleep(max(0, next_time - time.perf_counter()))
 
         self.acquisition_thread.join()
 
     def acquisition_loop(self, pipe):
-        """
-        Bucle de adquisición encargado de recibir los datos EEG desde el proceso de adquisición.
-        Pensado para ejecutarse en un hilo separado dentro del proceso del pipeline.
-
-        Notes
-        -----
-        El bucle se ejecuta hasta que `self.stop_event` es activado.
-        """
         while not self.stop_event.is_set():
             if pipe.poll(0.01):
                 data,chunkSize ,last_timestamp = pipe.recv() # (channels, samples)
@@ -169,7 +97,7 @@ class RT_pipeline_process:
 
     @staticmethod
     def _process_target(ea_matrix, pretrained_model, info, channel_positions,
-                        eeg_input_pipe, rt_interpreter_pipe, stop_event, predecir_event):
+                        eeg_input_pipe, rt_interpreter_process, stop_event, predecir_event):
 
         pipeline = RT_pipeline(
             ea_matrix=ea_matrix,
@@ -180,7 +108,7 @@ class RT_pipeline_process:
             predecir_event=predecir_event,
         )
 
-        pipeline.run_loop(eeg_input_pipe, rt_interpreter_pipe)
+        pipeline.run_loop(eeg_input_pipe, rt_interpreter_process)
 
     def run_process(self, rt_interpreter_process):
 
@@ -193,8 +121,6 @@ class RT_pipeline_process:
         self.stop_event.clear()
         self._eeg_input_parent_pipe, self._eeg_input_child_pipe = mp.Pipe()
 
-        rt_interpreter_pipe = rt_interpreter_process._send_pipe
-
         self.process = mp.Process(
             target=self._process_target,
             args=(
@@ -203,7 +129,7 @@ class RT_pipeline_process:
                 self.info,
                 self.channel_positions,
                 self._eeg_input_child_pipe,
-                rt_interpreter_pipe,
+                rt_interpreter_process,
                 self.stop_event,
                 self.predecir_event,
             ),

@@ -90,6 +90,63 @@ class MiRepNetInterface(ModelInterface):
         self.label_encoder = LabelEncoder()
         self.label_encoder.fit(training_clases)
 
+    # ------------------------------------------------------------------
+    # Constructores alternativos
+    # ------------------------------------------------------------------
+    @classmethod
+    def from_weights(
+        cls,
+        weights: dict,
+        device: str | torch.device = None,
+        emb_size: int = 256,
+        depth: int = 6,
+        training_clases: list[str] = ["feet", "left_hand", "right_hand"],
+    ) -> "MiRepNetInterface":
+        """
+        Crea una instancia a partir de un state_dict obtenido con ``get_weights()``,
+        sin necesidad de un fichero ``.pth``.
+
+        Args:
+            weights:         State dict devuelto por ``get_weights()``.
+            device:          Dispositivo destino.
+            emb_size:        Debe coincidir con la arquitectura original.
+            depth:           Debe coincidir con la arquitectura original.
+            training_clases: Mismas clases que tenía el modelo original.
+        """
+        if device is None:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if not isinstance(device, torch.device):
+            device = torch.device(device)
+
+        instance = cls.__new__(cls)          # evitar llamar a __init__
+        instance.device = device
+        instance.training_clases = training_clases
+
+        instance._model = mlm_mask(
+            emb_size=emb_size,
+            depth=depth,
+            n_classes=len(training_clases),
+            pretrainmode=False,
+            pretrain=None,                   # sin cargar fichero
+        ).to(device)
+        instance._model.load_state_dict(weights)
+
+        instance.label_encoder = LabelEncoder()
+        instance.label_encoder.fit(training_clases)
+
+        return instance
+
+    # ------------------------------------------------------------------
+    # Serialización de pesos en memoria
+    # ------------------------------------------------------------------
+    def get_weights(self) -> dict:
+        """
+        Devuelve el state dict del modelo como un ``OrderedDict`` de tensores.
+        No escribe nada en disco; el resultado puede pasarse directamente a
+        ``from_weights()`` para clonar o restaurar el modelo.
+        """
+        return self._model.state_dict()
+
     def finetuning(self,X_train: np.ndarray, Y_train: np.ndarray,X_val = None, Y_val = None,epochs = 10):
         # Determina si se tiene que hacer validacion
         validacion = X_val is not None and Y_val is not None

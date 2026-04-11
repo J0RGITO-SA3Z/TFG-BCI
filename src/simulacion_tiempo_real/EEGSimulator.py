@@ -23,6 +23,7 @@ class EEGSimulator:
         self._loop = loop
 
         self._callbacks = []
+        self._current_sample = 0  # posición persistente entre llamadas
 
         # Mapeo nombre_canal -> índice de fila en el array de datos
         self._channel_indexes = {
@@ -57,41 +58,61 @@ class EEGSimulator:
     def get_channel_indexes(self) -> dict:
         return self._channel_indexes.copy()
 
-    def iniciarGrabacion(self):
-        """Emite los chunks en tiempo real desde el hilo principal. Bloquea hasta terminar."""
+    def iniciarGrabacion(self, segundos: float = None):
+        """
+        Emite chunks en tiempo real desde el hilo principal. Bloquea hasta terminar.
+
+        Parameters
+        ----------
+        segundos : float | None
+            Segundos máximos a retransmitir en esta llamada.
+            Si es None, emite hasta el final del fichero (o indefinidamente si loop=True).
+            Al volver a llamar, continúa desde donde se paró.
+        """
         data = self._raw.get_data()   # (n_channels, n_samples)
         sfreq = self.get_sfreq()
         batch_duration = self._batch_size / sfreq
         n_samples = data.shape[1]
 
-        start = 0
+        hasta_el_final = segundos is None
+        max_samples = int(segundos * sfreq) if not hasta_el_final else None
+        emitidos = 0
+
+        start = self._current_sample
         next_tick = time.perf_counter()
 
         while True:
+            if not hasta_el_final and emitidos >= max_samples:
+                break
+
             end = start + self._batch_size
 
             if end > n_samples:
-                if not self._loop:
-                    # Envía las muestras restantes si las hay
-                    if start < n_samples:
-                        chunk = data[:, start:n_samples]
-                        self._fire_callbacks(chunk, chunk.shape[1])
-                    break
-                # Envía lo que queda y reinicia
-                chunk = data[:, start:n_samples]
-                if chunk.shape[1] > 0:
+                # Envía las muestras restantes
+                if start < n_samples:
+                    chunk = data[:, start:n_samples]
                     self._fire_callbacks(chunk, chunk.shape[1])
+                    emitidos += chunk.shape[1]
+                    start = n_samples
+
+                if hasta_el_final or not self._loop:
+                    break
+
+                # Solo hace loop si se pidieron segundos concretos y loop=True
                 start = 0
                 continue
 
             chunk = data[:, start:end]
             self._fire_callbacks(chunk, self._batch_size)
+            emitidos += self._batch_size
             start += self._batch_size
 
             next_tick += batch_duration
             sleep_time = next_tick - time.perf_counter()
             if sleep_time > 0:
                 time.sleep(sleep_time)
+
+        self._current_sample = start % n_samples  # guarda posición para la siguiente llamada
 
     def _fire_callbacks(self, chunk: np.ndarray, chunk_size: int):
         for func in self._callbacks:
