@@ -58,16 +58,19 @@ class EEGSimulator:
     def get_channel_indexes(self) -> dict:
         return self._channel_indexes.copy()
 
-    def iniciarGrabacion(self, segundos: float = None):
+    def iniciarGrabacion(self, segundos: float = None, progress_interval: float = 5.0):
         """
         Emite chunks en tiempo real desde el hilo principal. Bloquea hasta terminar.
 
         Parameters
         ----------
-        segundos : float | None
+        segundos          : float | None
             Segundos máximos a retransmitir en esta llamada.
             Si es None, emite hasta el final del fichero (o indefinidamente si loop=True).
             Al volver a llamar, continúa desde donde se paró.
+        progress_interval : float
+            Cada cuántos segundos imprimir el progreso (segundos emitidos / restantes).
+            Por defecto 5 s. Poner 0 o None para desactivar.
         """
         data = self._raw.get_data()   # (n_channels, n_samples)
         sfreq = self.get_sfreq()
@@ -76,7 +79,11 @@ class EEGSimulator:
 
         hasta_el_final = segundos is None
         max_samples = int(segundos * sfreq) if not hasta_el_final else None
+        total_duracion = (max_samples / sfreq) if not hasta_el_final else (n_samples / sfreq)
         emitidos = 0
+
+        show_progress = progress_interval and progress_interval > 0
+        last_progress = time.perf_counter()
 
         start = self._current_sample
         next_tick = time.perf_counter()
@@ -111,6 +118,14 @@ class EEGSimulator:
             sleep_time = next_tick - time.perf_counter()
             if sleep_time > 0:
                 time.sleep(sleep_time)
+
+            if show_progress:
+                now = time.perf_counter()
+                if now - last_progress >= progress_interval:
+                    emitidos_s = emitidos / sfreq
+                    restantes_s = max(0.0, total_duracion - emitidos_s)
+                    print(f"[EEGSimulator] {emitidos_s:.1f}s emitidos | {restantes_s:.1f}s restantes")
+                    last_progress = now
 
         self._current_sample = start % n_samples  # guarda posición para la siguiente llamada
 

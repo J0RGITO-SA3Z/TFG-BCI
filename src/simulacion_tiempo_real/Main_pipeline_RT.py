@@ -19,7 +19,7 @@ from simulacion_tiempo_real.RT_interpreters.RT_interpreter_process import RT_int
 import time
 from rich.console import Console
 
-def experimento_offline_RT(emulationfif,Trainingfif, SalidaGeneral, SalidaPredicciones, console):
+def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, console):
 
 
     # Emulacion de entrenamiento offline para obtener matriz de características y modelo entrenado.
@@ -30,10 +30,8 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaGeneral, SalidaPredic
     # del `FifDataProvider` y los va enviando como si fueran datos en tiempo real.
     # (usar una única instancia; evitar pasar objetos incorrectos a mne.read_raw_fif)
     eeg = EEGSimulator(emulationfif)
-    raw = None
     interpreter_process = None
     modelPipeline = None
-
 
     # Crea el interprete en proceso separado para recibir predicciones.
     interpreter_process = RT_interpreter_process()
@@ -49,28 +47,16 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaGeneral, SalidaPredic
     modelPipeline.run_process(interpreter_process)
 
     eeg.register_callback(modelPipeline.sendData)
-    console.print("Cargando buffer inicial durante 10 segundos antes de activar predicciones...")
+    console.print("Cargando buffer inicial durante 15 segundos antes de activar predicciones...")
     eeg.iniciarGrabacion(15)
+    console.print("Buffer cargado.")
     modelPipeline.activar_predecir()
     eeg.iniciarGrabacion()
 
-    # Menu de control en consola.
-    running = True
-    while running:
-        user_input = input("Escribe 'salir' para terminar el experimento: ").strip().lower()
-        if user_input == "salir":
-            running = False        
-    # acaba la grabacion
-    raw = eeg.get_mne()
-    raw.save(SalidaGeneral, overwrite=True)
+    modelPipeline.stop_process()
+    interpreter_process.stop()
 
-    eeg.detenerGrabacion()
-
-    if modelPipeline is not None:
-        modelPipeline.stop_process()
-
-    if interpreter_process is not None:
-        interpreter_process.stop()
+    print("grabacion terminada")
 
 
 def interfaz_experimento_RT(data_provider, fif_train, console):
@@ -82,14 +68,12 @@ def interfaz_experimento_RT(data_provider, fif_train, console):
             console.print("El nombre no puede estar vacio.")
 
     base_salida = os.path.normpath(
-        os.path.join(os.path.dirname(__file__), "..", "recordings", "experimento_RT")
+        os.path.join(os.path.dirname(__file__), "..","..","EEG_controller_app", "recordings", "experimento_RT")
     )
 
     carpeta_salida = os.path.join(base_salida, nombre_experimento)
     os.makedirs(carpeta_salida, exist_ok=True)
 
-    SalidaEntrenamiento = os.path.join(carpeta_salida, "SalidaEntrenamiento.fif")
-    SalidaGeneral = os.path.join(carpeta_salida, "SalidaGeneral.fif")
     SalidaPredicciones = os.path.join(carpeta_salida, "SalidaPredicciones.csv")
 
     console.print(f"Guardando ficheros en: {carpeta_salida}")
@@ -97,7 +81,6 @@ def interfaz_experimento_RT(data_provider, fif_train, console):
     experimento_offline_RT(
         data_provider,
         fif_train,
-        SalidaGeneral,
         SalidaPredicciones,
         console,
     )

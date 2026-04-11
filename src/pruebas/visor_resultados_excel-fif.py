@@ -17,10 +17,17 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 # Rutas a tus archivos de datos guardados
-EXCEL_PATH = os.path.join(PROJECT_ROOT, "EEG_controller_app", "recordings", "experimento_RT", "excel_prueba.xlsx")
-FIF_PATHS = [os.path.join(PROJECT_ROOT, "EEG_controller_app", "recordings", "experimento_RT", "fif_origin.fif")]
+EXCEL_PATH = os.path.join(PROJECT_ROOT, "EEG_controller_app", "recordings", "experimento_RT","gg", "SalidaPredicciones.csv")
+FIF_PATHS = [os.path.join(PROJECT_ROOT, "EEG_controller_app", "recordings", "experimento_RT", "gg","suj2_2_raw.fif")]
 
-CLASES = ["left_hand", "right_hand", "feet", "rest"]
+CLASES = ["left_hand", "right_hand", "feet", "nothing"]
+
+ANNOTATION_MAP = {
+    "IZQUIERDA": "left_hand",
+    "DERECHA":   "right_hand",
+    "ABAJO":     "feet",
+    "DESCANSO":  "nothing",
+}
 
 # =====================================================================
 # 1. CÓDIGO EXTRAÍDO LITERALMENTE DE TU 'experimento_Offline.py'
@@ -60,6 +67,7 @@ def _plot_predictions_vs_events(
     sfreq: float,
     class_order: Sequence[str] | None = None,
     window_seconds: float = 30.0,
+    accuracy_info: dict | None = None,
 ):
     if not predictions and not sliding_predictions:
         print("No hay predicciones para mostrar.")
@@ -172,7 +180,19 @@ def _plot_predictions_vs_events(
     ax.set_yticklabels(classes)
     ax.set_xlabel("Numero de muestra")
     ax.set_ylabel("Clase predicha")
-    ax.set_title("Visor Offline de RT: Predicciones vs Eventos Reales")
+    if accuracy_info:
+        acc_str = f"  —  Accuracy: {accuracy_info['correct']}/{accuracy_info['total']} ({accuracy_info['accuracy']:.1%})"
+        per_class_lines = "   ".join(
+            f"{cls}: {accuracy_info['per_class_correct'].get(cls, 0)}/{accuracy_info['per_class_total'].get(cls, 0)}"
+            f" ({accuracy_info['per_class_correct'].get(cls, 0) / accuracy_info['per_class_total'][cls]:.1%})"
+            for cls in accuracy_info['per_class_total']
+        )
+        ax.set_title(
+            f"Visor Offline de RT: Predicciones vs Eventos Reales{acc_str}\n{per_class_lines}",
+            fontsize=9,
+        )
+    else:
+        ax.set_title("Visor Offline de RT: Predicciones vs Eventos Reales")
     ax.grid(alpha=0.25)
 
     plotted_samples = []
@@ -219,7 +239,85 @@ def _plot_predictions_vs_events(
     plt.show()
 
 # =====================================================================
-# 2. NUEVA LÓGICA PARA LEER EXCEL Y FIF, Y ENVIARLO A TU GRÁFICA
+# 2. CÁLCULO DE ACCURACY (predicción a los 4 s de cada marca)
+# =====================================================================
+
+def _calcular_accuracy(
+    sliding_predictions: list[OfflinePrediction],
+    event_samples: np.ndarray,
+    event_desc: list[str],
+    clases: list[str],
+    sfreq: float,
+    offset_segundos: float = 4.0,
+) -> dict:
+    """
+    Para cada evento cuya descripción esté en *clases*, busca la predicción
+    más cercana a S_i + offset_segundos*sfreq y la compara con la etiqueta real.
+    """
+    from collections import Counter
+
+    # Solo trials que correspondan a clases conocidas
+    trials = [
+        (int(s), desc)
+        for s, desc in zip(event_samples, event_desc)
+        if desc in clases
+    ]
+
+    if not trials:
+        print("⚠️  No se encontraron eventos de clases conocidas para calcular accuracy.")
+        return {}
+
+    pred_samples = np.array([p.last_sample for p in sliding_predictions], dtype=np.int64)
+    pred_labels  = [p.prediction for p in sliding_predictions]
+
+    correct = 0
+    total   = 0
+    per_class_correct = Counter()
+    per_class_total   = Counter()
+
+    offset_samples = int(offset_segundos * sfreq)
+
+    for sample_start, true_label in trials:
+        target_sample = sample_start + offset_samples
+
+        if len(pred_samples) == 0:
+            continue
+
+        # Predicción más cercana al instante objetivo
+        closest_idx = int(np.argmin(np.abs(pred_samples - target_sample)))
+        predicted_label = pred_labels[closest_idx]
+        is_correct = predicted_label == true_label
+
+        total += 1
+        per_class_total[true_label] += 1
+        if is_correct:
+            correct += 1
+            per_class_correct[true_label] += 1
+
+    if total == 0:
+        print("⚠️  Ningún trial tenía predicciones en su ventana.")
+        return {}
+
+    accuracy = correct / total
+    print(f"\n{'─'*45}")
+    print(f"  Accuracy global: {correct}/{total}  →  {accuracy:.1%}")
+    for cls in clases:
+        if per_class_total[cls]:
+            print(f"    {cls:>12}: {per_class_correct[cls]}/{per_class_total[cls]}"
+                  f"  ({per_class_correct[cls]/per_class_total[cls]:.1%})")
+    print(f"{'─'*45}\n")
+
+    return {
+        "accuracy": accuracy,
+        "correct": correct,
+        "total": total,
+        "per_class_correct": dict(per_class_correct),
+        "per_class_total": dict(per_class_total),
+    }
+
+
+# =====================================================================
+# 3. NUEVA LÓGICA PARA LEER EXCEL Y FIF, Y ENVIARLO A TU GRÁFICA
 # =====================================================================
 
 def analizar_rt_offline():
@@ -230,47 +328,55 @@ def analizar_rt_offline():
     # Extraemos eventos del FIF exactamente como en tu script
     sample_track = _build_sample_track(raw)
     event_samples, event_desc = _extract_events_by_sample(raw, sample_track)
+    event_desc = [ANNOTATION_MAP.get(d, d) for d in event_desc]
 
-    print(f"--- Cargando EXCEL: {EXCEL_PATH} ---")
+    print(f"--- Cargando CSV: {EXCEL_PATH} ---")
     if not os.path.exists(EXCEL_PATH):
-        print("❌ No se encuentra el archivo Excel.")
+        print("❌ No se encuentra el archivo CSV.")
         return
 
-    df = pd.read_excel(EXCEL_PATH)
-    
+    df = pd.read_csv(EXCEL_PATH)
+
     sliding_predictions = []
-    
-    # Convertimos cada fila del Excel en tu objeto OfflinePrediction
+
+    # Convertimos cada fila del CSV en tu objeto OfflinePrediction
     for _, row in df.iterrows():
         pred_label = str(row['prediction'])
-        
-        # Si el Excel no tuviera la columna sample por lo que sea, la estimamos
+
+        # Si el CSV no tuviera la columna sample por lo que sea, la estimamos
         if 'sample' in row:
             sample_val = int(row['sample'])
         else:
-            sample_val = 0 
-            
-        # Metemos las predicciones del Excel como "sliding predictions" 
+            sample_val = 0
+
+        # Metemos las predicciones del CSV como "sliding predictions"
         # (que son los puntitos azules de tu gráfica)
         sliding_predictions.append(
             OfflinePrediction(
                 prediction=pred_label,
                 last_sample=sample_val,
-                probs={} # El plot no las necesita visualmente
+                probs={}  # El plot no las necesita visualmente
             )
         )
 
-    print(f"✅ Cargadas {len(sliding_predictions)} predicciones de Excel y {len(event_samples)} eventos del FIF.")
+    print(f"✅ Cargadas {len(sliding_predictions)} predicciones de CSV y {len(event_samples)} eventos del FIF.")
+
+    # ------------------------------------------------------------------
+    # Cálculo de accuracy: predicción más cercana a marca + 4 s
+    # ------------------------------------------------------------------
+    accuracy_info = _calcular_accuracy(sliding_predictions, event_samples, event_desc, CLASES, sfreq)
+
     print("--- Abriendo visor interactivo... ---")
 
     # Llamamos a tu función de graficado
     _plot_predictions_vs_events(
-        predictions=[], # Dejamos esto vacío porque el Excel solo tiene Sliding Predictions
+        predictions=[],
         sliding_predictions=sliding_predictions,
         event_samples=event_samples,
         event_desc=event_desc,
         sfreq=sfreq,
-        class_order=CLASES
+        class_order=CLASES,
+        accuracy_info=accuracy_info,
     )
 
 if __name__ == "__main__":

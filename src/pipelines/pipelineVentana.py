@@ -235,7 +235,7 @@ def main():
         results = run_MiRepNet_ventana_pipeline(
             train_fif_paths=train_fif,
             eval_fif_paths=eval_fif,
-            annotations_names=["left_hand", "right_hand", "feet"],
+            annotations_names=["left_hand", "right_hand"],
             window_size=float(w),
             epoch_duration=EPOCH_DURATION,
             epochs=10,
@@ -277,21 +277,17 @@ def main():
 def main2():
     train_fif = [
         "EEG_controller_app/recordings/suj2_1_raw.fif",
-        "EEG_controller_app/recordings/suj2_2_raw.fif",
-        "EEG_controller_app/recordings/suj2_3_raw.fif",
-        "EEG_controller_app/recordings/suj2_4_raw.fif",
     ]
 
     eval_fif = [
-        "EEG_controller_app/recordings/suj2_5_raw.fif",
-        "EEG_controller_app/recordings/suj2_6_raw.fif",
+        "EEG_controller_app/recordings/suj2_2_raw.fif",
     ]
 
     run_MiRepNet_ventana_pipeline(
         train_fif_paths=train_fif,
         eval_fif_paths=eval_fif,
-        annotations_names=["left_hand", "right_hand", "feet"],
-        window_size=10.0,
+        annotations_names=["left_hand", "right_hand"],
+        window_size=15.0,
         epoch_duration=4.0,
         epochs=10,
         validation_split=0.2,
