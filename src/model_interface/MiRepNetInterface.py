@@ -75,6 +75,8 @@ class MiRepNetInterface(ModelInterface):
 
         self.device = device
         self.training_clases = training_clases
+        self._emb_size = emb_size
+        self._depth = depth
 
         # Crear modelo
         self._model: nn.Module = mlm_mask(
@@ -89,63 +91,6 @@ class MiRepNetInterface(ModelInterface):
         # Los números no tienen porque coincidir exactamente con los del entrenamiento original ya que durante el fine-tuning reaprende
         self.label_encoder = LabelEncoder()
         self.label_encoder.fit(training_clases)
-
-    # ------------------------------------------------------------------
-    # Constructores alternativos
-    # ------------------------------------------------------------------
-    @classmethod
-    def from_weights(
-        cls,
-        weights: dict,
-        device: str | torch.device = None,
-        emb_size: int = 256,
-        depth: int = 6,
-        training_clases: list[str] = ["feet", "left_hand", "right_hand"],
-    ) -> "MiRepNetInterface":
-        """
-        Crea una instancia a partir de un state_dict obtenido con ``get_weights()``,
-        sin necesidad de un fichero ``.pth``.
-
-        Args:
-            weights:         State dict devuelto por ``get_weights()``.
-            device:          Dispositivo destino.
-            emb_size:        Debe coincidir con la arquitectura original.
-            depth:           Debe coincidir con la arquitectura original.
-            training_clases: Mismas clases que tenía el modelo original.
-        """
-        if device is None:
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        if not isinstance(device, torch.device):
-            device = torch.device(device)
-
-        instance = cls.__new__(cls)          # evitar llamar a __init__
-        instance.device = device
-        instance.training_clases = training_clases
-
-        instance._model = mlm_mask(
-            emb_size=emb_size,
-            depth=depth,
-            n_classes=len(training_clases),
-            pretrainmode=False,
-            pretrain=None,                   # sin cargar fichero
-        ).to(device)
-        instance._model.load_state_dict(weights)
-
-        instance.label_encoder = LabelEncoder()
-        instance.label_encoder.fit(training_clases)
-
-        return instance
-
-    # ------------------------------------------------------------------
-    # Serialización de pesos en memoria
-    # ------------------------------------------------------------------
-    def get_weights(self) -> dict:
-        """
-        Devuelve el state dict del modelo como un ``OrderedDict`` de tensores.
-        No escribe nada en disco; el resultado puede pasarse directamente a
-        ``from_weights()`` para clonar o restaurar el modelo.
-        """
-        return self._model.state_dict()
 
     def finetuning(self,X_train: np.ndarray, Y_train: np.ndarray,X_val = None, Y_val = None,epochs = 10):
         # Determina si se tiene que hacer validacion
@@ -262,3 +207,47 @@ class MiRepNetInterface(ModelInterface):
             torch.from_numpy(Y).long()
         )
         return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=0)
+
+    # ------------------------------------------------------------------
+    # Serialización / reconstrucción
+    # ------------------------------------------------------------------
+
+    def save(self, path: str) -> None:
+        """Guarda los pesos actuales del modelo en *path* (fichero .pth).
+
+        Para reconstruir el objeto en otro proceso::
+
+            params = interface.get_constructor_params(path)
+            new_interface = MiRepNetInterface(**params)
+        """
+        torch.save(self._model.state_dict(), path)
+
+    def get_constructor_params(self, weight_path: str) -> dict:
+        """Devuelve un dict con todos los argumentos necesarios para reconstruir
+        este objeto con ``MiRepNetInterface(**params)``.
+
+        Args:
+            weight_path: Ruta al fichero ``.pth`` donde se han guardado los pesos
+                         (el devuelto por :meth:`save`).
+        """
+        return {
+            "weight_path":      weight_path,
+            "device":           str(self.device),
+            "emb_size":         self._emb_size,
+            "depth":            self._depth,
+            "training_clases":  list(self.training_clases),
+        }
+
+    # Getters individuales (útiles si solo se necesita un parámetro)
+
+    def get_emb_size(self) -> int:
+        return self._emb_size
+
+    def get_depth(self) -> int:
+        return self._depth
+
+    def get_training_clases(self) -> list[str]:
+        return list(self.training_clases)
+
+    def get_device(self) -> str:
+        return str(self.device)

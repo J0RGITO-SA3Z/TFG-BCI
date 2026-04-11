@@ -3,6 +3,7 @@ from __future__ import annotations
 import threading
 import time
 import os, sys
+import tempfile
 import numpy as np
 import multiprocessing as mp
 import mne
@@ -47,7 +48,7 @@ class RT_pipeline:
             SpatialInterpolator(actual_channel_positions = eeg_channel_names),        # interpola/reordena canales a la topología objetivo 
         ])
 
-    def run_loop(self,eeg_input_pipe, rt_interpreter_process):
+    def run_loop(self, eeg_input_pipe, interpreter_send_pipe):
         self.acquisition_thread = threading.Thread(
             target=self.acquisition_loop,
             args=(eeg_input_pipe,),
@@ -55,7 +56,7 @@ class RT_pipeline:
         )
 
         self.acquisition_thread.start()
-        
+
         next_time = time.perf_counter()
 
         while not self.stop_event.is_set():
@@ -66,7 +67,7 @@ class RT_pipeline:
                 data, _ = self.epoch_pipeline.process_np(data, [0])
                 data = data[0]
                 prediction, probs = self.pretrained_model.predict(data)
-                rt_interpreter_process.send(prediction, last_sample, last_timestamp)
+                interpreter_send_pipe.send((prediction, last_sample, last_timestamp))
 
             time.sleep(max(0, next_time - time.perf_counter()))
 
@@ -76,7 +77,6 @@ class RT_pipeline:
         while not self.stop_event.is_set():
             if pipe.poll(0.01):
                 data,chunkSize ,last_timestamp = pipe.recv() # (channels, samples)
-                print(f"timestamp {last_timestamp:.3f}")
                 self.buffer.receiveData(data, chunkSize, last_timestamp)
 
 class RT_pipeline_process:
@@ -92,12 +92,16 @@ class RT_pipeline_process:
         self.predecir_event.clear()
         self._eeg_input_parent_pipe = None
         self._eeg_input_child_pipe = None
+        self._model_weight_tmp = None
 
         self.process = None
 
     @staticmethod
-    def _process_target(ea_matrix, pretrained_model, info, channel_positions,
-                        eeg_input_pipe, rt_interpreter_process, stop_event, predecir_event):
+    def _process_target(ea_matrix, model_params, info, channel_positions,
+                        eeg_input_pipe, interpreter_send_pipe, stop_event, predecir_event):
+
+        from model_interface.MiRepNetInterface import MiRepNetInterface
+        pretrained_model = MiRepNetInterface(**model_params)
 
         pipeline = RT_pipeline(
             ea_matrix=ea_matrix,
@@ -108,7 +112,7 @@ class RT_pipeline_process:
             predecir_event=predecir_event,
         )
 
-        pipeline.run_loop(eeg_input_pipe, rt_interpreter_process)
+        pipeline.run_loop(eeg_input_pipe, interpreter_send_pipe)
 
     def run_process(self, rt_interpreter_process):
 
@@ -118,6 +122,13 @@ class RT_pipeline_process:
         if rt_interpreter_process is None or getattr(rt_interpreter_process, "_send_pipe", None) is None:
             raise RuntimeError("RT_interpreter_process no esta iniciado o no tiene pipe de salida")
 
+        # Guardar pesos en un fichero temporal y obtener los params del constructor
+        tmp = tempfile.NamedTemporaryFile(suffix=".pth", delete=False)
+        tmp.close()
+        self._model_weight_tmp = tmp.name
+        self.pretrained_model.save(self._model_weight_tmp)
+        model_params = self.pretrained_model.get_constructor_params(self._model_weight_tmp)
+
         self.stop_event.clear()
         self._eeg_input_parent_pipe, self._eeg_input_child_pipe = mp.Pipe()
 
@@ -125,11 +136,11 @@ class RT_pipeline_process:
             target=self._process_target,
             args=(
                 self.ea_matrix,
-                self.pretrained_model,
+                model_params,
                 self.info,
                 self.channel_positions,
                 self._eeg_input_child_pipe,
-                rt_interpreter_process,
+                rt_interpreter_process._send_pipe,
                 self.stop_event,
                 self.predecir_event,
             ),
@@ -172,5 +183,9 @@ class RT_pipeline_process:
         if self._eeg_input_child_pipe is not None:
             self._eeg_input_child_pipe.close()
             self._eeg_input_child_pipe = None
+
+        if self._model_weight_tmp is not None and os.path.exists(self._model_weight_tmp):
+            os.remove(self._model_weight_tmp)
+            self._model_weight_tmp = None
 
         print("RT_pipeline_process detenido.")
