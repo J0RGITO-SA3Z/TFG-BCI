@@ -36,6 +36,7 @@ class RealTimeRawPreprocessingBuffer:
         self.channels_indexes = channels_indexes
         self.data = EEGData_roll(info, self.lock, ventana_procesado*frecuecia_muestreo)
         self.last_time: Optional[float] = None
+        self.total_samples_received = 0
 
         if raw_pipeline is not None:
             self._raw_pipeline = raw_pipeline
@@ -60,7 +61,7 @@ class RealTimeRawPreprocessingBuffer:
         correspondiente a la última muestra registrada.
         """
         if "Sample" not in raw.ch_names:
-            raise ValueError("El canal 'Sample' no existe en el Raw.")
+            return self.total_samples_received
 
         sample_data = raw.get_data(picks=["Sample"])
 
@@ -93,3 +94,4 @@ class RealTimeRawPreprocessingBuffer:
             self.data.data[:, -chunk_size:] = np.array(chunk)
 
             self.last_time = timestamp
+            self.total_samples_received += chunk_size

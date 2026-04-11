@@ -61,3 +61,23 @@ class EuclideanAlignment(EpochProcessor):
             XEA[i] = np.dot(sqrtRefEA, X[i])
 
         return XEA.astype(np.float32), y
+    
+# Cálculo de la matriz media de las matrizes de covarianza de cada trial seccion sacada de utils de MIRepNet
+def Calculate_EA_Matrix(x):
+    """
+    Parameters
+    ----------
+    x : numpy array
+        data of shape (num_samples, num_channels, num_time_samples)
+
+    Returns
+    ----------
+    refEA : numpy array
+        reference matrix for Euclidean Alignment of shape (num_channels, num_channels)
+    """
+    cov = np.zeros((x.shape[0], x.shape[1], x.shape[1]))
+    for i in range(x.shape[0]):
+        cov[i] = np.cov(x[i])
+    refEA = np.mean(cov, 0)
+
+    return refEA
