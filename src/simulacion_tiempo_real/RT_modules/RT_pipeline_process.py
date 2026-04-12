@@ -35,7 +35,7 @@ class RT_pipeline:
         self.info = info
         self.channel_positions = channel_positions
 
-        self.buffer = buffer(info, channel_positions)
+        self.buffer = buffer(info, channel_positions, frecuecia_muestreo=int(info['sfreq']))
 
         eeg_picks = mne.pick_types(info, eeg=True, meg=False, eog=False, ecg=False, emg=False, misc=False, stim=False, exclude=[])
         eeg_channel_names = [info['ch_names'][idx] for idx in eeg_picks]
@@ -97,17 +97,16 @@ class RT_pipeline_process:
         self.process = None
 
     @staticmethod
-    def _process_target(ea_matrix, model_params, info, channel_positions,
-                        eeg_input_pipe, interpreter_send_pipe, stop_event, predecir_event):
+    def _process_target(pipeline_params, eeg_input_pipe, interpreter_send_pipe, stop_event, predecir_event):
 
         from model_interface.MiRepNetInterface import MiRepNetInterface
-        pretrained_model = MiRepNetInterface(**model_params)
+        pretrained_model = MiRepNetInterface(**pipeline_params["model_params"])
 
         pipeline = RT_pipeline(
-            ea_matrix=ea_matrix,
+            ea_matrix=pipeline_params["ea_matrix"],
             pretrained_model=pretrained_model,
-            info=info,
-            channel_positions=channel_positions,
+            info=pipeline_params["info"],
+            channel_positions=pipeline_params["channel_positions"],
             stop_event=stop_event,
             predecir_event=predecir_event,
         )
@@ -127,7 +126,13 @@ class RT_pipeline_process:
         tmp.close()
         self._model_weight_tmp = tmp.name
         self.pretrained_model.save(self._model_weight_tmp)
-        model_params = self.pretrained_model.get_constructor_params(self._model_weight_tmp)
+
+        pipeline_params = {
+            "ea_matrix":        self.ea_matrix,
+            "model_params":     self.pretrained_model.get_constructor_params(self._model_weight_tmp),
+            "info":             self.info,
+            "channel_positions": self.channel_positions,
+        }
 
         self.stop_event.clear()
         self._eeg_input_parent_pipe, self._eeg_input_child_pipe = mp.Pipe()
@@ -135,10 +140,7 @@ class RT_pipeline_process:
         self.process = mp.Process(
             target=self._process_target,
             args=(
-                self.ea_matrix,
-                model_params,
-                self.info,
-                self.channel_positions,
+                pipeline_params,
                 self._eeg_input_child_pipe,
                 rt_interpreter_process._send_pipe,
                 self.stop_event,

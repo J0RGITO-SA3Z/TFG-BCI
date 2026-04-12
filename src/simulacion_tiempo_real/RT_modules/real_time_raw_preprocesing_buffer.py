@@ -74,6 +74,7 @@ class RealTimeRawPreprocessingBuffer:
             last_timestamp = self.last_time
             self.data.convert_to_mne(
                 channels_indexes=list(self.channels_indexes.values()),
+                annotations=False,
             )
 
             raw_full = self.data.mne_raw
@@ -81,7 +82,16 @@ class RealTimeRawPreprocessingBuffer:
         last_sample_number = self.get_last_sample(raw_full)
         raw = self._raw_pipeline.process(raw_full)
 
-        eeg_data = raw.get_data()[:, -self.venetana_res*self.frecuecia_muestreo :]
+        n_samples = self.venetana_res * self.frecuecia_muestreo
+        eeg_data = raw.get_data()[:, -n_samples:]
+
+        print(f"[Buffer] raw_full: {raw_full.get_data().shape}, raw_eeg: {raw.get_data().shape}, eeg_data: {eeg_data.shape}, mean={eeg_data.mean():.2e}, std={eeg_data.std():.2e}")
+
+        if eeg_data.shape[1] < n_samples:
+            raise RuntimeError(
+                f"getData: se esperaban {n_samples} muestras pero sólo hay "
+                f"{eeg_data.shape[1]}. ¿Buffer insuficientemente lleno o sfreq incorrecto?"
+            )
 
         return eeg_data, last_sample_number, last_timestamp
 

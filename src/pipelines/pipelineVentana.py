@@ -20,18 +20,18 @@ import torch
 
 import moabb
 
-PROJECT_ROOT  = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-MIREPNET_DIR  = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
-WEIGHT_PATH   = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
+PROJECT_ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+MIREPNET_DIR      = os.path.join(PROJECT_ROOT, "pretrainedModels", "MIRepNet")
+WEIGHT_PATH       = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
+RT_MODULES_ROOT   = os.path.join(PROJECT_ROOT, "simulacion_tiempo_real")
 sys.path.append(PROJECT_ROOT)
 sys.path.append(MIREPNET_DIR)
+sys.path.append(RT_MODULES_ROOT)   # necesario para pipeline_utils usado por Training_offline
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 from utils.Performance_Viewer import PerformanceViewer
-from model_interface.MiRepNetInterface import MiRepNetInterface
-from DataProvider.FifDataProvider import FifDataProvider
 from DataProvider.FifVentanaDataProvider import FifVentanaDataProvider
 
 from epoch_processing.EpochProcessorPipeline import EpochProcessorPipeline
@@ -44,106 +44,11 @@ from epoch_processing.BadChannelInterpolator import BadChannelInterpolator
 from epoch_processing.BadChannelDetectors.AmplitudeThresholdDetector import AmplitudeThresholdDetector
 from epoch_processing.BadChannelDetectors.VarianceDetector import VarianceDetector
 from epoch_processing.BadChannelDetectors.GradientDetector import GradientDetector
+from simulacion_tiempo_real.trainingOffline import Training_offline
 import matplotlib.pyplot as plt
 
 moabb.set_log_level("ERROR")
 SEED = 42
-
-def run_ventana_pipeline(
-    train_provider,
-    eval_provider,
-    model_interface,
-    epochs,
-    epoch_pipeline,
-    validation_split=0.2,
-    exclude_training_classes=None,
-    rename_training_classes=None,
-    show_plots=True,
-):
-    """
-    Ejecuta el pipeline ventana:
-      - Entrena/fine-tunea con los datos de ``train_provider``.
-      - Evalúa sobre los epochs generados por ``eval_provider`` (ventana deslizante).
-
-    Args:
-        train_provider:           DataProvider con los datos de entrenamiento
-                                  (preprocesado sobre raw completo).
-        eval_provider:            FifVentanaDataProvider con los datos de evaluación
-                                  (preprocesado sólo sobre la ventana).
-        model_interface:          Interfaz del modelo (fine-tuning + predict).
-        epochs:                   Número de épocas de fine-tuning.
-        epoch_pipeline:           Pipeline de procesado a nivel de epoch
-                                  (EuclideanAlignment, SpatialInterpolator, etc.).
-        validation_split:         Fracción de los datos de entrenamiento usada
-                                  como validación interna del fine-tuning.
-        exclude_training_classes: Clases a excluir del entrenamiento (ej. ["rest"]).
-        rename_training_classes:  Renombrado de clases {original: nuevo}.
-        show_plots:               Si True, muestra gráficas de rendimiento.
-
-    Returns:
-        dict con Accuracy, Precision, Recall y F1-Score sobre los datos de evaluación.
-    """
-    torch.manual_seed(SEED)
-
-    # ── Datos de entrenamiento ──────────────────────────────────────────────
-    X_train_all, Y_train_all, _ = train_provider.get_data()
-
-    X_train, X_val_int, Y_train, Y_val_int = train_test_split(
-        X_train_all, Y_train_all,
-        test_size=validation_split,
-        random_state=SEED,
-        stratify=Y_train_all,
-    )
-
-    X_val_int2, Y_val_int2 = X_val_int, Y_val_int
-
-    if exclude_training_classes is not None:
-        remover = ClassEventRemover(exclude_training_classes)
-        X_train,    Y_train    = remover.process_np(X_train,    Y_train)
-        X_val_int2, Y_val_int2 = remover.process_np(X_val_int,  Y_val_int)
-
-    if rename_training_classes is not None:
-        renamer = EpochEventRenamer(rename_training_classes)
-        X_train,    Y_train    = renamer.process_np(X_train,    Y_train)
-        X_val_int2, Y_val_int2 = renamer.process_np(X_val_int2, Y_val_int2)
-
-    # La primera llamada (X_train) calcula y guarda la matriz de Euclidean Alignment.
-    # Todas las llamadas posteriores (val interno y eval ventana) reutilizan esa
-    # misma matriz, de modo que el alineamiento siempre se hace respecto a la
-    # distribución de covarianza del conjunto de entrenamiento.
-    X_train,    Y_train    = epoch_pipeline.process_np(X_train,    Y_train,    shuffle=False)  # ajusta EA
-    X_val_int,  Y_val_int  = epoch_pipeline.process_np(X_val_int,  Y_val_int,  shuffle=False)  # aplica EA
-    X_val_int2, Y_val_int2 = epoch_pipeline.process_np(X_val_int2, Y_val_int2, shuffle=False)  # aplica EA
-
-    # ── Fine-tuning ─────────────────────────────────────────────────────────
-    final_val_acc = model_interface.finetuning(X_train, Y_train, X_val_int2, Y_val_int2, epochs=epochs)
-
-    # ── Datos de evaluación (ventana) ────────────────────────────────────────
-    # La matriz EA ya está fijada: se aplica la del entrenamiento.
-    X_eval, Y_eval, _ = eval_provider.get_data()
-    X_eval, Y_eval    = epoch_pipeline.process_np(X_eval, Y_eval, shuffle=False)  # aplica EA
-
-    # ── Predicción y métricas ────────────────────────────────────────────────
-    preds_array, probs_array = model_interface.predict_batch(X_eval)
-
-    acc  = accuracy_score(Y_eval, preds_array)
-    prec = precision_score(Y_eval, preds_array, average="macro", zero_division=0)
-    rec  = recall_score(Y_eval,  preds_array, average="macro", zero_division=0)
-    f1   = f1_score(Y_eval,     preds_array, average="macro", zero_division=0)
-
-    if show_plots:
-        viewer = PerformanceViewer()
-        viewer.summary(final_val_acc)
-        viewer.plot_fine_tune(final_val_acc)
-        viewer.plot_downstream(preds_array, probs_array, Y_eval)
-
-    return {
-        "Accuracy":  acc,
-        "Precision": prec,
-        "Recall":    rec,
-        "F1-Score":  f1,
-    }
-
 
 def run_MiRepNet_ventana_pipeline(
     train_fif_paths,
@@ -158,22 +63,35 @@ def run_MiRepNet_ventana_pipeline(
     """
     Punto de entrada de alto nivel para el pipeline ventana con MIRepNet.
 
+    El entrenamiento replica exactamente Training_offline (usado en Main_pipeline_RT.py):
+    calcula la matriz EA sobre todos los datos de entrenamiento y hace fine-tuning.
+
+    La evaluación aplica esa matriz EA fija (igual que RT_pipeline_process.py), de modo
+    que el alineamiento euclídeo en inferencia es idéntico al del pipeline en tiempo real.
+
     Args:
-        train_fif_paths:   Lista de rutas .fif para entrenamiento (preprocesado completo).
+        train_fif_paths:   Lista de rutas .fif para entrenamiento.
         eval_fif_paths:    Lista de rutas .fif para evaluación (preprocesado por ventana).
         annotations_names: Nombres de las clases a predecir.
         window_size:       Segundos de ventana a recortar desde el onset del evento.
         epoch_duration:    Segundos a tomar del final de la ventana como epoch.
         epochs:            Épocas de fine-tuning.
         validation_split:  Fracción de validación interna del fine-tuning.
+        show_plots:        Si True, muestra gráficas de fine-tuning y downstream.
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    torch.manual_seed(SEED)
 
-    train_provider = FifDataProvider(
-        fif_paths=train_fif_paths,
-        annotations_names=annotations_names,
+    # ── Entrenamiento offline (idéntico a Main_pipeline_RT.py) ─────────────
+    rt_training = Training_offline()
+    EA_matrix, model = rt_training.start(
+        train_fif_paths,
+        lista=annotations_names,
+        epochs=epochs,
+        seed=SEED,
+        validation_split=validation_split,
     )
 
+    # ── Evaluación con matriz EA fija (idéntico a RT_pipeline_process.py) ──
     eval_provider = FifVentanaDataProvider(
         fif_paths=eval_fif_paths,
         annotations_names=annotations_names,
@@ -181,46 +99,46 @@ def run_MiRepNet_ventana_pipeline(
         epoch_duration=epoch_duration,
     )
 
-    epoch_pipeline = EpochProcessorPipeline([
-        EuclideanAlignment(),
-        SpatialInterpolator(actual_channel_positions=train_provider.get_channel_names()),
+    eval_pipeline = EpochProcessorPipeline([
+        EuclideanAlignment(matrix=EA_matrix),
+        SpatialInterpolator(actual_channel_positions=rt_training.getChannelNames()),
     ])
 
-    modelo = MiRepNetInterface(
-        device=device,
-        weight_path=WEIGHT_PATH,
-        training_clases=annotations_names,
-    )
+    X_eval, Y_eval, _ = eval_provider.get_data()
+    X_eval, Y_eval    = eval_pipeline.process_np(X_eval, Y_eval, shuffle=False)
 
-    results = run_ventana_pipeline(
-        train_provider=train_provider,
-        eval_provider=eval_provider,
-        model_interface=modelo,
-        epochs=epochs,
-        epoch_pipeline=epoch_pipeline,
-        validation_split=validation_split,
-        show_plots=show_plots,
-    )
+    preds_array, probs_array = model.predict_batch(X_eval)
+
+    acc  = accuracy_score(Y_eval, preds_array)
+    prec = precision_score(Y_eval, preds_array, average="macro", zero_division=0)
+    rec  = recall_score(Y_eval,  preds_array, average="macro", zero_division=0)
+    f1   = f1_score(Y_eval,     preds_array, average="macro", zero_division=0)
+
+    if show_plots:
+        viewer = PerformanceViewer()
+        viewer.plot_fine_tune(rt_training.getHistory())
+        viewer.plot_downstream(preds_array, probs_array, Y_eval)
 
     print("\n── Resultados evaluación ventana ──────────────────────────────")
-    for metric, value in results.items():
+    for metric, value in {"Accuracy": acc, "Precision": prec, "Recall": rec, "F1-Score": f1}.items():
         print(f"  {metric}: {value:.4f}")
 
-    return results
+    return {
+        "Accuracy":  acc,
+        "Precision": prec,
+        "Recall":    rec,
+        "F1-Score":  f1,
+    }
 
 
 def main():
 
     train_fif = [
         "EEG_controller_app/recordings/suj2_1_raw.fif",
-        "EEG_controller_app/recordings/suj2_2_raw.fif",
-        "EEG_controller_app/recordings/suj2_3_raw.fif",
-        "EEG_controller_app/recordings/suj2_4_raw.fif",
     ]
 
     eval_fif = [
-        "EEG_controller_app/recordings/suj2_5_raw.fif",
-        "EEG_controller_app/recordings/suj2_6_raw.fif",
+        "EEG_controller_app/recordings/suj2_2_raw.fif",
     ]
 
     EPOCH_DURATION = 4.0

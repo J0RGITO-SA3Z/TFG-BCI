@@ -59,7 +59,7 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, console
     print("grabacion terminada")
 
 
-def interfaz_experimento_RT(data_provider, fif_train, console):
+def interfaz_experimento_RT(emulation_fif, fif_train, console):
     console.print("=== Experimento de Simulación en Tiempo Real ===")
     nombre_experimento = ""
     while not nombre_experimento:
@@ -79,7 +79,7 @@ def interfaz_experimento_RT(data_provider, fif_train, console):
     console.print(f"Guardando ficheros en: {carpeta_salida}")
 
     experimento_offline_RT(
-        data_provider,
+        emulation_fif,
         fif_train,
         SalidaPredicciones,
         console,
