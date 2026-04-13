@@ -82,10 +82,8 @@ class RealTimeRawPreprocessingBuffer:
         last_sample_number = self.get_last_sample(raw_full)
         raw = self._raw_pipeline.process(raw_full)
 
-        tmax = raw.times[-1]
-        tmin = tmax - 4.0
-
-        eeg_data = raw.crop(tmin=tmin, tmax=tmax).get_data()
+        n_samples = self.venetana_res * self.frecuecia_muestreo
+        eeg_data = raw.get_data()[:, -n_samples:]
 
         n_samples = self.venetana_res * self.frecuecia_muestreo
 
