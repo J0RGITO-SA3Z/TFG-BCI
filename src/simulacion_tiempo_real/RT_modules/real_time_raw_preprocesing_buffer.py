@@ -77,15 +77,17 @@ class RealTimeRawPreprocessingBuffer:
                 annotations=False,
             )
 
-            raw_full = self.data.mne_raw
+            raw_full = self.data.mne_raw.copy()
 
         last_sample_number = self.get_last_sample(raw_full)
         raw = self._raw_pipeline.process(raw_full)
 
-        n_samples = self.venetana_res * self.frecuecia_muestreo
-        eeg_data = raw.get_data()[:, -n_samples:]
+        tmax = raw.times[-1]
+        tmin = tmax - 4.0
 
-        print(f"[Buffer] raw_full: {raw_full.get_data().shape}, raw_eeg: {raw.get_data().shape}, eeg_data: {eeg_data.shape}, mean={eeg_data.mean():.2e}, std={eeg_data.std():.2e}")
+        eeg_data = raw.crop(tmin=tmin, tmax=tmax).get_data()
+
+        n_samples = self.venetana_res * self.frecuecia_muestreo
 
         if eeg_data.shape[1] < n_samples:
             raise RuntimeError(

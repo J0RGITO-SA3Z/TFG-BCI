@@ -24,7 +24,7 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, console
 
     # Emulacion de entrenamiento offline para obtener matriz de características y modelo entrenado.
     rtTraining = Training_offline()
-    EA_matrix, model = rtTraining.start(Trainingfif, lista=["left_hand", "right_hand"], epochs=10, seed=42, validation_split=0.2)
+    EA_matrix, model = rtTraining.start(Trainingfif, lista=["left_hand", "right_hand", "rest"], epochs=10, seed=42, validation_split=0.2)
 
     # En lugar de conectar a un dispositivo EEG real, usamos un emulador que lee los epochs
     # del `FifDataProvider` y los va enviando como si fueran datos en tiempo real.
@@ -88,7 +88,6 @@ def interfaz_experimento_RT(emulation_fif, fif_train, console):
 
 if __name__ == "__main__":
         
-        lista = ["left_hand", "right_hand"]
         console = Console()
 
         fif_train = "EEG_controller_app/recordings/suj2_1_raw.fif"
