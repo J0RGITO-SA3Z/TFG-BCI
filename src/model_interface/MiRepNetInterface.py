@@ -86,7 +86,6 @@ class MiRepNetInterface(ModelInterface):
             pretrainmode=False,
             pretrain=weight_path
         ).to(self.device)
-
         # Crear codificador de etiquetas (transorma los strings de las clases a números enteros)
         # Los números no tienen porque coincidir exactamente con los del entrenamiento original ya que durante el fine-tuning reaprende
         self.label_encoder = LabelEncoder()
@@ -184,7 +183,7 @@ class MiRepNetInterface(ModelInterface):
     
     def predict(self, X: np.ndarray):
         X_tensor = torch.from_numpy(X).float().unsqueeze(0).to(self.device)
-
+        self._model.eval() 
         with torch.no_grad():
             _, outputs = self._model(X_tensor)
             probs = F.softmax(outputs, dim=1)
