@@ -20,13 +20,13 @@ if PROJECT_ROOT not in sys.path:
 EXCEL_PATH = os.path.join(PROJECT_ROOT, "EEG_controller_app", "recordings", "experimento_RT","gg", "SalidaPredicciones.csv")
 FIF_PATHS = [os.path.join(PROJECT_ROOT, "EEG_controller_app", "recordings", "experimento_RT", "gg","suj2_2_raw.fif")]
 
-CLASES = ["left_hand", "right_hand", "feet", "nothing"]
+CLASES = ["left_hand", "right_hand", "feet", "rest"]
 
 ANNOTATION_MAP = {
     "IZQUIERDA": "left_hand",
     "DERECHA":   "right_hand",
     "ABAJO":     "feet",
-    "DESCANSO":  "nothing",
+    "DESCANSO":  "rest",
 }
 
 # =====================================================================
@@ -41,12 +41,14 @@ class OfflinePrediction:
     true_label: str | None = None
     is_correct: bool | None = None
 
+# Devuelve el numero de muestra para la posicion en el array de muestras del raw
 def _build_sample_track(raw: mne.io.BaseRaw) -> np.ndarray:
     if "Sample" in raw.ch_names:
         sample_track = raw.get_data(picks=["Sample"])[0]
         return np.asarray(sample_track, dtype=np.int64)
     return np.arange(raw.first_samp, raw.first_samp + raw.n_times, dtype=np.int64)
 
+# Saca una lista de los posicion de muestra en la que hay eventos y la lista de nombres de dichos eventos
 def _extract_events_by_sample(raw: mne.io.BaseRaw, sample_track: np.ndarray) -> tuple[np.ndarray, list[str]]:
     if len(raw.annotations) == 0:
         return np.array([], dtype=np.int64), []
@@ -57,7 +59,9 @@ def _extract_events_by_sample(raw: mne.io.BaseRaw, sample_track: np.ndarray) -> 
 
     event_samples = sample_track[event_idx]
     event_desc = list(raw.annotations.description)
+
     return event_samples, event_desc
+
 
 def _plot_predictions_vs_events(
     predictions: list[OfflinePrediction],
@@ -316,6 +320,91 @@ def _calcular_accuracy(
     }
 
 
+def _calcular_accuracy_voto(
+    sliding_predictions: list[OfflinePrediction],
+    event_samples: np.ndarray,
+    event_desc: list[str],
+    clases: list[str],
+    sfreq: float,
+    offset_segundos: float = 4.0,
+    ventana_segundos: float = 2.0,
+) -> dict:
+    """
+    Para cada evento cuya descripción esté en *clases*, recoge todas las
+    predicciones en el intervalo [S_i + offset*sfreq, S_i + (offset+ventana)*sfreq]
+    y toma la clase más frecuente (voto por mayoría) como predicción final.
+    Por defecto: ventana de 2 s justo después de los 4 s del epoch ([+4s, +6s]).
+    """
+    from collections import Counter
+
+    trials = [
+        (int(s), desc)
+        for s, desc in zip(event_samples, event_desc)
+        if desc in clases
+    ]
+
+    if not trials:
+        print("⚠️  [Voto] No se encontraron eventos de clases conocidas.")
+        return {}
+
+    pred_samples = np.array([p.last_sample for p in sliding_predictions], dtype=np.int64)
+    pred_labels  = [p.prediction for p in sliding_predictions]
+
+    offset_samples  = int(offset_segundos * sfreq)
+    ventana_samples = int(ventana_segundos * sfreq)
+
+    correct = 0
+    total   = 0
+    per_class_correct = Counter()
+    per_class_total   = Counter()
+    skipped = 0
+
+    for sample_start, true_label in trials:
+        win_ini = sample_start + offset_samples
+        win_fin = win_ini + ventana_samples
+
+        mask = (pred_samples >= win_ini) & (pred_samples <= win_fin)
+        labels_en_ventana = [pred_labels[i] for i in np.where(mask)[0]]
+
+        if not labels_en_ventana:
+            skipped += 1
+            continue
+
+        predicted_label = Counter(labels_en_ventana).most_common(1)[0][0]
+        is_correct = predicted_label == true_label
+
+        total += 1
+        per_class_total[true_label] += 1
+        if is_correct:
+            correct += 1
+            per_class_correct[true_label] += 1
+
+    if total == 0:
+        print("⚠️  [Voto] Ningún trial tenía predicciones en su ventana.")
+        return {}
+
+    accuracy = correct / total
+    print(f"\n{'─'*45}")
+    print(f"  [Voto +{offset_segundos:.1f}s..+{offset_segundos+ventana_segundos:.1f}s] "
+          f"Accuracy global: {correct}/{total}  →  {accuracy:.1%}"
+          + (f"  ({skipped} trials sin predicciones)" if skipped else ""))
+    for cls in clases:
+        if per_class_total[cls]:
+            print(f"    {cls:>12}: {per_class_correct[cls]}/{per_class_total[cls]}"
+                  f"  ({per_class_correct[cls]/per_class_total[cls]:.1%})")
+    print(f"{'─'*45}\n")
+
+    return {
+        "accuracy": accuracy,
+        "correct": correct,
+        "total": total,
+        "per_class_correct": dict(per_class_correct),
+        "per_class_total": dict(per_class_total),
+    }
+
+
+
+
 # =====================================================================
 # 3. NUEVA LÓGICA PARA LEER EXCEL Y FIF, Y ENVIARLO A TU GRÁFICA
 # =====================================================================
@@ -362,9 +451,15 @@ def analizar_rt_offline():
     print(f"✅ Cargadas {len(sliding_predictions)} predicciones de CSV y {len(event_samples)} eventos del FIF.")
 
     # ------------------------------------------------------------------
-    # Cálculo de accuracy: predicción más cercana a marca + 4 s
+    # Método 1: predicción más cercana a marca + 4 s
     # ------------------------------------------------------------------
     accuracy_info = _calcular_accuracy(sliding_predictions, event_samples, event_desc, CLASES, sfreq)
+
+    # ------------------------------------------------------------------
+    # Método 2: voto por mayoría en ventana [marca+4s, marca+6s]
+    # ------------------------------------------------------------------
+    _calcular_accuracy_voto(sliding_predictions, event_samples, event_desc, CLASES, sfreq)
+
 
     print("--- Abriendo visor interactivo... ---")
 
