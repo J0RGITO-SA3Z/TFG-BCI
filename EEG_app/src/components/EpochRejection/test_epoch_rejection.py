@@ -1,0 +1,431 @@
+import os
+import sys
+import numpy as np
+import mne
+import time
+import matplotlib.pyplot as plt  # noqa
+from matplotlib.colors import ListedColormap, BoundaryNorm
+from matplotlib.patches import Rectangle
+
+SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+if SRC_ROOT not in sys.path:
+    sys.path.insert(0, SRC_ROOT)
+
+# ─────── Data Providers ─────────────────────────────────────────────────────
+from components.DataProvider.FifDataProvider import FifDataProvider
+
+# ─────── FASTER (Fully Automated Statistical Thresholding EEG Rejection) ─────────────────────────────────────────────────────
+from mne_faster import ( # -> pip install mne_faster
+    find_bad_channels,
+    find_bad_channels_in_epochs,
+    find_bad_components,
+    find_bad_epochs,
+)
+
+# ─────── AutoReject (Automated artifact rejection for MEG and EEG data) ─────────────────────────────────────────────────────
+from autoreject import AutoReject, get_rejection_threshold, compute_thresholds, set_matplotlib_defaults # -> pip install autoreject
+
+# ─────── Riemannian Potato ─────────────────────────────────────────────────────
+from components.EpochRejection.RiemannianPotato import RiemannianEpochRejector
+
+# ─────── Imports pipeline ─────────────────────────────────────────────────────
+from components.RawProcessing.RawProcessorPipeline import RawProcessorPipeline
+from components.RawProcessing.BandpassFilter import BandpassFilter
+from components.RawProcessing.NotchFilter import NotchFilter
+from components.RawProcessing.Resampler import Resampler
+from components.RawProcessing.CARReference import CARReference
+from components.RawProcessing.ICAProcessor import ICAProcessor
+from components.RawProcessing.AnnotationRenamer import AnnotationRenamer
+
+LABEL_MAP = {
+    "IZQUIERDA": "left_hand",
+    "DERECHA":   "right_hand",
+    "ABAJO":     "feet",
+    "DESCANSO":  "rest",
+}
+
+def plot_faster_heatmap(
+    epochs,
+    bad_epoch_idx,
+    bad_ch_in_epochs,
+    global_bad_channels=None,
+    title="FASTER reject/interpolation log"
+):
+    """
+    Pinta un mapa de calor tipo autoreject para FASTER.
+
+    Estados:
+        0 -> good         (verde)
+        1 -> interpolated (azul)
+        2 -> bad          (rojo)
+
+    Parámetros
+    ----------
+    epochs : mne.Epochs
+        Epochs originales ANTES de hacer drop().
+    bad_epoch_idx : list[int]
+        Índices de epochs malos detectados por FASTER.
+    bad_ch_in_epochs : list[list[str]]
+        Lista de longitud n_epochs; cada elemento contiene los nombres
+        de los canales malos en ese epoch.
+    global_bad_channels : list[str] | None
+        Canales malos globales (epoch.info["bads"]) detectados por FASTER.
+        Se marcan como interpolados en todos los epochs.
+    title : str
+        Título de la figura.
+
+    Returns
+    -------
+    status : np.ndarray, shape (n_epochs, n_channels)
+        Matriz con códigos 0/1/2.
+    """
+
+    ch_names = epochs.ch_names
+    n_epochs = len(epochs)
+    n_channels = len(ch_names)
+
+    bad_epoch_set = set(bad_epoch_idx)
+    global_bad_channels = global_bad_channels or []
+
+    # 0=good, 1=interpolated, 2=bad
+    status = np.zeros((n_epochs, n_channels), dtype=int)
+
+    ch_to_idx = {ch: i for i, ch in enumerate(ch_names)}
+
+    # 1) Canales malos globales -> interpolados en todos los epochs
+    for ch in global_bad_channels:
+        if ch in ch_to_idx:
+            status[:, ch_to_idx[ch]] = 1
+
+    # 2) Canales malos por epoch
+    for ep_idx, bads in enumerate(bad_ch_in_epochs):
+        if bads is None:
+            continue
+
+        for ch in bads:
+            if ch not in ch_to_idx:
+                continue
+
+            ch_idx = ch_to_idx[ch]
+
+            # Si el epoch se va a rechazar, ese canal lo marcamos en rojo
+            # Si no, lo consideramos interpolado (azul)
+            if ep_idx in bad_epoch_set:
+                status[ep_idx, ch_idx] = 2
+            else:
+                status[ep_idx, ch_idx] = 1
+
+    # Colormap: good / interpolated / bad
+    cmap = ListedColormap(["#8ddc83", "#0000ff", "#ff1a1a"])
+    norm = BoundaryNorm([-0.5, 0.5, 1.5, 2.5], cmap.N)
+
+    fig, ax = plt.subplots(figsize=(max(8, n_channels * 0.6), max(5, n_epochs * 0.35)))
+    im = ax.imshow(status, cmap=cmap, norm=norm, aspect="auto", interpolation="none")
+
+    ax.set_xticks(np.arange(n_channels))
+    ax.set_xticklabels(ch_names, rotation=90)
+    ax.set_yticks(np.arange(n_epochs))
+    ax.set_ylabel("Epochs")
+    ax.set_xlabel("Channels")
+    ax.set_title(title)
+
+    # Borde rojo para epochs malos
+    for ep_idx in bad_epoch_idx:
+        rect = Rectangle(
+            (-0.5, ep_idx - 0.5),
+            n_channels,
+            1,
+            fill=False,
+            edgecolor="red",
+            linewidth=1.5
+        )
+        ax.add_patch(rect)
+
+    # Leyenda manual
+    import matplotlib.patches as mpatches
+    legend_handles = [
+        mpatches.Patch(color="#8ddc83", label="good"),
+        mpatches.Patch(color="#0000ff", label="interpolated"),
+        mpatches.Patch(color="#ff1a1a", label="bad"),
+    ]
+    ax.legend(handles=legend_handles, loc="upper left", bbox_to_anchor=(0, 1.02), ncol=3)
+
+    plt.tight_layout()
+    plt.show()
+
+    return status
+
+def _raw_to_epochs(raw, tmin=0.0, tmax=4.0, anotationsNames=["left_hand", "right_hand", "feet"]):
+    """
+    Epoquiza un Raw ya preprocesado por el pipeline.
+    Las anotaciones ya están renombradas (left_hand, right_hand, feet)
+    y el Raw ya tiene 45 canales gracias a SpatialInterpolator.
+    """
+    events, event_id = mne.events_from_annotations(raw)
+    event_id_filtrado = {k: v for k, v in event_id.items() if k in anotationsNames}
+    epochs = mne.Epochs(
+        raw,
+        events=events,
+        event_id=event_id_filtrado,
+        tmin=tmin, tmax=tmax,
+        baseline=None, preload=True,
+    )
+
+    return epochs
+
+
+def fif_to_epochs(path, anotationsNames=["left_hand", "right_hand", "feet"]):
+    ''' 
+    Lee un archivo .fif, lo preprocesa con el pipeline y lo epoquiza. 
+    Devuelve un objeto mne.Epochs listo para aplicar FASTER.
+    '''
+    raw = mne.io.read_raw_fif(path, preload=True, verbose=False)
+    raw = raw.set_eeg_reference('average')
+    raw = raw.pick_types(meg=False, eeg=True, eog=False)
+    #raw.filter(0.3, None, method="fir") # filtro de alta frecuencia para mejorar la detección de artefactos por parte de FASTER
+    _raw_pipeline = RawProcessorPipeline([
+                # NotchFilter(50.0),
+                BandpassFilter(8.0, 30.0), # filtro de banda para mejorar la detección de artefactos por parte de AutoReject
+                AnnotationRenamer(LABEL_MAP),
+                # CARReference(),
+                # Resampler(250),
+                # ICAProcessor(),
+            ])
+    
+    raw = _raw_pipeline.process(raw)
+    epoch = _raw_to_epochs(raw, anotationsNames = anotationsNames)
+
+    return epoch
+
+
+def plot_epochs(epochs):
+    ''' Función auxiliar para visualizar los epochs antes de aplicar FASTER. '''
+    epoch_cop = epochs.copy()
+    epoch_cop.set_eeg_reference("average")
+    evoked = epoch_cop.average()
+    evoked.plot()
+
+
+# FASTER test functions ─────────────────────────────────────────────────────
+
+def test_faster_thresholds(epochs):
+    ''' 
+    Prueba diferentes umbrales para FASTER y muestra los canales y epochs marcados como malos.
+    Esto es útil para entender cómo afecta el umbral a la detección de artefactos. 
+    Se puede comparar con los resultados obtenidos por nuestro pipeline para elegir un umbral adecuado.
+    '''
+    for th in [2.5, 3.0, 3.5, 4.0]:
+        bad_chs = find_bad_channels(epochs, thres=th, eeg_ref_corr=False)
+        bad_eps = find_bad_epochs(epochs, thres=th)
+        print(f"Threshold = {th}")
+        print("  Bad channels:", bad_chs)
+        print("  Num bad epochs:", len(bad_eps))
+  
+def test_faster(epoch):
+
+    epoch_test = epoch.copy()
+    thres_in = input("Escribe el umbral para FASTER (default: 3.0): ").strip()
+    thres = float(thres_in) if thres_in else 3.0
+    # Compute evoked before cleaning, using an average EEG reference
+    epoch_before = epoch_test.copy()
+
+    # Aplicamos FASTER a los epochs procesados por nuestro pipeline
+    # No se puede palicar FASTER directamente porque no tenemos canales eog 
+    # cleaned = run_faster(single_epoch, thres=3.0, copy=True)
+
+    # Step 1: mark bad channels
+    # montage = mne.channels.make_standard_montage("standard_1020")
+    # epoch.set_montage(montage, on_missing="ignore")
+    epoch_test.info["bads"] = find_bad_channels(epoch_test, thres=thres, eeg_ref_corr=False)
+    
+    # Step 2: bad epochs según FASTER
+    bad_epoch_idx = find_bad_epochs(epoch_test,thres=thres)  # devuelve lista de índices
+
+    # Step 3: bad channels in epochs
+    bad_ch_in_epochs = find_bad_channels_in_epochs(epoch_test, thres=thres)
+
+    print(f"FASTER bad channels : {epoch_test.info['bads']}")
+    print(f"FASTER bad epochs   : {bad_epoch_idx}")
+    print(f"Nº de epochs antes  : {len(epoch_test)}")
+
+    print(type(bad_ch_in_epochs))
+    print(bad_ch_in_epochs)
+
+    # ---- PLOT LOG ANTES DE MODIFICAR EPOCHS ----
+    plot_faster_heatmap(
+        epoch_before,
+        bad_epoch_idx=bad_epoch_idx,
+        bad_ch_in_epochs=bad_ch_in_epochs,
+        global_bad_channels=epoch_test.info["bads"],
+        title="FASTER heatmap"
+    )
+
+    # Interpolar canales malos (opcional pero recomendado antes de drop epochs)
+    if epoch_test.info["bads"]:
+        epoch_test.interpolate_bads(reset_bads=True)
+
+    # Interpolar canales malos en epochs
+    for i, bads in enumerate(bad_ch_in_epochs):
+        if not bads:
+            continue
+
+        ep = epoch_test[i].copy()   # Epochs con 1 solo epoch
+        ep.info["bads"] = bads
+        ep.interpolate_bads(reset_bads=True)
+
+        epoch_test._data[i] = ep.get_data()[0]
+
+    # Descartar epochs malos
+    epoch_test.drop(bad_epoch_idx, reason="FASTER")
+
+    print(f"Nº de epochs después: {len(epoch_test)}")
+
+    plot_epochs(epoch_before)  # visualiza los epochs antes de FASTER
+    plot_epochs(epoch_test)  # visualiza los epochs limpios después de FASTER
+
+
+# AutoReject test function ─────────────────────────────────────────────────────
+
+def test_autoreject_global(epoch):
+    ''' 
+    Opción A — umbral global automático (rápido, 1 línea)
+    Aprende el umbral óptimo por validación cruzada y descarta los epochs malos.
+    Solo sirve para decartar epochs enteros, no para interpolar canales malos dentro de un epoch.
+    '''
+
+    inicio = time.perf_counter()
+    # Opción A — umbral global automático (rápido, 1 línea)
+    # Aprende el umbral óptimo por validación cruzada
+    reject = get_rejection_threshold(epoch)  
+    # → {'eeg': 0.000087}  (en voltios, MNE usa V no µV)
+    epochs_clean = epoch.drop_bad(reject=reject)
+
+    fin = time.perf_counter()
+    print(f"Tiempo de ejecución: {fin - inicio:.6f} segundos")
+    # Hay que hacerlo de esta forma para obtener el log con mne
+    # 1. Qué trials se descartaron y por qué canal
+    #print(epochs_clean.drop_log)
+    # → ('IGNORED',) para los buenos
+    # → ('EEG 003',) para los descartados, con el canal culpable
+
+    # 2. Índices de trials descartados
+    bad_idx = [i for i, log in enumerate(epochs_clean.drop_log) if len(log) > 0]
+    print(f"Trials descartados: {bad_idx}")
+
+    # 3. Resumen visual
+    epochs_clean.plot_drop_log()  # gráfico de barras por canal
+    plot_epochs(epochs_clean)  # visualiza los epochs limpios después de AutoReject
+
+def test_autoreject_slow(epoch):
+    '''
+    Completo (más potente pero más lento) 
+    que aprende umbrales distintos por canal y por trial, e interpola los canales malos en vez de descartar el trial entero.
+    '''
+
+    # Opción B — AutoReject completo (más potente)
+    # Aprende umbrales DISTINTOS por electrodo, e interpola
+    # los canales malos en cada trial en vez de descartar el trial entero
+    ar = AutoReject(n_interpolate=[1, 2, 4],consensus=[0.3],random_state=42)
+
+
+    ar.fit(epoch)
+
+    inicio = time.perf_counter()
+    epochs_clean, reject_log = ar.transform(epoch, return_log=True)
+
+    fin = time.perf_counter()
+    print(f"Tiempo de ejecución: {fin - inicio:.6f} segundos")
+
+    # Ver qué trials/canales fueron problemáticos
+    reject_log.plot()        # mapa de calor: trials × canales
+    scalings = dict(eeg=1)
+    reject_log.plot_epochs(epoch, scalings=scalings)  # visualiza los trials rechazados
+    plot_epochs(epochs_clean)  # visualiza los epochs limpios después de AutoReject
+
+    print(f"Nº de epochs después: {len(epochs_clean)}")
+    print("Bad epochs:", reject_log.bad_epochs)
+    print("Nº bad epochs:", reject_log.bad_epochs.sum())
+
+def show_thresholds(epochs):
+    picks = mne.pick_types(epochs.info, eeg=True)
+    threshes = compute_thresholds(epochs, picks=picks, method='bayesian_optimization',
+                                  random_state=42, augment=False, verbose=True)
+
+    # EEG: los umbrales vienen en Voltios → convertir a µV
+    unit    = 'µV'
+    scaling = 1e6  # V → µV
+
+    valores = scaling * np.array(list(threshes.values()))
+    print(f"Rango de umbrales: {valores.min():.1f} – {valores.max():.1f} µV")
+
+    plt.figure(figsize=(6, 5))
+    plt.hist(valores, bins=30, color='steelblue', alpha=0.6, edgecolor='white')
+    plt.xlabel(f'Umbral ({unit})')
+    plt.ylabel('Número de canales')
+    plt.xlim((valores.min() * 0.8, valores.max() * 1.2))  # ajuste automático
+    plt.tight_layout()
+    plt.show()
+
+'''
+en epoch processor
+
+ar = AutoReject(
+    n_interpolate=[1, 2, 4],
+    consensus=[0.6, 0.7, 0.8],
+    cv=10,
+    picks='eeg',
+    verbose=True
+)
+
+ar.fit(epochs_calib)          # aprende thresholds y parámetros
+------------------------------------------
+
+cuándos e vaya a usar:
+epoch_clean, log = ar.transform(epoch_rt, return_log=True)
+'''
+
+# Reimannian Potato test function ─────────────────────────────────────────────────────
+
+def test_riemannian_potato(epoch):
+
+    rejector = RiemannianEpochRejector(
+    potato_threshold=3.0,
+    cov_estimator="scm",
+    cov_regularization=1e-5,
+    enforce_spd=True,
+    channel_z_thresh=4.0,
+    max_bad_channels_interp=2,
+    max_bad_channels_drop=4,
+    )
+
+    rejector.fit(epoch)
+
+    epochs_clean, reject_log = rejector.transform(epoch)
+
+    print(reject_log.summary())
+
+    rejector.plot_channel_heatmap(reject_log)
+    rejector.plot_epoch_summary(reject_log)
+    rejector.plot_potato_distances()
+    rejector.plot_potato()
+
+    return
+
+
+def main() -> None:
+    anotationsNames=["right_hand", "left_hand", "feet"]
+    fif_path = "EEG_controller_app/recordings/suj1_2_raw.fif"
+    epoch = fif_to_epochs(fif_path, anotationsNames=anotationsNames)
+
+    #test_faster_thresholds(epochs=epoch)
+    #test_faster(epoch=epoch)
+
+    #test_autoreject_global(epoch=epoch)
+    test_autoreject_slow(epoch=epoch)
+    #show_thresholds(epochs=epoch)
+
+    #test_riemannian_potato(epoch=epoch)
+
+
+if __name__ == "__main__":
+    main()
