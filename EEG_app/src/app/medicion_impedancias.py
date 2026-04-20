@@ -2,29 +2,14 @@ from sys import platform
 from rich.table import Table
 from rich.text import Text
 from rich.progress import Progress
-import time
-import numpy as np
-
-from brainaccess.utils import acquisition
-from brainaccess.core.eeg_manager import EEGManager
 
 from app.app_utils import seleccionarPuertoCOM
 from app.configuracion_canales import ChannelConfig
 from app.visualizar_impedancias import visualizar_impedancias
+from components.EEG_BrainAccess.ImpedanceMeter import ImpedanceMeter
 
 def mapear_impedancias(lecturas: list[float], canales: list[ChannelConfig]) -> dict[str, float]:
-    """
-    Dado un listado de lecturas de impedancia (en el mismo orden que los canales habilitados)
-    y la configuración de canales, devuelve un diccionario {nombre_electrodo: impedancia}.
-    """
-    resultado = {}
-    idx = 0
-    for ch in canales:
-        if ch.enabled:
-            resultado[ch.electrode] = lecturas[idx]
-            idx += 1
-
-    return resultado
+    return ImpedanceMeter(puerto_com="", canales=canales).to_map(raw=lecturas)
 
 def build_channels_table(canales, lecturas) -> Table:
     table = Table(title="Estado de Canales")
@@ -64,33 +49,8 @@ def menu_post_impedancias(console):
     return opcion
 
 def medir_impedancias(puerto_com, canales, console):
-    electrodes = {ch.index: ch.electrode for ch in canales if ch.enabled}
-    imp = None
-
-    eeg = acquisition.EEG()
-
-    with EEGManager() as mgr:
-        eeg.setup(
-            mgr=mgr,
-            port=puerto_com,
-            cap=electrodes,
-            gain=8,
-            bias=[]
-        )
-
-        eeg.start_impedance_measurement()
-
-        start_time = time.time()
-        while time.time()-start_time < 20:
-            time.sleep(1)
-            imp = eeg.calc_impedances()
-            console.print(imp)
-
-        eeg.stop_impedance_measurement()
-        mgr.disconnect()
-    
-    eeg.close()
-
+    meter = ImpedanceMeter(puerto_com=puerto_com, canales=canales)
+    imp = meter.measure(console=console)
     console.input("Medición de impedancias finalizada. Pulse Enter para continuar...")
     return imp
 

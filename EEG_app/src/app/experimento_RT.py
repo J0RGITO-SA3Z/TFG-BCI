@@ -96,8 +96,9 @@ def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral
             interpreter_process.stop()
 
         mgr.disconnect()
-
         live_server.stop()
+
+    eeg.cerrarLibreria()
 
 def interfaz_experimento_RT(channelsConfig, console):
     console.print("Bienvenido al experimento de entrenamiento y prediccion en tiempo real.")

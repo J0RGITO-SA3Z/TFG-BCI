@@ -5,7 +5,7 @@ from pathlib import Path
 
 import serial.tools.list_ports
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 RECORD_DIR = BASE_DIR / "recordings"
 ACTIONS_CONF_DIR = BASE_DIR / "config" /"actions"
 DEFAULT_ACTIONS_CONFIG_FILE = BASE_DIR / "config" / "default" / "default_actions.json"
