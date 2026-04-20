@@ -17,4 +17,4 @@ if (-not (conda env list | Select-String $envName)) {
 }
 
 conda activate $envName
-python src\aplicacion.py
+python EEG_app\src\app\aplicacion.py
