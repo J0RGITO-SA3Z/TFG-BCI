@@ -37,12 +37,14 @@ Write-Host ""
 # -----------------------------
 Write-Host "[2/5] Creando entorno Conda..." -ForegroundColor Cyan
 
-if (-not (conda env list | Select-String $envName)) {
-    conda env create -f $envFile -n $envName
-    Write-Host "[OK] Entorno creado" -ForegroundColor Green
-} else {
-    Write-Host "El entorno ya existe, se omite la creacion" -ForegroundColor Yellow
+if (conda env list | Select-String $envName) {
+    Write-Host "El entorno '$envName' ya existe, eliminando para recrearlo desde cero..." -ForegroundColor Yellow
+    conda env remove -n $envName -y
+    Write-Host "[OK] Entorno anterior eliminado" -ForegroundColor Green
 }
+
+conda env create -f $envFile -n $envName
+Write-Host "[OK] Entorno creado" -ForegroundColor Green
 
 Write-Host ""
 
