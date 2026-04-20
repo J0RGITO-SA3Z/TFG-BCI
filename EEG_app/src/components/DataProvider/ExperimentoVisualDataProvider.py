@@ -1,4 +1,5 @@
 import random
+import socket
 import sys, os
 import time
 from typing import List, Optional
@@ -15,7 +16,7 @@ if SRC_ROOT not in sys.path:
 from components.DataProvider.DataProvider import DataProvider
 from components.DataProvider.FifDataProvider import LABEL_MAP, _raw_to_epochs
 from app.EEGRecorder import EEGRecorder
-from app.tcp.eeg_live_server import EEGLiveServer
+from app.tcp.eeg_live_server import EEGLiveServer, PORT
 from components.RawProcessing.AnnotationRenamer import AnnotationRenamer
 from components.RawProcessing.BandpassFilter import BandpassFilter
 from components.RawProcessing.RawProcessorPipeline import RawProcessorPipeline
@@ -112,6 +113,25 @@ class ExperimentoVisualDataProvider(DataProvider):
             )
             live_server.start()
             eeg.register_callback(live_server.newChunk)
+
+            #Obtengo mi IP
+            try:
+                _s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                _s.connect(("8.8.8.8", 80))
+                local_ip = _s.getsockname()[0]
+                _s.close()
+            except Exception:
+                local_ip = "127.0.0.1"
+
+            print(f"\n{'='*52}")
+            print(f"  Servidor EEG listo")
+            print(f"  IP:     {local_ip}")
+            print(f"  Puerto: {PORT}")
+            print(f"{'='*52}")
+            print("  Conecta el visualizador desde el otro portátil")
+            print("  y pulsa INTRO cuando estés listo para empezar.")
+            print(f"{'='*52}\n")
+            input()
 
             ventana = ventanaExperimentoVisual()
             ventana.open()
