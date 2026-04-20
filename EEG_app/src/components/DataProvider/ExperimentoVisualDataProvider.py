@@ -19,7 +19,7 @@ from app.tcp.eeg_live_server import EEGLiveServer
 from components.RawProcessing.AnnotationRenamer import AnnotationRenamer
 from components.RawProcessing.BandpassFilter import BandpassFilter
 from components.RawProcessing.RawProcessorPipeline import RawProcessorPipeline
-from app.ventanaExperimentoVisual import ventanaExperimentoVisual
+from util.ventanaExperimentoVisual import ventanaExperimentoVisual
 
 
 class ExperimentoVisualDataProvider(DataProvider):
@@ -127,21 +127,21 @@ class ExperimentoVisualDataProvider(DataProvider):
             time.sleep(9.5)
             winsound.Beep(1000, 500)
 
-            for trial in trials:
+            for i, trial in enumerate(trials, start=1):
                 trial_str = str(trial)
                 live_server.setAction(trial_str)
                 live_server.increaseEpoch()
 
-                ventana.draw_text("+")
+                ventana.draw_text("+", current=i, total=total_trials)
                 eeg.anotar("CROSS")
                 time.sleep(self._tmp_baseline_epoch - 0.5)
                 winsound.Beep(1000, 500)
 
-                ventana.draw_text(self._trial_to_text(trial_str))
+                ventana.draw_text(self._trial_to_text(trial_str), current=i, total=total_trials)
                 eeg.anotar(trial_str)
 
                 time.sleep(self._tmp_im)
-                ventana.draw_text("")
+                ventana.draw_text("", current=i, total=total_trials)
                 eeg.anotar("BLANK")
 
                 time.sleep(self._tmp_break)

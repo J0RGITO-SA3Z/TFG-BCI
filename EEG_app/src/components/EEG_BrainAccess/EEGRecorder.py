@@ -66,13 +66,8 @@ class EEGRecorder:
 
     def get_info(self):
         sfreq = self.mgr.get_sample_frequency()
-        ch_names = [x for x in self.nombreCanales.values()]
-
-
-        ch_types = ['eeg'] * (len(ch_names) - 5)
-        ch_types.extend(["misc"] * 3)
-        ch_types.append("stim")
-        ch_types.append("syst")
+        ch_names = self.get_ch_names_ordered()
+        ch_types = self.get_ch_types_ordered()
 
         info = mne.create_info(ch_names=ch_names, ch_types=ch_types, sfreq=sfreq)
         info.set_montage("standard_1005")
@@ -148,14 +143,13 @@ class EEGRecorder:
 
         self.channelConfig = channelConfig
         self.gain = multiplier_to_gain_mode(gain)
-        self._init_channel_mappings() # inicializa indiceCanal y nombreCanal
-        self.info = self.get_info()
-        self.data = EEGData(self.info, lock=self.dataLock, zeros_at_start=0)
+        self._init_channel_mappings()
 
     def iniciarGrabacion(self):
         asyncio.run(self._inicarGrabacion())
-        print(self.indiceCanales)
-        print(self.nombreCanales)
+        # Los índices hardware ya están disponibles: construimos Info y EEGData con orden correcto
+        self.info = self.get_info()
+        self.data = EEGData(self.info, lock=self.dataLock, zeros_at_start=0)
 
     async def _detenerGrabacion(self):
         return await self.mgr.stop_stream()
