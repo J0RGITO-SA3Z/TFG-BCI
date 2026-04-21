@@ -73,22 +73,23 @@ if (-not (Test-Path $extractDir)) {
     Expand-Archive -Path $zipFile -DestinationPath $extractDir -Force
     Remove-Item $zipFile
 
-    $pythonApiPath = Join-Path $extractDir "PythonAPI"
-
-    if (-not (Test-Path $pythonApiPath)) {
-        Write-Error "No se encontro la carpeta PythonAPI"
-        exit 1
-    }
-
-    Write-Host "Instalando BrainAccess en el entorno activo..." -ForegroundColor Cyan
-    Push-Location $pythonApiPath
-    pip install .
-    Pop-Location
-
-    Write-Host "[OK] BrainAccess SDK instalado" -ForegroundColor Green
 } else {
-    Write-Host "BrainAccess ya esta instalado, se omite" -ForegroundColor Yellow
+    Write-Host "Carpeta BrainAccess ya existe, se omite la descarga" -ForegroundColor Yellow
 }
+
+$pythonApiPath = Join-Path $extractDir "PythonAPI"
+
+if (-not (Test-Path $pythonApiPath)) {
+    Write-Error "No se encontro la carpeta PythonAPI"
+    exit 1
+}
+
+Write-Host "Instalando BrainAccess en el entorno activo..." -ForegroundColor Cyan
+Push-Location $pythonApiPath
+pip install .
+Pop-Location
+
+Write-Host "[OK] BrainAccess SDK instalado" -ForegroundColor Green
 
 Write-Host ""
 

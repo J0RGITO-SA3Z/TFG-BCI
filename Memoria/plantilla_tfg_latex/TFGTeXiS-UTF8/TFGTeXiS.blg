@@ -1,0 +1,82 @@
+This is BibTeX, Version 0.99e
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: TFGTeXiS.aux
+Reallocating 'name_of_file' (item size: 1) to 19 items.
+A level-1 auxiliary file: Cascaras/cover.aux
+Reallocating 'name_of_file' (item size: 1) to 25 items.
+A level-1 auxiliary file: Cascaras/dedicatoria.aux
+Reallocating 'name_of_file' (item size: 1) to 29 items.
+A level-1 auxiliary file: Cascaras/agradecimientos.aux
+Reallocating 'name_of_file' (item size: 1) to 21 items.
+A level-1 auxiliary file: Cascaras/resumen.aux
+Reallocating 'name_of_file' (item size: 1) to 22 items.
+A level-1 auxiliary file: Cascaras/abstract.aux
+Reallocating 'name_of_file' (item size: 1) to 20 items.
+A level-1 auxiliary file: TeXiS/TeXiS_toc.aux
+Reallocating 'name_of_file' (item size: 1) to 27 items.
+A level-1 auxiliary file: Capitulos/Introduccion.aux
+Reallocating 'name_of_file' (item size: 1) to 33 items.
+A level-1 auxiliary file: Capitulos/EstadoDeLaCuestion.aux
+Reallocating 'name_of_file' (item size: 1) to 33 items.
+A level-1 auxiliary file: Capitulos/DescripcionTrabajo.aux
+Reallocating 'name_of_file' (item size: 1) to 40 items.
+A level-1 auxiliary file: Capitulos/ConclusionesTrabajoFuturo.aux
+Reallocating 'name_of_file' (item size: 1) to 27 items.
+A level-1 auxiliary file: Capitulos/Introduction.aux
+Reallocating 'name_of_file' (item size: 1) to 36 items.
+A level-1 auxiliary file: Capitulos/ConclusionsFutureWork.aux
+Reallocating 'name_of_file' (item size: 1) to 39 items.
+A level-1 auxiliary file: Capitulos/ContribucionesPersonales.aux
+Reallocating 'name_of_file' (item size: 1) to 26 items.
+A level-1 auxiliary file: Cascaras/bibliografia.aux
+Reallocating 'name_of_file' (item size: 1) to 12 items.
+The style file: TeXiS/TeXiS.bst
+Reallocating 'name_of_file' (item size: 1) to 7 items.
+Reallocating 'name_of_file' (item size: 1) to 24 items.
+A level-1 auxiliary file: Apendices/appendixA.aux
+Reallocating 'name_of_file' (item size: 1) to 24 items.
+A level-1 auxiliary file: Apendices/appendixB.aux
+Reallocating 'name_of_file' (item size: 1) to 17 items.
+A level-1 auxiliary file: Cascaras/fin.aux
+Database file #1: biblio.bib
+You've used 6 entries,
+            2962 wiz_defined-function locations,
+            1123 strings with 13407 characters,
+and the built_in function-call counts, 3271 in all, are:
+= -- 216
+> -- 149
+< -- 3
++ -- 63
+- -- 51
+* -- 237
+:= -- 511
+add.period$ -- 18
+call.type$ -- 6
+change.case$ -- 42
+chr.to.int$ -- 6
+cite$ -- 6
+duplicate$ -- 260
+empty$ -- 276
+format.name$ -- 63
+if$ -- 640
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 59
+newline$ -- 34
+num.names$ -- 25
+pop$ -- 142
+preamble$ -- 1
+purify$ -- 41
+quote$ -- 0
+skip$ -- 99
+stack$ -- 0
+substring$ -- 72
+swap$ -- 113
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 42
+warning$ -- 0
+while$ -- 18
+width$ -- 0
+write$ -- 76

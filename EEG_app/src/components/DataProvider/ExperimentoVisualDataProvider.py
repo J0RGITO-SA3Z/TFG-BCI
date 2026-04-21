@@ -28,7 +28,7 @@ class ExperimentoVisualDataProvider(DataProvider):
     DataProvider que ejecuta un experimento visual online
     """
 
-    def __init__(self, puerto_COM, channelsConfig, numTrialsClase, lista, tmp_baseline_inicial = 30, tmp_baseline_epoch = 2, tmp_break = 2, tmp_im = 4):
+    def __init__(self, puerto_COM, channelsConfig, numTrialsClase, lista, tmp_baseline_inicial = 20, tmp_baseline_epoch = 2, tmp_break = 2, tmp_im = 4):
         self._puerto_COM = puerto_COM
         self._channelsConfig = channelsConfig
         self._num_trials_clase = int(numTrialsClase)
@@ -69,8 +69,6 @@ class ExperimentoVisualDataProvider(DataProvider):
             return "->"
         if trial_upper in ("ABAJO", "FEET"):
             return "v"
-        if trial_upper in ("DESCANSO", "REST"):
-            return "NADA"
         return str(trial)
 
     def _get_event_filter_names(self) -> List[str]:
@@ -138,14 +136,14 @@ class ExperimentoVisualDataProvider(DataProvider):
 
             eeg.iniciarGrabacion()
 
+            time.sleep(1)
             ventana.draw_text("Baseline")
             live_server.setAction("Baseline")
-            time.sleep(self._tmp_baseline_inicial)
+            eeg.anotar("INICIO_BASELINE")
 
-            ventana.draw_text("Concentrate")
-            live_server.setAction("Concentrate")
-            time.sleep(9.5)
+            time.sleep(self._tmp_baseline_inicial - 5)
             winsound.Beep(1000, 500)
+            time.sleep(5)
 
             for i, trial in enumerate(trials, start=1):
                 trial_str = str(trial)

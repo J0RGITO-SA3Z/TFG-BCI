@@ -165,7 +165,7 @@ class ExperimentoVisual:
             puerto_COM=puerto_COM,
             channelsConfig=channelsConfig,
             numTrialsClase=num_trials_clase,
-            lista=["IZQUIERDA", "DERECHA", "ABAJO", "DESCANSO"],
+            lista=["IZQUIERDA", "DERECHA", "ABAJO"],
         )
 
         data_provider.get_data(fif_path=fileOutput)

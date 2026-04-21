@@ -15,6 +15,7 @@ from app.visualizacion_directo import visualizacion_directo
 from app.ExperimentoVisual import ExperimentoVisual
 from app.grabacion import startRecording
 from app.medicion_impedancias import medir_impedancias_interactivo
+from app.ver_bateria import ver_bateria
 from app.configuracion_canales import channels_menu
 from app.configuracion_canales import load_default_channel_config
 from app.configuracion_canales import ChannelConfig
@@ -42,13 +43,14 @@ def build_root_menu():
 
     menu.append("  1) Ver / editar configuración de canales\n")
     menu.append("  2) ver / editar lista de acciones\n")
-    menu.append("  3) Test impedancias\n")
-    menu.append("  4) Grabar\n")
-    menu.append("  5) Tiempo real\n")
-    menu.append("  6) Experimento Visual\n")
-    menu.append("  7) Evaluar sujeto MiRepNet\n")
-    menu.append("  8) Experimento Tiempo real\n")
-    menu.append("  9) Salir\n")
+    menu.append("  3) Ver batería del EEG\n")
+    menu.append("  4) Test impedancias\n")
+    menu.append("  5) Grabar\n")
+    menu.append("  6) Tiempo real\n")
+    menu.append("  7) Experimento Visual\n")
+    menu.append("  8) Evaluar sujeto MiRepNet\n")
+    menu.append("  9) Experimento Tiempo real\n")
+    menu.append("  10) Salir\n")
     content = Group(
         header,
         subtitle,
@@ -97,27 +99,30 @@ def main_menu(console):
 
             case "2":
                 menu_acciones(console,acciones)
-        
+
             case "3":
-                medir_impedancias_interactivo(console, channels)
+                ver_bateria(console)
 
             case "4":
-                startRecording(channels, acciones, console)
+                medir_impedancias_interactivo(console, channels)
 
             case "5":
-                asyncio.run(visualizacion_directo(channels, console)) 
-            
+                startRecording(channels, acciones, console)
+
             case "6":
+                asyncio.run(visualizacion_directo(channels, console))
+
+            case "7":
                 experimento = ExperimentoVisual(console)
                 experimento.start(channels)
 
-            case "7":
+            case "8":
                 evaluar_sujeto_MiRepNet(console)
 
-            case "8":
+            case "9":
                 interfaz_experimento_RT(channels, console)
 
-            case "9":
+            case "10":
                 console.print("[bold green]Saliendo del sistema BCI[/bold green]")
                 break
 
