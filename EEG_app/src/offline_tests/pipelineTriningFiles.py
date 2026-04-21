@@ -80,7 +80,7 @@ def run_pipeline(train_provider, test_provider, model_interface, epochs, epoch_p
     }
 
 
-def run_MiRepNet_pipeline(train_fif_paths, test_fif_paths, annotations_names=["left_hand", "right_hand","rest"], epochs=10, validation_split=0.2):
+def run_MiRepNet_pipeline(train_fif_paths, test_fif_paths, annotations_names=["left_hand", "right_hand","feet"], epochs=10, validation_split=0.2):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_provider = FifDataProvider(fif_paths=train_fif_paths, annotations_names=annotations_names)
@@ -118,13 +118,12 @@ def run_MiRepNet_pipeline(train_fif_paths, test_fif_paths, annotations_names=["l
 
 def main():
     train_fif = [
-        "EEG_controller_app/recordings/suj2_1_raw.fif",
-        "EEG_controller_app/recordings/suj2_2_raw.fif",
-        "EEG_controller_app/recordings/suj2_3_raw.fif",
+    "EEG_app/recordings/experimento_visual/suj1/suj1_2_raw.fif",
     ]
 
     test_fif = [
-        "EEG_controller_app/recordings/suj2_4_raw.fif",
+        "EEG_app/recordings/experimento_visual/suj1/suj1_3_raw.fif",
+        "EEG_app/recordings/experimento_visual/suj1/suj1_4_raw.fif",
     ]
 
     run_MiRepNet_pipeline(

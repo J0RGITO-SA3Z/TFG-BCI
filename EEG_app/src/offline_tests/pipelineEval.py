@@ -111,12 +111,10 @@ def run_MiRepNet_pipeline(fif_paths, epochs = 10, validation_split=0.6):
     run_pipeline(dataProvider, modelo, epochs, epoch_training_pipeline, validation_split)
     
 def main():
-    fif_names = ["EEG_controller_app/recordings/suj2_1_raw.fif"]
-    fif_names += ["EEG_controller_app/recordings/suj2_2_raw.fif"]
-    fif_names += ["EEG_controller_app/recordings/suj2_3_raw.fif"]
-    fif_names += ["EEG_controller_app/recordings/suj2_4_raw.fif"]
-    fif_names += ["EEG_controller_app/recordings/suj2_5_raw.fif"]
-    fif_names += ["EEG_controller_app/recordings/suj2_6_raw.fif"]
+    fif_names = ["EEG_app/recordings/experimento_visual/suj1/suj1_1_raw.fif"]
+    fif_names += ["EEG_app/recordings/experimento_visual/suj1/suj1_2_raw.fif"]
+    fif_names += ["EEG_app/recordings/experimento_visual/suj1/suj1_3_raw.fif"]
+    fif_names += ["EEG_app/recordings/experimento_visual/suj1/suj1_4_raw.fif"]
 
     run_MiRepNet_pipeline(fif_paths    = fif_names)
 
