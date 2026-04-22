@@ -1,26 +1,4 @@
-import json
-from pathlib import Path
 from PyQt5 import QtWidgets
-
-_CONFIG_PATH = Path(__file__).parent.parent.parent / "config" / "default" / "default_tcp.json"
-_DEFAULTS = {"host": "127.0.0.1", "port": 12345}
-
-
-def _load_tcp_config() -> dict:
-    try:
-        return {**_DEFAULTS, **json.loads(_CONFIG_PATH.read_text(encoding="utf-8"))}
-    except Exception:
-        return dict(_DEFAULTS)
-
-
-def _save_tcp_config(host: str, port: int) -> None:
-    try:
-        _CONFIG_PATH.write_text(
-            json.dumps({"host": host, "port": port}, indent=2),
-            encoding="utf-8",
-        )
-    except Exception:
-        pass
 
 
 class ConnectionDialog(QtWidgets.QDialog):
@@ -48,14 +26,12 @@ class ConnectionDialog(QtWidgets.QDialog):
             """
         )
 
-        saved = _load_tcp_config()
-
         layout = QtWidgets.QFormLayout(self)
 
-        self.host_edit = QtWidgets.QLineEdit(saved["host"])
+        self.host_edit = QtWidgets.QLineEdit("127.0.0.1")
         self.port_edit = QtWidgets.QSpinBox()
         self.port_edit.setRange(1, 65535)
-        self.port_edit.setValue(saved["port"])
+        self.port_edit.setValue(12345)
 
         layout.addRow("IP:", self.host_edit)
         layout.addRow("Puerto:", self.port_edit)
@@ -66,10 +42,6 @@ class ConnectionDialog(QtWidgets.QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addRow(buttons)
-
-    def accept(self):
-        _save_tcp_config(self.host_edit.text().strip(), self.port_edit.value())
-        super().accept()
 
     def get_connection(self) -> tuple[str, int]:
         """Devuelve (host, port)."""
