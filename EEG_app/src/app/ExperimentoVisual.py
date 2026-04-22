@@ -65,7 +65,7 @@ class ExperimentoVisual:
 
         sexo = ask_opcion("Sexo:", ["Masculino", "Femenino", "Otro", "Prefiero no decirlo"])
         dominancia = ask_opcion("Dominancia manual:", ["Diestro", "Zurdo", "Ambidiestro"])
-        densidad = ask_opcion("Densidad capilar:", ["Sin cabello", "Cabello muy escaso", "Cabello corto y fino", "Cabello corto y grueso", "Cabello largo y fino", "Cabello largo y grueso"])
+        densidad = ask_opcion("Densidad capilar:", ["Fina", "Media", "Gruesa"])
         experiencia_bci = ask_opcion("¿Tiene experiencia previa con BCI?", ["Ninguna", "Poca (1-2 sesiones)", "Moderada (3-10 sesiones)", "Alta (>10 sesiones)"])
         problemas_neurologicos = ask_opcion("¿Tiene algún problema neurológico conocido?", ["No", "Sí"])
         if problemas_neurologicos == "Sí":

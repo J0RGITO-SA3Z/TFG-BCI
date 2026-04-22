@@ -81,9 +81,7 @@ class EEGPlotWidget(pg.PlotWidget):
                 pen=pg.mkPen(color=(180, 180, 180, 70), width=1, style=QtCore.Qt.DashLine),
             )
             self.addItem(guide)
-            self._guides.append(guide)
 
-        self._guides: list[pg.InfiniteLine] = []
         self.curves: list[pg.PlotDataItem] = []
         for i in range(self.n_channels):
             curve = self.plot(pen=pg.mkPen(self.colors[i], width=1.2))
@@ -171,64 +169,3 @@ class EEGPlotWidget(pg.PlotWidget):
             else:
                 normed = (ch - ch_min) / rng * 0.8 - 0.4
             self.curves[i].setData(t, normed + i)
-
-    # ------------------------------------------------------------------ #
-    def reset_info(self, info: mne.Info):
-        """
-        Actualiza el widget con una nueva configuración de canales.
-        Resetea el buffer a ceros. Si cambia el número de canales reconstruye
-        las curvas; si solo cambian los nombres actualiza las etiquetas.
-        """
-        new_n = len(info.ch_names)
-        with self.lock:
-            self.info = info
-            self.sfreq = info["sfreq"]
-            self.channel_names = list(info.ch_names)
-
-            if new_n != self.n_channels:
-                self.n_channels = new_n
-                self.buffer_len = int(self._buffer_seconds * self.sfreq)
-
-                self.eeg_data = EEGData_roll(
-                    info=info,
-                    lock=self.lock,
-                    zeros_at_start=self.buffer_len,
-                )
-                self._sos_filter = butter(4, [1.0, 40.0], btype='band', fs=self.sfreq, output='sos')
-
-                cmap = pg.colormap.get("CET-C6")
-                self.colors = [
-                    cmap.map(i / max(self.n_channels - 1, 1), mode="qcolor")
-                    for i in range(self.n_channels)
-                ]
-
-                for curve in self.curves:
-                    self.removeItem(curve)
-                for guide in self._guides:
-                    self.removeItem(guide)
-
-                self._guides = []
-                for i in range(self.n_channels):
-                    guide = pg.InfiniteLine(
-                        pos=i,
-                        angle=0,
-                        pen=pg.mkPen(color=(180, 180, 180, 70), width=1, style=QtCore.Qt.DashLine),
-                    )
-                    self.addItem(guide)
-                    self._guides.append(guide)
-
-                self.curves = []
-                for i in range(self.n_channels):
-                    curve = self.plot(pen=pg.mkPen(self.colors[i], width=1.2))
-                    self.curves.append(curve)
-
-                self.setYRange(-0.5, self.n_channels - 0.5, padding=0.02)
-                self._add_legend()
-            else:
-                self.eeg_data.data[:] = 0
-
-            y_axis = self.getAxis("left")
-            y_axis.setTicks([[(i, self.channel_names[i]) for i in range(self.n_channels)]])
-            self._last_status = ["ok"] * self.n_channels
-            for i, curve in enumerate(self.curves):
-                curve.setPen(pg.mkPen(self.colors[i], width=1.2))

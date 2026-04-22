@@ -79,13 +79,6 @@ def startRecording(channelsConfig, acciones, console):
         eeg.register_callback(live_server.newChunk)
 
         eeg.iniciarGrabacion()
-
-        live_server.sendInfo(
-            ch_names=eeg.get_ch_names_ordered(),
-            ch_types=eeg.get_ch_types_ordered(),
-            sfreq=eeg.get_sfreq(),
-        )
-
         entrada = -2
         
         while entrada != 1:
