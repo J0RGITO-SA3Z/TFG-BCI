@@ -62,6 +62,7 @@ def ejecutar_cliente_visualizacion():
     receiver = TCPReceiverThread(sock, buf)
     receiver.action_received.connect(win.set_action)
     receiver.epoch_received.connect(win._on_epoch_received)
+    receiver.info_received.connect(win._on_info_received)
     receiver.data_received.connect(
         lambda d: win.plot_widget.push_chunk(d, d.shape[1])
     )

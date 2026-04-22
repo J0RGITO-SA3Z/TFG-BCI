@@ -178,6 +178,18 @@ class EEGWindow(QtWidgets.QMainWindow):
         self.set_current_epoch(current)
 
     # ------------------------------------------------------------------ #
+    def _on_info_received(self, msg: dict):
+        """Actualiza la configuración de canales a mitad de grabación."""
+        ch_names = msg.get("ch_names", list(self.info.ch_names))
+        ch_types = msg.get("ch_types", ["misc"] * len(ch_names))
+        sfreq = float(msg.get("sfreq", self.sfreq))
+        new_info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types=ch_types)
+        self.info = new_info
+        self.sfreq = sfreq
+        self.n_channels = len(ch_names)
+        self.plot_widget.reset_info(new_info)
+
+    # ------------------------------------------------------------------ #
     def start(self):
         """Inicia el refresco visual del gráfico."""
         self._refresh_timer.start(self.update_ms)

@@ -190,6 +190,12 @@ def _server_loop(
                     "current": int(msg["epoch"]),
                     "total": int(msg.get("total", total_epochs)),
                 }
+            elif "info" in msg:
+                info_data = msg["info"]
+                for k in ("ch_names", "ch_types", "sfreq"):
+                    if k in info_data:
+                        init_msg[k] = info_data[k]
+                pkt = {"type": "info", **info_data}
             else:
                 continue
             _broadcast(clients, pkt)
@@ -348,6 +354,14 @@ class EEGLiveServer:
         self.current_epoch = current_epoch
         self.total_epochs = total_epochs
         self.control_queue.put({"epoch": self.current_epoch, "total": self.total_epochs})
+
+    def sendInfo(self, ch_names: Sequence[str], ch_types: str | Sequence[str] = None, sfreq: float = None):
+        payload: dict = {"ch_names": list(ch_names)}
+        if ch_types is not None:
+            payload["ch_types"] = ch_types if isinstance(ch_types, str) else list(ch_types)
+        if sfreq is not None:
+            payload["sfreq"] = float(sfreq)
+        self.control_queue.put({"info": payload})
 
     def stop(self):
         self.control_queue.put(None)

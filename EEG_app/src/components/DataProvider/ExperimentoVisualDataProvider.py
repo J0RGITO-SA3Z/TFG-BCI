@@ -96,12 +96,6 @@ class ExperimentoVisualDataProvider(DataProvider):
                 gain=8,
             )
 
-            self._last_channel_names = [
-                name.upper()
-                for name, ch_type in zip(eeg.get_ch_names_ordered(), eeg.get_ch_types_ordered())
-                if ch_type == "eeg"
-            ]
-
             live_server = EEGLiveServer(
                 ch_names=eeg.get_ch_names_ordered(),
                 sfreq=eeg.get_sfreq(),
@@ -135,6 +129,17 @@ class ExperimentoVisualDataProvider(DataProvider):
             ventana.open()
 
             eeg.iniciarGrabacion()
+
+            self._last_channel_names = [
+                name.upper()
+                for name, ch_type in zip(eeg.get_ch_names_ordered(), eeg.get_ch_types_ordered())
+                if ch_type == "eeg"
+            ]
+            live_server.sendInfo(
+                ch_names=eeg.get_ch_names_ordered(),
+                ch_types=eeg.get_ch_types_ordered(),
+                sfreq=eeg.get_sfreq(),
+            )
 
             time.sleep(1)
             ventana.draw_text("Baseline")

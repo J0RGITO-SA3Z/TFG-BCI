@@ -31,6 +31,7 @@ class TCPReceiverThread(QtCore.QThread):
     action_received = QtCore.pyqtSignal(str)
     epoch_received = QtCore.pyqtSignal(int, int)
     data_received = QtCore.pyqtSignal(np.ndarray)
+    info_received = QtCore.pyqtSignal(dict)
     disconnected = QtCore.pyqtSignal()
 
     def __init__(self, sock: socket.socket, initial_buffer: str = "", parent=None):
@@ -77,6 +78,8 @@ class TCPReceiverThread(QtCore.QThread):
                 int(msg.get("current", 0)),
                 int(msg.get("total", 0)),
             )
+        elif t == "info":
+            self.info_received.emit({k: v for k, v in msg.items() if k != "type"})
         elif t == "data":
             samples = np.asarray(msg["samples"], dtype=np.float64)
             if samples.ndim == 2:
