@@ -444,6 +444,17 @@ OUTPUT Capitulos\ProtocoloAdquisicion.aux
 INPUT .\Capitulos\ProtocoloAdquisicion.tex
 INPUT .\Capitulos\ProtocoloAdquisicion.tex
 INPUT Capitulos\ProtocoloAdquisicion.tex
+INPUT .\Imagenes\Bitmap\electrodos_layout.png
+INPUT .\Imagenes\Bitmap\electrodos_layout.png
+INPUT .\Imagenes\Bitmap\electrodos_layout.png
+INPUT .\Imagenes\Bitmap\electrodos_layout.png
+INPUT .\Imagenes\Bitmap\electrodos_layout.png
+INPUT .\Imagenes\Bitmap\electrodos_layout.png
+INPUT .\Imagenes\Vectorial\estructuraEpoch.pdf
+INPUT .\Imagenes\Vectorial\estructuraEpoch.pdf
+INPUT .\Imagenes\Vectorial\estructuraEpoch.pdf
+INPUT .\Imagenes\Vectorial\estructuraEpoch.pdf
+INPUT .\Imagenes\Vectorial\estructuraEpoch.pdf
 INPUT .\Capitulos\ConclusionesTrabajoFuturo.tex
 INPUT .\Capitulos\ConclusionesTrabajoFuturo.tex
 OUTPUT Capitulos\ConclusionesTrabajoFuturo.aux
