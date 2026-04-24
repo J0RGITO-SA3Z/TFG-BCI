@@ -66,8 +66,8 @@ class RT_pipeline:
                 data, _ = self.epoch_pipeline.process_np(data, [0])
                 data = data[0]
                 prediction, probs = self.pretrained_model.predict(data)
-                interpreter_send_pipe.send((prediction, last_sample, last_timestamp))
-
+                interpreter_send_pipe.send((prediction, last_sample, last_timestamp, probs))
+                
             time.sleep(max(0, next_time - time.perf_counter()))
 
         self.acquisition_thread.join()

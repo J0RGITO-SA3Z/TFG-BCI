@@ -19,7 +19,7 @@ class RT_interpreter_saver(RT_interpreter):
     def _listen(self, filename: Optional[str] = None) -> None:
         while not self.stop_event.is_set():
             if self.pipe.poll(0.01):
-                prediction, last_sample, last_timestamp = self.read_msg()
+                prediction, last_sample, last_timestamp, probs = self.read_msg()
 
                 now = time.perf_counter()
                 delay = now - last_timestamp

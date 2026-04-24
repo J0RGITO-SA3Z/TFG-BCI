@@ -11,6 +11,11 @@ from components.RT_pipe_components.modules.RT_pipeline_process import RT_pipelin
 from components.RT_pipe_components.EEGSimulator import EEGSimulator
 from components.RT_pipe_components.Interpreters.RT_interpreter_process import RT_interpreter_process
 
+# Interpreters del juego
+from components.RT_pipe_components.Interpreters.RT_interpreter_slider import RT_interpreter_slider
+from components.RT_pipe_components.Interpreters.RT_interpreter_resampler  import RT_interpreter_resampler
+from components.RT_pipe_components.Interpreters.RT_interpreter_saver import RT_interpreter_saver
+
 import time
 from rich.console import Console
 
@@ -29,7 +34,7 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, console
     modelPipeline = None
 
     # Crea el interprete en proceso separado para recibir predicciones.
-    interpreter_process = RT_interpreter_process()
+    interpreter_process = RT_interpreter_process(RT_interpreter_saver)
     interpreter_process.start(filename=SalidaPredicciones)
 
     # Crea el pipeline en proceso separado y conecta su salida al interprete.
@@ -63,7 +68,7 @@ def interfaz_experimento_RT(emulation_fif, fif_train, console):
             console.print("El nombre no puede estar vacio.")
 
     base_salida = os.path.normpath(
-        os.path.join(os.path.dirname(__file__), "..","..","EEG_controller_app", "recordings", "experimento_RT")
+        os.path.join(os.path.dirname(__file__), "..", "..", "..", "recordings", "simulations_RT")
     )
 
     carpeta_salida = os.path.join(base_salida, nombre_experimento)
@@ -85,8 +90,8 @@ if __name__ == "__main__":
         
         console = Console()
 
-        fif_train = "EEG_controller_app/recordings/suj2_1_raw.fif"
+        fif_train = "EEG_app/recordings/piloto/suj2/suj2_5_raw.fif"
 
-        emulation_fif = "EEG_controller_app/recordings/suj2_2_raw.fif"
+        emulation_fif = "EEG_app/recordings/piloto/suj2/suj2_6_raw.fif"
 
         interfaz_experimento_RT(emulation_fif, fif_train, console)

@@ -1,13 +1,16 @@
+import json
 import os
 import sys
 from typing import Sequence
 
+import numpy as np
 import torch
 from sklearn.model_selection import train_test_split
 
 SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 MIREPNET_DIR = os.path.join(SRC_ROOT, "components", "pretrainedModels", "MiRepNet")
 WEIGHT_PATH = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
+PLAYER_PARAM_DIR = os.path.normpath(os.path.join(SRC_ROOT, "..", "recordings", "player_param"))
 
 if SRC_ROOT not in sys.path:
     sys.path.insert(0, SRC_ROOT)
@@ -64,6 +67,13 @@ class Training_offline:
 		validation_split : float
 			Fraccion de validacion para train_test_split.
 		"""
+		if self._params_exist():
+			resp = ""
+			while resp not in ("s", "n"):
+				resp = input("¿Cargar los últimos parámetros guardados? (s/n): ").strip().lower()
+			if resp == "s":
+				return self._load_params()
+
 		torch.manual_seed(seed)
 		device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -110,6 +120,40 @@ class Training_offline:
 		viewer = PerformanceViewer()
 		viewer.summary(self.history)
 
+		self._save_params()
+
+		return self.matrix, self.modelo
+
+	# ------------------------------------------------------------------
+	# Persistencia de parámetros del jugador
+	# ------------------------------------------------------------------
+
+	def _params_exist(self) -> bool:
+		return (
+			os.path.isfile(os.path.join(PLAYER_PARAM_DIR, "ea_matrix.npy"))
+			and os.path.isfile(os.path.join(PLAYER_PARAM_DIR, "model_finetuned.pth"))
+			and os.path.isfile(os.path.join(PLAYER_PARAM_DIR, "config.json"))
+		)
+
+	def _save_params(self) -> None:
+		os.makedirs(PLAYER_PARAM_DIR, exist_ok=True)
+		np.save(os.path.join(PLAYER_PARAM_DIR, "ea_matrix.npy"), self.matrix)
+		self.modelo.save(os.path.join(PLAYER_PARAM_DIR, "model_finetuned.pth"))
+		with open(os.path.join(PLAYER_PARAM_DIR, "config.json"), "w") as f:
+			json.dump({"training_clases": list(self.classes)}, f)
+		print(f"Parámetros guardados en: {PLAYER_PARAM_DIR}")
+
+	def _load_params(self):
+		with open(os.path.join(PLAYER_PARAM_DIR, "config.json")) as f:
+			config = json.load(f)
+		device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+		self.matrix = np.load(os.path.join(PLAYER_PARAM_DIR, "ea_matrix.npy"))
+		self.modelo = MiRepNetInterface(
+			device=device,
+			weight_path=os.path.join(PLAYER_PARAM_DIR, "model_finetuned.pth"),
+			training_clases=config["training_clases"],
+		)
+		print(f"Parámetros cargados desde: {PLAYER_PARAM_DIR}")
 		return self.matrix, self.modelo
 
 	def getMatrix(self):
