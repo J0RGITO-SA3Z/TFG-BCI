@@ -17,6 +17,7 @@ class MediaProbabilidades(Decision_filter):
         pred_final = "right_hand" if mean_right > mean_left else "left_hand"
 
         info = {
+            "name": "MediaProbabilidades",
             "mean_left": mean_left,
             "mean_right": mean_right,
             "n_preds": n,

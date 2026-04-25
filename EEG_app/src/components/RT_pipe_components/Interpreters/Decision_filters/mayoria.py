@@ -9,6 +9,7 @@ class Mayoria(Decision_filter):
         pred_final = counter.most_common(1)[0][0]
 
         info = {
+            "name": "Mayoria",
             "n_preds": len(window_predictions),
             "mean_delay": sum(window_delays) / len(window_delays) if window_delays else None,
         }

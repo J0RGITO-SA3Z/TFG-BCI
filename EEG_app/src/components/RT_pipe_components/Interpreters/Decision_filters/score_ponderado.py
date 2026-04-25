@@ -18,6 +18,7 @@ class ScorePonderado(Decision_filter):
         pred_final = "right_hand" if score_total > 0 else "left_hand"
 
         info = {
+            "name": "ScorePonderado",
             "score_total": score_total,
             "mean_score": sum(scores) / len(scores) if scores else 0,
             "n_preds": len(scores),

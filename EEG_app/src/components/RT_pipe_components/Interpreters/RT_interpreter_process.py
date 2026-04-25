@@ -8,16 +8,17 @@ from .RT_interpreter_saver import RT_interpreter_saver
 
 
 class RT_interpreter_process:
-    def __init__(self, interpreter_cls: Type[RT_interpreter] = RT_interpreter_saver):
+    def __init__(self, interpreter_cls: Type[RT_interpreter] = RT_interpreter_saver, game_pipe=None):
         self.interpreter_cls = interpreter_cls
+        self.game_pipe = game_pipe
         self.stop_event = mp.Event()
         self.process = None
         self._recv_pipe = None
         self._send_pipe = None
 
     @staticmethod
-    def _process_target(recv_pipe, stop_event, filename: Optional[str], interpreter_cls: Type[RT_interpreter]):
-        interpreter = interpreter_cls(recv_pipe, stop_event)
+    def _process_target(recv_pipe, stop_event, filename: Optional[str], interpreter_cls: Type[RT_interpreter], game_pipe):
+        interpreter = interpreter_cls(recv_pipe, stop_event, game_pipe)
         interpreter.start(filename)
 
     def start(self, filename: Optional[str] = None) -> None:
@@ -29,7 +30,7 @@ class RT_interpreter_process:
 
         self.process = mp.Process(
             target=self._process_target,
-            args=(self._recv_pipe, self.stop_event, filename, self.interpreter_cls),
+            args=(self._recv_pipe, self.stop_event, filename, self.interpreter_cls, self.game_pipe),
             daemon=True,
         )
         self.process.start()

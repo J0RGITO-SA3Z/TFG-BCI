@@ -44,6 +44,7 @@ class ExponentialSmoothing(Decision_filter):
             pred_final = "rest"  # no suficientemente seguro
 
         info = {
+            "name": "ExponentialSmoothing",
             "p_left_smooth": p_smooth[0],
             "p_right_smooth": p_smooth[1],
             "alpha": self.alpha,

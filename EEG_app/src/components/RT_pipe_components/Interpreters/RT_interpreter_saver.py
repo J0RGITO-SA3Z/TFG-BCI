@@ -10,8 +10,8 @@ from .RT_interpreter import RT_interpreter
 class RT_interpreter_saver(RT_interpreter):
     """Interprete que acumula predicciones y las guarda en CSV al detenerse."""
 
-    def __init__(self, pipe, stop_event):
-        super().__init__(pipe, stop_event)
+    def __init__(self, pipe, stop_event, game_pipe=None):
+        super().__init__(pipe, stop_event, game_pipe)
         self.predictions = []
         self.samples = []
         self.delays = []

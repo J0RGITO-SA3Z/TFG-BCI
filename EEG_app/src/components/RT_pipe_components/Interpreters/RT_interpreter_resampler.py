@@ -12,8 +12,8 @@ TIEMPO_VENTANA = 1.0 # en segundos
 class RT_interpreter_resampler(RT_interpreter):
     """Interprete que acumula predicciones y las guarda en CSV al detenerse."""
 
-    def __init__(self, pipe, stop_event):
-        super().__init__(pipe, stop_event)
+    def __init__(self, pipe, stop_event, game_pipe=None):
+        super().__init__(pipe, stop_event, game_pipe)
 
         # resultados finales (una fila por segundo)
         self.final_predictions = []
@@ -100,7 +100,7 @@ class RT_interpreter_resampler(RT_interpreter):
 
         print(f"Predicción: {pred_final}, Info: {info}, Sample: {self.window_samples[-1]:.3f} s")
 
-        # TODO LLAMAR AL PROCESADO DE LOS DATOS (AIMBOT + JUEGO)
+        self._send_to_game(pred_final, info)
 
         # reset ventana
         self.window_predictions.clear()

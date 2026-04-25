@@ -32,6 +32,7 @@ class IntegradorFuga(Decision_filter):
             pred_final = None
 
         info = {
+            "name ": "IntegradorFuga",
             "integrator": self.integrator,
             "threshold": self.threshold,
         }

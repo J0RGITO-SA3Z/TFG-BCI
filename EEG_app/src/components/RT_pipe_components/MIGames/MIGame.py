@@ -13,14 +13,14 @@ class MIGame(ABC):
         self.pipe = pipe
         self.stop_event = stop_event
 
-    def read_msg(self) -> Tuple[Any, Any, Any]:
-        """Lee un mensaje del pipe y lo devuelve como (Decider, Prediction, Prob)."""
+    def read_msg(self) -> Tuple[Any, Any]:
+        """Lee un mensaje del pipe y lo devuelve como (prediction, info)."""
         msg = self.pipe.recv()
 
-        if not isinstance(msg, tuple) or len(msg) != 3:
-            raise ValueError("Formato de mensaje invalido. Se esperaba (Decider, Prediction, Prob)")
-        decider, prediction, prob = msg
-        return decider, prediction, prob
+        if not isinstance(msg, tuple) or len(msg) != 2:
+            raise ValueError("Formato de mensaje invalido. Se esperaba (prediction, info)")
+        prediction, info = msg
+        return prediction, info
 
     @abstractmethod
     def start(self, filename: Optional[str] = None) -> None:

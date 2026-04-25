@@ -14,7 +14,6 @@ from components.RT_pipe_components.Interpreters.RT_interpreter_process import RT
 # Interpreters del juego
 from components.RT_pipe_components.Interpreters.RT_interpreter_slider import RT_interpreter_slider
 from components.RT_pipe_components.Interpreters.RT_interpreter_resampler  import RT_interpreter_resampler
-from components.RT_pipe_components.Interpreters.RT_interpreter_saver import RT_interpreter_saver
 
 from components.RT_pipe_components.MIGames.MI_game_process import MIGameProcess
 from components.RT_pipe_components.MIGames.MIGame import MIGame
@@ -38,11 +37,11 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, console
     interpreter_process = None
     modelPipeline = None
 
-    # Crea el interprete en proceso separado para recibir predicciones.
+    # Primero el juego, para obtener su pipe de entrada antes de crear el interpreter.
     migame_process = MIGameProcess(FlappyBirdMIGame)
     migame_process.start()
 
-    interpreter_process = RT_interpreter_process(RT_interpreter_saver)
+    interpreter_process = RT_interpreter_process(RT_interpreter_slider, game_pipe=migame_process.get_send_pipe())
     interpreter_process.start(filename=SalidaPredicciones)
 
     # Crea el pipeline en proceso separado y conecta su salida al interprete.

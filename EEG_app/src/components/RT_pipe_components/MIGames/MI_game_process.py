@@ -41,10 +41,15 @@ class MIGameProcess:
         )
         self.process.start()
 
-    def send_msg(self, decider, prediction, prob) -> None:
+    def get_send_pipe(self) -> Connection:
+        if self._send_pipe is None:
+            raise RuntimeError("MIGameProcess no está iniciado; llama a start() primero")
+        return self._send_pipe
+
+    def send_msg(self, prediction, info) -> None:
         if self.process is None or not self.process.is_alive() or self._send_pipe is None:
             raise RuntimeError("MIGameProcess no está iniciado")
-        self._send_pipe.send((decider, prediction, prob))
+        self._send_pipe.send((prediction, info))
 
     def stop(self) -> None:
         self.stop_event.set()

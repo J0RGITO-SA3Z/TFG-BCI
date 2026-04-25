@@ -21,12 +21,12 @@ RED      = (220, 50,  50 )
 WIDTH, HEIGHT = 900, 600
 PIPE_WIDTH    = 70
 PIPE_GAP      = 160
-PIPE_SPEED    = 2
+PIPE_SPEED    = 1
 GRAVITY       = 0.1
 JUMP_STRENGTH = -3
 BIRD_X        = 80
 BIRD_RADIUS   = 15
-SPAWN_INTERVAL_MS = 2500
+SPAWN_INTERVAL_MS = 5000
 FPS           = 60
 
 
@@ -124,15 +124,14 @@ class FlappyBirdMIGame(MIGame):
             # poll(0) devuelve True si hay datos listos; nunca bloquea.
             while self.pipe.poll(0):
                 try:
-                    _decider, prediction, _prob = self.read_msg()
-                    # Cualquier predicción recibida → salto (acción de control)
-                    # Ajusta aquí si quieres filtrar por clase: if prediction == 1:
-                    action = self.controlAssist(_decider, prediction, _prob)
+                    prediction, info = self.read_msg()
+                    action = self.controlAssist(prediction, info)
 
-                    if action == "jump" and game_active:
-                        bird_vel = JUMP_STRENGTH
-                    else:
-                        bird_y, bird_vel, pipes, score, game_active = self._reset_state()
+                    if action == "jump":
+                        if game_active:
+                            bird_vel = JUMP_STRENGTH
+                        else:
+                            bird_y, bird_vel, pipes, score, game_active = self._reset_state()
                     bci_flash = 12  # mantener flash ~0.2 s a 60 FPS
                 except Exception:
                     pass  # mensaje malformado; ignorar
@@ -160,10 +159,8 @@ class FlappyBirdMIGame(MIGame):
 
         pygame.quit()
     
-    def controlAssist(self, decider, prediction, prob):
-        """Ejemplo de función de control asistido que podrías usar para filtrar o modificar las predicciones antes de aplicarlas al juego."""
-        # Aquí podrías implementar lógica para suavizar predicciones, aplicar umbrales, o combinar con otras señales.
-        # Por ejemplo, solo aceptar una acción si la probabilidad es suficientemente alta:
-        if prediction == "right_hand" and prob >= 0.7:  # Umbral de probabilidad
+    def controlAssist(self, prediction, info):
+        """Lógica de control: recibe la predicción final y el dict de info del filtro."""
+        if prediction == "right_hand":
             return "jump"
         return "none"

@@ -9,9 +9,14 @@ from typing import Optional, Tuple, Any
 class RT_interpreter(ABC):
     """Interfaz base para interpretes de tiempo real usados por RT_interpreter_process."""
 
-    def __init__(self, pipe: Connection, stop_event: Event) -> None:
+    def __init__(self, pipe: Connection, stop_event: Event, game_pipe: Optional[Connection] = None) -> None:
         self.pipe = pipe
         self.stop_event = stop_event
+        self.game_pipe = game_pipe
+
+    def _send_to_game(self, prediction, info) -> None:
+        if self.game_pipe is not None:
+            self.game_pipe.send((prediction, info))
 
     def read_msg(self) -> Tuple[Any, Any, Any, Any]:
         """Lee un mensaje del pipe y lo devuelve como (prediction, last_sample, last_timestamp)."""
