@@ -16,6 +16,11 @@ from components.RT_pipe_components.Interpreters.RT_interpreter_slider import RT_
 from components.RT_pipe_components.Interpreters.RT_interpreter_resampler  import RT_interpreter_resampler
 from components.RT_pipe_components.Interpreters.RT_interpreter_saver import RT_interpreter_saver
 
+from components.RT_pipe_components.MIGames.MI_game_process import MIGameProcess
+from components.RT_pipe_components.MIGames.MIGame import MIGame
+from components.RT_pipe_components.MIGames.flappy_bird_mi_game import FlappyBirdMIGame
+
+
 import time
 from rich.console import Console
 
@@ -34,6 +39,9 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, console
     modelPipeline = None
 
     # Crea el interprete en proceso separado para recibir predicciones.
+    migame_process = MIGameProcess(FlappyBirdMIGame)
+    migame_process.start()
+
     interpreter_process = RT_interpreter_process(RT_interpreter_saver)
     interpreter_process.start(filename=SalidaPredicciones)
 
