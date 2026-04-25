@@ -11,14 +11,14 @@ from matplotlib.widgets import Slider
 
 # --- Configuración de Rutas y Proyecto ---
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
+PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR,"..", "..", ".."))
 
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 # Rutas a tus archivos de datos guardados
-EXCEL_PATH = os.path.join(PROJECT_ROOT, "EEG_controller_app", "recordings", "experimento_RT","gg", "SalidaPredicciones.csv")
-FIF_PATHS = [os.path.join(PROJECT_ROOT, "EEG_controller_app", "recordings", "experimento_RT", "gg","suj2_2_raw.fif")]
+EXCEL_PATH = os.path.join(PROJECT_ROOT, "recordings", "simulations_RT","test", "SalidaPredicciones.csv")
+FIF_PATHS = [os.path.join(PROJECT_ROOT, "recordings", "simulations_RT", "test","suj2_6_raw.fif")]
 
 CLASES = ["left_hand", "right_hand", "feet", "rest"]
 

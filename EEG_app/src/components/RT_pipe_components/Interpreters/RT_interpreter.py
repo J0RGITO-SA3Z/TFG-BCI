@@ -13,16 +13,16 @@ class RT_interpreter(ABC):
         self.pipe = pipe
         self.stop_event = stop_event
 
-    def read_msg(self) -> Tuple[Any, Any, Any]:
+    def read_msg(self) -> Tuple[Any, Any, Any, Any]:
         """Lee un mensaje del pipe y lo devuelve como (prediction, last_sample, last_timestamp)."""
         msg = self.pipe.recv()
 
-        if not isinstance(msg, tuple) or len(msg) != 3:
-            raise ValueError("Formato de mensaje invalido. Se esperaba (prediction, last_sample, last_timestamp)")
+        if not isinstance(msg, tuple) or len(msg) != 4:
+            raise ValueError("Formato de mensaje invalido. Se esperaba (prediction, last_sample, last_timestamp, probs)")
 
-        prediction, last_sample, last_timestamp = msg
-        return prediction, last_sample, last_timestamp
-
+        prediction, last_sample, last_timestamp, probs = msg
+        return prediction, last_sample, last_timestamp, probs
+    
     @abstractmethod
     def start(self, filename: Optional[str] = None) -> None:
         """Inicia la logica del interprete y debe finalizar al activarse stop_event."""
