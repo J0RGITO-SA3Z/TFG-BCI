@@ -27,6 +27,7 @@ JUMP_STRENGTH = -3
 BIRD_X        = 80
 BIRD_RADIUS   = 15
 SPAWN_INTERVAL_MS = 5000
+SPAWN_INTERVAL_TICKS = 400
 FPS           = 60
 
 
@@ -97,10 +98,13 @@ class FlappyBirdMIGame(MIGame):
         font  = pygame.font.SysFont(None, 48)
 
         SPAWN_PIPE = pygame.USEREVENT
-        pygame.time.set_timer(SPAWN_PIPE, SPAWN_INTERVAL_MS)
+        #pygame.time.set_timer(SPAWN_PIPE, SPAWN_INTERVAL_MS)
 
         bird_y, bird_vel, pipes, score, game_active = self._reset_state()
         bci_flash = 0   # fotogramas que dura el flash visual de predicción BCI
+
+        ciclo = False
+        counter = SPAWN_INTERVAL_TICKS
 
         while not self.stop_event.is_set():
 
@@ -126,6 +130,7 @@ class FlappyBirdMIGame(MIGame):
                 try:
                     prediction, info = self.read_msg()
                     action = self.controlAssist(prediction, info)
+                    ciclo = True
 
                     if action == "jump":
                         if game_active:
@@ -138,17 +143,26 @@ class FlappyBirdMIGame(MIGame):
 
             # ── 3. Física del juego ───────────────────────────────────────────
             if game_active:
-                bird_vel += GRAVITY
-                bird_y   += bird_vel
+                if ciclo:
+                    counter += 1
+                    ciclo = False
+                    bird_vel += GRAVITY
+                    bird_y   += bird_vel
 
-                for pipe in pipes:
-                    pipe['x'] -= PIPE_SPEED
-                    if pipe['x'] + PIPE_WIDTH < BIRD_X and not pipe['passed']:
-                        score += 1
-                        pipe['passed'] = True
+                    for pipe in pipes:
+                        pipe['x'] -= PIPE_SPEED
+                        if pipe['x'] + PIPE_WIDTH < BIRD_X and not pipe['passed']:
+                            score += 1
+                            pipe['passed'] = True
+
+                    if counter >= SPAWN_INTERVAL_TICKS:
+                        event = pygame.event.Event(SPAWN_PIPE)
+                        pygame.event.post(event)
+                        counter = 0
 
                 pipes = [p for p in pipes if p['x'] + PIPE_WIDTH > 0]
                 game_active = self._check_collisions(bird_y, pipes)
+            
 
             if bci_flash > 0:
                 bci_flash -= 1

@@ -18,6 +18,8 @@ from components.RT_pipe_components.Interpreters.RT_interpreter_resampler  import
 from components.RT_pipe_components.MIGames.MI_game_process import MIGameProcess
 from components.RT_pipe_components.MIGames.MIGame import MIGame
 from components.RT_pipe_components.MIGames.flappy_bird_mi_game import FlappyBirdMIGame
+from components.RT_pipe_components.MIGames.arrow_runner_mi_game import ArrowRunnerMIGame
+from components.RT_pipe_components.MIGames.dualArrowComponent import DualArrowComponent
 
 
 import time
@@ -38,7 +40,7 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, console
     modelPipeline = None
 
     # Primero el juego, para obtener su pipe de entrada antes de crear el interpreter.
-    migame_process = MIGameProcess(FlappyBirdMIGame)
+    migame_process = MIGameProcess(ArrowRunnerMIGame)
     migame_process.start()
 
     interpreter_process = RT_interpreter_process(RT_interpreter_slider, game_pipe=migame_process.get_send_pipe())
