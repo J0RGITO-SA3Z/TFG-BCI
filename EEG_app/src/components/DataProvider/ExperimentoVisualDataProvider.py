@@ -14,7 +14,7 @@ if SRC_ROOT not in sys.path:
     sys.path.insert(0, SRC_ROOT)
 
 from components.DataProvider.DataProvider import DataProvider
-from components.DataProvider.FifDataProvider import LABEL_MAP, _raw_to_epochs
+from EEG_app.src.components.DataProvider.FifDataProvider import LABEL_MAP, _raw_to_epochs
 from app.EEGRecorder import EEGRecorder
 from app.tcp.eeg_live_server import EEGLiveServer, PORT
 from components.RawProcessing.AnnotationRenamer import AnnotationRenamer

@@ -12,7 +12,7 @@ if SRC_ROOT not in sys.path:
     sys.path.insert(0, SRC_ROOT)
 
 # ─────── Data Providers ─────────────────────────────────────────────────────
-from components.DataProvider.FifDataProvider import FifDataProvider
+from EEG_app.src.components.DataProvider.FifDataProvider import FifDataProvider
 
 # ─────── FASTER (Fully Automated Statistical Thresholding EEG Rejection) ─────────────────────────────────────────────────────
 from mne_faster import ( # -> pip install mne_faster

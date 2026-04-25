@@ -21,7 +21,7 @@ from components.ModelInterface.MiRepNetInterface import MiRepNetInterface
 from util.Performance_Viewer import PerformanceViewer
 
 # -- Proveedor de datos ------------------------------------------------------
-from components.DataProvider.FifDataProvider import FifDataProvider
+from EEG_app.src.components.DataProvider.FifDataProvider import FifDataProvider
 
 # -- Data Processing ---------------------------------------------------------
 from components.EpochProcessing.EpochProcessorPipeline import EpochProcessorPipeline
