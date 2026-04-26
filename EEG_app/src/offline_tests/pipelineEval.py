@@ -16,7 +16,7 @@ if MIREPNET_DIR not in sys.path:
 
 from util.Performance_Viewer import PerformanceViewer
 from components.ModelInterface.MiRepNetInterface import MiRepNetInterface
-from EEG_app.src.components.DataProvider.FifDataProvider import FifDataProvider
+from components.DataProvider.FifDataProvider import FifDataProvider
 
 from components.EpochProcessing.EpochProcessorPipeline import EpochProcessorPipeline
 from components.EpochProcessing.SpatialInterpolator import SpatialInterpolator

@@ -7,7 +7,7 @@ from mne.filter import resample
 from scipy.spatial.distance import cdist
 import pandas as pd
 from collections import Counter
-from EEG_app.src.components.pretrainedModels.MiRepNet.utils.channel_list import *
+from components.pretrainedModels.MiRepNet.utils.channel_list import *
 
 class EEGDataset(Dataset):
     def __init__(self, args=None):

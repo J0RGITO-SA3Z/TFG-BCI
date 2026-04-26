@@ -20,7 +20,7 @@ from typing import Tuple
 SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 MIREPNET_DIR = os.path.join(SRC_ROOT, "components", "pretrainedModels", "MiRepNet")
 WEIGHT_PATH  = os.path.join(MIREPNET_DIR, "weight", "MIRepNet.pth")
-# MiRepNet's internal files use `from EEG_app.src.*` paths; adding the project
+# MiRepNet's internal files use `from src.*` paths; adding the project
 # root lets Python resolve `EEG_app` as a namespace package without modifying
 # those files.
 PROJ_ROOT = os.path.abspath(os.path.join(SRC_ROOT, "..", ".."))
@@ -74,6 +74,7 @@ class MiRepNetInterface(ModelInterface):
         emb_size: int = 256,
         depth: int = 6,
         training_clases: list[str] = ["feet", "left_hand", "right_hand"],
+        freeze_encoder = False
     ):
         if device is None:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -92,8 +93,10 @@ class MiRepNetInterface(ModelInterface):
             depth=depth,
             n_classes= len(training_clases),
             pretrainmode=False,
-            pretrain=weight_path
         ).to(self.device)
+
+        self._model.init_from_pretrained(weight_path, freeze_encoder=freeze_encoder)
+
         # Crear codificador de etiquetas (transorma los strings de las clases a números enteros)
         # Los números no tienen porque coincidir exactamente con los del entrenamiento original ya que durante el fine-tuning reaprende
         self.label_encoder = LabelEncoder()

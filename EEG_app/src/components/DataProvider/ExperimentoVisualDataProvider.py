@@ -14,7 +14,7 @@ if SRC_ROOT not in sys.path:
     sys.path.insert(0, SRC_ROOT)
 
 from components.DataProvider.DataProvider import DataProvider
-from EEG_app.src.components.DataProvider.FifDataProvider import LABEL_MAP, _raw_to_epochs
+from components.DataProvider.FifDataProvider import LABEL_MAP, _raw_to_epochs
 from app.EEGRecorder import EEGRecorder
 from app.tcp.eeg_live_server import EEGLiveServer, PORT
 from components.RawProcessing.AnnotationRenamer import AnnotationRenamer
@@ -102,6 +102,8 @@ class ExperimentoVisualDataProvider(DataProvider):
                 if ch_type == "eeg"
             ]
 
+            eeg.iniciarGrabacion()
+
             live_server = EEGLiveServer(
                 ch_names=eeg.get_ch_names_ordered(),
                 sfreq=eeg.get_sfreq(),
@@ -133,8 +135,6 @@ class ExperimentoVisualDataProvider(DataProvider):
 
             ventana = ventanaExperimentoVisual()
             ventana.open()
-
-            eeg.iniciarGrabacion()
 
             time.sleep(1)
             ventana.draw_text("Baseline")

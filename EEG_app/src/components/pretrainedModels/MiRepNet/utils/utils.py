@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
 from scipy.linalg import fractional_matrix_power
 from scipy.spatial.distance import cdist
-from EEG_app.src.components.pretrainedModels.MiRepNet.utils.channel_list import *
+from components.pretrainedModels.MiRepNet.utils.channel_list import *
 import random
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -12,8 +12,8 @@ import pandas as pd
 from datetime import datetime
 from sklearn.model_selection import train_test_split
 import torch.nn as nn
-from EEG_app.src.components.pretrainedModels.MiRepNet.dataset import EEGDataset
-from EEG_app.src.components.pretrainedModels.MiRepNet.model.mlm import mlm_mask
+from components.pretrainedModels.MiRepNet.dataset import EEGDataset
+from components.pretrainedModels.MiRepNet.model.mlm import mlm_mask
 import os
 
 

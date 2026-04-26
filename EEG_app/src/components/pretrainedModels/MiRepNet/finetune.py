@@ -1,6 +1,6 @@
 from datetime import datetime
 import argparse
-from EEG_app.src.components.pretrainedModels.MiRepNet.utils.utils import *
+from components.pretrainedModels.MiRepNet.utils.utils import *
 
 def parse_args():
     """Parse command line arguments with all hyperparameters"""

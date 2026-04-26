@@ -27,4 +27,8 @@ class VarianceDetector(BadChannelDetector):
         var = float(np.var(X))
         is_dead  = var < self.dead_threshold
         is_noisy = var > self.threshold
+
+        if is_dead:
+            print(f"    Canal detectado como MUERTO (var={var:.2e} < {self.dead_threshold:.2e})")
+
         return is_dead or is_noisy

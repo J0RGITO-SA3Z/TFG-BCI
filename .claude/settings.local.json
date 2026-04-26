@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(C:\\\\Users\\\\julianix\\\\miniconda3\\\\envs\\\\bci-mi-tfg\\\\python.exe -m pip install onnx)",
+      "PowerShell(C:\\\\Users\\\\julianix\\\\miniconda3\\\\envs\\\\bci-mi-tfg\\\\python.exe -m pip install onnx)"
+    ]
+  }
+}

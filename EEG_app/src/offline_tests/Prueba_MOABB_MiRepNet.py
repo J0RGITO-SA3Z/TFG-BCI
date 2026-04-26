@@ -33,7 +33,7 @@ moabb.set_log_level("ERROR")
 
 # ── DataProviders ─────────────────────────────────────────────────────────────────────
 from components.DataProvider.MoabbDataProvider import MoabbDataProvider
-from EEG_app.src.components.DataProvider.FifDataProvider import FifDataProvider
+from components.DataProvider.FifDataProvider import FifDataProvider
 
 # ── Data Processing ─────────────────────────────────────────────────────────────────────
 from components.EpochProcessing.EpochProcessorPipeline import EpochProcessorPipeline

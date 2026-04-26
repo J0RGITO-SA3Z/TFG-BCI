@@ -125,7 +125,7 @@ def _pipeline_final() -> RawProcessorPipeline:
 def _bad_channel_interpolator(channel_names: list[str]) -> BadChannelInterpolator:
     return BadChannelInterpolator(
         channels_max=3,
-        print_history=True,
+        print_history=False,
         actual_channel_positions=channel_names,
         detectors=[
             AmplitudeThresholdDetector(threshold=100),

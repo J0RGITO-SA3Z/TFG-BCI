@@ -20,7 +20,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 from util.Performance_Viewer import PerformanceViewer
 from components.ModelInterface.MiRepNetInterface import MiRepNetInterface
-from EEG_app.src.components.DataProvider.FifDataProvider import FifDataProvider, LABEL_MAP
+from components.DataProvider.FifDataProvider import FifDataProvider, LABEL_MAP
 from components.RawProcessing.RawProcessorPipeline import RawProcessorPipeline
 from components.RawProcessing.BandpassFilter import BandpassFilter
 from components.RawProcessing.AnnotationRenamer import AnnotationRenamer
@@ -167,16 +167,16 @@ def run_MiRepNet_pipeline_bads(train_fif_paths, test_fif_paths, annotations_name
 
 def main():
     train_fif = [
-        "EEG_app/recordings/experimento_visual/suj1/suj1_2_raw.fif",
-        "EEG_app/recordings/experimento_visual/suj1/suj1_3_raw.fif",
+        "EEG_app/recordings/experimento_visual/suj3/suj3_1_raw.fif",
+        "EEG_app/recordings/experimento_visual/suj3/suj3_2_raw.fif",
     ]
 
     test_fif = [
-        "EEG_app/recordings/experimento_visual/suj1/suj1_1_raw.fif",
-        "EEG_app/recordings/experimento_visual/suj1/suj1_4_raw.fif",
+        "EEG_app/recordings/experimento_visual/suj3/suj3_3_raw.fif",
+        "EEG_app/recordings/experimento_visual/suj3/suj3_4_raw.fif",
     ]
 
-    run_MiRepNet_pipeline_bads(
+    run_MiRepNet_pipeline(
         train_fif_paths=train_fif,
         test_fif_paths=test_fif,
         epochs=10,

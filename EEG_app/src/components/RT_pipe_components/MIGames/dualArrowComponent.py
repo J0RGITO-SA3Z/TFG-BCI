@@ -6,7 +6,7 @@ from multiprocessing.connection import Connection
 from multiprocessing.synchronize import Event
 from typing import Optional
 
-from EEG_app.src.components.RT_pipe_components.MIGames.MIGame import MIGame
+from components.RT_pipe_components.MIGames.MIGame import MIGame
 
 
 class DualArrowComponent(MIGame):

@@ -18,4 +18,6 @@ class AmplitudeThresholdDetector(BadChannelDetector):
         super().__init__(threshold)
 
     def is_bad_channel(self, X: np.ndarray) -> bool:
+        if abs(float(np.max(X)) - float(np.min(X))) > self.threshold:
+            print(f"    Canal detectado como RUIDOSO (pico a pico={float(np.max(X)) - float(np.min(X)):.2f} µV > {self.threshold} µV)")
         return bool(abs(float(np.max(X)) - float(np.min(X))) > self.threshold)

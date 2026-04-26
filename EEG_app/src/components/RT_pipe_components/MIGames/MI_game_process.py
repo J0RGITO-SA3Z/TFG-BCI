@@ -4,7 +4,7 @@ import multiprocessing as mp
 from multiprocessing.connection import Connection
 from typing import Optional, Type
 
-from EEG_app.src.components.RT_pipe_components.MIGames.MIGame import MIGame
+from components.RT_pipe_components.MIGames.MIGame import MIGame
 
 
 class MIGameProcess:

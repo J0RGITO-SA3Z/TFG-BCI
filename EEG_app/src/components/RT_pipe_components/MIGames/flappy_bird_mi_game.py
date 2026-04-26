@@ -7,7 +7,7 @@ from typing import Optional
 
 import pygame
 
-from EEG_app.src.components.RT_pipe_components.MIGames.MIGame import MIGame
+from components.RT_pipe_components.MIGames.MIGame import MIGame
 
 # ── Colores ──────────────────────────────────────────────────────────────────
 WHITE    = (255, 255, 255)
