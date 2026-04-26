@@ -1,4 +1,9 @@
 # -----------------------------
+# Configuración local (no versionar)
+# -----------------------------
+EEG_app/config/default/connection.json
+
+# -----------------------------
 # Modelos descargados
 # -----------------------------
 lib/Modelos/

@@ -33,7 +33,7 @@ class EEGPlotWidget(pg.PlotWidget):
         self,
         info: mne.Info,
         buffer_seconds: float = 10.0,
-        flat_var_thresh: float = 1.0,
+        flat_var_thresh: float = 2.5,
         noisy_ptp_thresh: float = 500.0,
         parent=None,
     ):
