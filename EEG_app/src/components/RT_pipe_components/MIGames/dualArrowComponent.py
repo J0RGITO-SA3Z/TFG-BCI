@@ -61,8 +61,10 @@ class DualArrowComponent(MIGame):
             self.left_pct = self._clamp(self.left_pct - 2*self.step) # Cambiar aquí para que al "fallar" se resetee o se reste
         
         if self.right_pct == 100:
+            OUTLINE_COLOR = (172, 193, 242)        # Azul muy clarito (contorno)
             return True
         else:
+            OUTLINE_COLOR = (20, 50, 120)        # Azul oscuro (contorno)
             return False
         
     def add_left(self):
@@ -72,8 +74,10 @@ class DualArrowComponent(MIGame):
             self.right_pct = self._clamp(self.right_pct - 2*self.step) # Cambiar aquí para que al "fallar" se resetee o se reste
         
         if self.left_pct == 100:
+            OUTLINE_COLOR = (172, 193, 242)        # Azul muy clarito (contorno)
             return True
         else:
+            OUTLINE_COLOR = (20, 50, 120)        # Azul oscuro (contorno)
             return False
         
     def sub_both(self):
@@ -81,6 +85,9 @@ class DualArrowComponent(MIGame):
             self.right_pct = self._clamp(self.right_pct - self.step)
         elif self.left_pct > 0:
             self.left_pct = self._clamp(self.left_pct - self.step)
+
+        if self.left_pct < 100 and self.right_pct < 100:
+            OUTLINE_COLOR = (20, 50, 120)        # Azul oscuro (contorno)
 
     # --- LÓGICA DE RENDERIZADO ---
 
