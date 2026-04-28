@@ -126,6 +126,10 @@ class ArrowRunnerMIGame(MIGame):
                         self.mapa_obstaculos.append((x, y))
                         self.matriz_obstaculos[x][y] = True
 
+        print(f"[DEBUG] Camino seguro: {self.camino_seguro}")
+        print(f"[DEBUG] Posiciones seguras: {self.posiciones_seguras}")
+        print(f"[DEBUG] Matriz obstaculos: {self.matriz_obstaculos}")
+
     def mover_jugador(self, dx, dy):
         if self.game_over: return
 
@@ -276,8 +280,10 @@ class ArrowRunnerMIGame(MIGame):
                     # Nada
                     self.mover_jugador(0, 0)
 
-    def heuristica_aimbot_2(self, prediction, info, umbral): #and self.camino_seguro.__contains__((self.jugador_x, self.jugador_y-1))
-        if self.jugador_y == 0 or not self.matriz_obstaculos[self.jugador_x][self.jugador_y-1]: # si no tenemos un obstáculo encima
+    def heuristica_aimbot_2(self, prediction, info, umbral):
+        print(f"[DEBUG] Posiciones jugador (x,y): ({self.jugador_x}, {self.jugador_y})")
+        if self.jugador_y == 0 or (not self.matriz_obstaculos[self.jugador_x][self.jugador_y-1] and self.camino_seguro.__contains__((self.jugador_x, self.jugador_y-1))): # si no tenemos un obstáculo encima
+            print(f"[DEBUG] RECTOOOOO")
             if info["p_right_smooth"] > SEVERIDAD_AIMBOT:
                 self.mover_jugador(1, 0)
             elif info["p_left_smooth"] >  SEVERIDAD_AIMBOT:
@@ -286,11 +292,13 @@ class ArrowRunnerMIGame(MIGame):
                 # Nada
                 self.mover_jugador(0, 0)
         elif self.jugador_x < self.posiciones_seguras[self.jugador_y]: # Derecha segura
+            print(f"[DEBUG] DCHAAA")
             if info["p_right_smooth"] >= umbral:
                 self.mover_jugador(1, 0)
             else :
                 self.string_to_action(prediction)
         elif self.jugador_x > self.posiciones_seguras[self.jugador_y]: # Izquierda segura
+            print(f"[DEBUG] IZQDAAA")
             if info["p_left_smooth"] >= umbral:
                 self.mover_jugador(-1, 0)
             else :

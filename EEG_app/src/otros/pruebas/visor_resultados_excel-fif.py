@@ -17,8 +17,8 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 # Rutas a tus archivos de datos guardados
-EXCEL_PATH = os.path.join(PROJECT_ROOT, "recordings", "simulations_RT","test", "SalidaPredicciones.csv")
-FIF_PATHS = [os.path.join(PROJECT_ROOT, "recordings", "simulations_RT", "test","suj2_6_raw.fif")]
+EXCEL_PATH = os.path.join(PROJECT_ROOT, "recordings", "simulations_RT","SW_Exponential_Smoothing", "SalidaPredicciones.csv")
+FIF_PATHS = [os.path.join(PROJECT_ROOT, "recordings", "simulations_RT", "SW_Exponential_Smoothing","suj2_2_raw.fif")]
 
 CLASES = ["left_hand", "right_hand", "feet", "rest"]
 
