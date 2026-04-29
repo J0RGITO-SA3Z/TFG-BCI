@@ -15,10 +15,11 @@ class RT_interpreter_slider(RT_interpreter):
     def __init__(self, pipe, stop_event, game_pipe=None):
         super().__init__(pipe, stop_event, game_pipe)
 
-        # resultados finales (una fila por segundo)
+        # resultados finales (una fila por ventana)
         self.final_predictions = []
         self.final_info = []
         self.final_samples = []
+        self.final_raw_probs = []
 
         # buffer de ventana actual
         self.window_predictions = []
@@ -32,8 +33,8 @@ class RT_interpreter_slider(RT_interpreter):
         #self.filter = Mayoria()
         #self.filter = ScorePonderado()
         #self.filter = MediaProbabilidades()
-        #self.filter = IntegradorFuga(leak_r=0.1, leak_l=0.1, threshold=1.0)
-        self.filter = ExponentialSmoothing(alpha=0.85, threshold=0.75)
+        self.filter = IntegradorFuga(leak_r=0.1, leak_l=0.1, threshold=1.0, reset_on_decision=True)
+        #self.filter = ExponentialSmoothing(alpha=0.85, threshold=0.75)
         # =========================
 
     def _listen(self, filename: Optional[str] = None) -> None:
@@ -70,12 +71,31 @@ class RT_interpreter_slider(RT_interpreter):
 
 
     def _save(self, filename: str = "predictions_log.csv") -> None:
-        with open(filename, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["prediction", "sample"])
+        # union ordenada de todos los keys de info (distintos según el filtro)
+        info_keys: list[str] = []
+        seen: set[str] = set()
+        for info in self.final_info:
+            for k in info:
+                if k not in seen:
+                    info_keys.append(k)
+                    seen.add(k)
 
-            for p, s in zip(self.final_predictions, self.final_samples):
-                writer.writerow([p, s])
+        fieldnames = ["sample", "prediction", "p_left_raw", "p_right_raw"] + info_keys
+
+        with open(filename, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
+            writer.writeheader()
+
+            for pred, sample, (p_left, p_right), info in zip(
+                self.final_predictions, self.final_samples, self.final_raw_probs, self.final_info
+            ):
+                writer.writerow({
+                    "sample": sample,
+                    "prediction": pred,
+                    "p_left_raw": p_left,
+                    "p_right_raw": p_right,
+                    **info,
+                })
 
 
     def start(self, filename: Optional[str] = None) -> None:
@@ -96,6 +116,7 @@ class RT_interpreter_slider(RT_interpreter):
         self.final_predictions.append(pred_final)
         self.final_info.append(info)
         self.final_samples.append(self.window_samples[-1])
+        self.final_raw_probs.append(self.window_probs[-1])
 
         print(f"Predicción: {pred_final}, Info: {info}, Sample: {self.window_samples[-1]:.3f} s")
 

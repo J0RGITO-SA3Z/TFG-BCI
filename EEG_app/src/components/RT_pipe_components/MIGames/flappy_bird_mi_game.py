@@ -126,20 +126,23 @@ class FlappyBirdMIGame(MIGame):
 
             # ── 2. Pipe BCI — no bloqueante, igual que una tecla ─────────────
             # poll(0) devuelve True si hay datos listos; nunca bloquea.
-            while self.pipe.poll(0):
-                try:
-                    prediction, info = self.read_msg()
-                    action = self.controlAssist(prediction, info)
-                    ciclo = True
+            try:
+                while self.pipe.poll(0):
+                    try:
+                        prediction, info = self.read_msg()
+                        action = self.controlAssist(prediction, info)
+                        ciclo = True
 
-                    if action == "jump":
-                        if game_active:
-                            bird_vel = JUMP_STRENGTH
-                        else:
-                            bird_y, bird_vel, pipes, score, game_active = self._reset_state()
-                    bci_flash = 12  # mantener flash ~0.2 s a 60 FPS
-                except Exception:
-                    pass  # mensaje malformado; ignorar
+                        if action == "jump":
+                            if game_active:
+                                bird_vel = JUMP_STRENGTH
+                            else:
+                                bird_y, bird_vel, pipes, score, game_active = self._reset_state()
+                        bci_flash = 12  # mantener flash ~0.2 s a 60 FPS
+                    except Exception:
+                        pass  # mensaje malformado; ignorar
+            except OSError:
+                self.stop_event.set()
 
             # ── 3. Física del juego ───────────────────────────────────────────
             if game_active:

@@ -259,13 +259,16 @@ class ProjectArrowsMIGame(MIGame):
                     self.player_dir = 1
 
             # -- Lectura no bloqueante del pipe BCI --
-            while self.pipe.poll(0):
-                try:
-                    prediction, info = self.read_msg()
-                    if self.state == "PLAYING":
-                        self.controlAssist(prediction, info)
-                except Exception:
-                    pass
+            try:
+                while self.pipe.poll(0):
+                    try:
+                        prediction, info = self.read_msg()
+                        if self.state == "PLAYING":
+                            self.controlAssist(prediction, info)
+                    except Exception:
+                        pass
+            except OSError:
+                running = False
 
             if self.state == "PLAYING":
                 self.update_logic(dt)

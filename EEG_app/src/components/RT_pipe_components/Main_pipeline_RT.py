@@ -80,6 +80,7 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, game_cl
 
     modelPipeline.stop_process()
     interpreter_process.stop()
+    migame_process.stop()
 
     print("grabacion terminada")
 

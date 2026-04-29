@@ -377,13 +377,16 @@ class EndlessWaveRunnerMIGame(MIGame):
                     self.ship_direction = 0
 
             # -- Lectura no bloqueante del pipe BCI: cada predicción nueva cambia la dirección --
-            while self.pipe.poll(0):
-                try:
-                    prediction, info = self.read_msg()
-                    if not self.is_game_over:
-                        self.controlAssist(prediction, info)
-                except Exception:
-                    pass
+            try:
+                while self.pipe.poll(0):
+                    try:
+                        prediction, info = self.read_msg()
+                        if not self.is_game_over:
+                            self.controlAssist(prediction, info)
+                    except Exception:
+                        pass
+            except OSError:
+                running = False
 
             self.update()
 

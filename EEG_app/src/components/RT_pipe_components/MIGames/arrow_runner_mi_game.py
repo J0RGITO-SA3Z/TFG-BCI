@@ -403,12 +403,15 @@ class ArrowRunnerMIGame(MIGame):
                     self.mover_jugador(1, 0)'''
             
             # ── Pipe BCI — no bloqueante ──────────────────────────────────────
-            while self.pipe.poll(0):
-                try:
-                    prediction, info = self.read_msg()
-                    self.controlAssist(prediction, info)
-                except Exception:
-                    pass
+            try:
+                while self.pipe.poll(0):
+                    try:
+                        prediction, info = self.read_msg()
+                        self.controlAssist(prediction, info)
+                    except Exception:
+                        pass
+            except OSError:
+                running = False
 
             if self.cfg.avance_auto and not self.game_over:
                 ahora = pygame.time.get_ticks()
