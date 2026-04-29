@@ -179,7 +179,7 @@ class ArrowRunnerMIGame(MIGame):
         self.jugador_x = self.cfg.columnas // 2 
         self.generar_obstaculos()
         
-        self.pantalla.fill(AZUL)
+        '''self.pantalla.fill(AZUL)
         texto = self.fuente_grande.render(f"NIVEL {self.nivel}", True, BLANCO)
         rect = texto.get_rect(center=(ANCHO_VENTANA//2, ALTO_VENTANA//2))
         self.pantalla.blit(texto, rect)
@@ -188,10 +188,10 @@ class ArrowRunnerMIGame(MIGame):
         if self.cfg.avance_auto:
             vel_txt = self.fuente.render(f"Velocidad: {self.cfg.velocidad}ms", True, BLANCO)
             vel_rect = vel_txt.get_rect(center=(ANCHO_VENTANA//2, ALTO_VENTANA//2 + 50))
-            self.pantalla.blit(vel_txt, vel_rect)
+            self.pantalla.blit(vel_txt, vel_rect)'''
 
         pygame.display.flip()
-        time.sleep(1) 
+        #time.sleep(1) 
 
     def dibujar_flecha(self):
         cx = self.jugador_x * self.ancho_celda + self.ancho_celda // 2
@@ -285,12 +285,6 @@ class ArrowRunnerMIGame(MIGame):
                     self.mover_jugador(0, 0)
 
     def heuristica_aimbot_2(self, prediction, info, umbral):
-<<<<<<< Updated upstream
-        print(f"[DEBUG] Posiciones jugador (x,y): ({self.jugador_x}, {self.jugador_y})")
-        if self.jugador_y == 0 or (not self.matriz_obstaculos[self.jugador_x][self.jugador_y-1] and self.camino_seguro.__contains__((self.jugador_x, self.jugador_y-1))): # si no tenemos un obstáculo encima
-            print(f"[DEBUG] RECTOOOOO")
-=======
-
         # Definición de colores ANSI
         CYAN = '\033[96m'
         VERDE = '\033[92m'
@@ -340,29 +334,20 @@ class ArrowRunnerMIGame(MIGame):
 
     def heuristica_aimbot_3(self, prediction, info, umbral):
         if self.jugador_y == 0 or (not self.matriz_obstaculos[self.jugador_x][self.jugador_y-1]):
->>>>>>> Stashed changes
             if info["p_right_smooth"] > SEVERIDAD_AIMBOT:
                 self.mover_jugador(1, 0)
             elif info["p_left_smooth"] >  SEVERIDAD_AIMBOT:
                 self.mover_jugador(-1, 0)
             else:
                 self.mover_jugador(0, 0)
-<<<<<<< Updated upstream
         elif self.jugador_x < self.posiciones_seguras[self.jugador_y]: # Derecha segura
             print(f"[DEBUG] DCHAAA")
-=======
-        elif self.jugador_x < 2 and (not self.matriz_obstaculos[self.jugador_x+1][self.jugador_y]):
->>>>>>> Stashed changes
             if info["p_right_smooth"] >= umbral:
                 self.mover_jugador(1, 0)
             else :
                 self.string_to_action(prediction)
-<<<<<<< Updated upstream
         elif self.jugador_x > self.posiciones_seguras[self.jugador_y]: # Izquierda segura
             print(f"[DEBUG] IZQDAAA")
-=======
-        elif self.jugador_x > 0 and (not self.matriz_obstaculos[self.jugador_x-11][self.jugador_y]):
->>>>>>> Stashed changes
             if info["p_left_smooth"] >= umbral:
                 self.mover_jugador(-1, 0)
             else :
