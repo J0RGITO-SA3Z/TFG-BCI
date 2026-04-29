@@ -1,4 +1,5 @@
 import os, sys
+from typing import Type
 SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 if SRC_ROOT not in sys.path:
     sys.path.insert(0, SRC_ROOT)
@@ -9,11 +10,34 @@ from app.EEGRecorder import EEGRecorder
 from brainaccess.core.eeg_manager import EEGManager
 from app.tcp.eeg_live_server import EEGLiveServer
 
+# Interpreters del juego
+from components.RT_pipe_components.Interpreters.RT_interpreter_slider import RT_interpreter_slider
+from components.RT_pipe_components.Interpreters.RT_interpreter_resampler  import RT_interpreter_resampler
+
+# Pipeline y juegos
 from components.RT_pipe_components.modules.RT_pipeline_process import RT_pipeline_process
 from components.RT_pipe_components.Interpreters.RT_interpreter_process import RT_interpreter_process
-import time
+from components.RT_pipe_components.MIGames.MI_game_process import MIGameProcess
+from components.RT_pipe_components.MIGames.flappy_bird_mi_game import FlappyBirdMIGame
+from components.RT_pipe_components.MIGames.arrow_runner_mi_game import ArrowRunnerMIGame
+from components.RT_pipe_components.MIGames.dualArrowComponent import DualArrowComponent
+from components.RT_pipe_components.MIGames.endless_wave_runner import EndlessWaveRunnerMIGame
+from components.RT_pipe_components.MIGames.project_arrows import ProjectArrowsMIGame
+from components.RT_pipe_components.MIGames.MIGame import MIGame
 
-def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral, SalidaPredicciones, console):
+import time
+from typing import Type
+from rich.console import Console
+
+GAMES: dict[str, Type[MIGame]] = {
+    "1": ProjectArrowsMIGame,
+    "2": FlappyBirdMIGame,
+    "3": ArrowRunnerMIGame,
+    "4": EndlessWaveRunnerMIGame,
+    "5": DualArrowComponent,
+}
+
+def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral, SalidaPredicciones, game_cls: Type[MIGame], console):
     rtTraining = Training_real_time()
     EA_matrix, model = rtTraining.start(puerto_COM=puertoCom, channelsConfig=channelsConfig, fif_name=SalidaEntrenamiento, numTrialsClase = 3)
 
@@ -42,8 +66,17 @@ def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral
             initial_action="Empezando",
         )
 
+        # Primero el juego, para obtener su pipe de entrada antes de crear el interpreter.
+        #DualArrowComponent 
+        #ArrowRunnerMIGame
+        #FlappyBirdMIGame
+        #EndlessWaveRunnerMIGame
+        #ProjectArrowsMIGame
+        migame_process = MIGameProcess(game_cls)
+        migame_process.start()
+        
         # Crea el interprete en proceso separado para recibir predicciones.
-        interpreter_process = RT_interpreter_process()
+        interpreter_process = RT_interpreter_process(RT_interpreter_slider, game_pipe=migame_process.get_send_pipe())
         interpreter_process.start(filename=SalidaPredicciones)
 
         # Crea el pipeline en proceso separado y conecta su salida al interprete.
@@ -128,11 +161,29 @@ def interfaz_experimento_RT(channelsConfig, console):
 
     console.print(f"Guardando ficheros en: {carpeta_salida}")
 
+    game_cls = choose_game()
+
     experimento_RT(
         channelsConfig,
         puertoCom,
         SalidaEntrenamiento,
         SalidaGeneral,
         SalidaPredicciones,
+        game_cls,
         console,
     )
+
+    def choose_game() -> Type[MIGame]:
+        print("\n=== Selecciona un juego MI ===")
+
+        for key, game_cls in GAMES.items():
+            print(f"{key}. {game_cls.__name__}")
+
+        while True:
+            option = input("Opción: ").strip()
+
+            game_cls = GAMES.get(option)
+            if game_cls is not None:
+                return game_cls
+
+            print("Opción no válida. Prueba otra vez.")

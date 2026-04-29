@@ -5,6 +5,7 @@ SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__
 if SRC_ROOT not in sys.path:
     sys.path.insert(0, SRC_ROOT)
 
+
 from components.Trainings.trainingOffline import Training_offline
 
 from components.RT_pipe_components.modules.RT_pipeline_process import RT_pipeline_process
@@ -21,12 +22,21 @@ from components.RT_pipe_components.MIGames.flappy_bird_mi_game import FlappyBird
 from components.RT_pipe_components.MIGames.arrow_runner_mi_game import ArrowRunnerMIGame
 from components.RT_pipe_components.MIGames.dualArrowComponent import DualArrowComponent
 from components.RT_pipe_components.MIGames.endless_wave_runner import EndlessWaveRunnerMIGame
-
+from components.RT_pipe_components.MIGames.project_arrows import ProjectArrowsMIGame
 
 import time
+from typing import Type
 from rich.console import Console
 
-def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, console):
+GAMES: dict[str, Type[MIGame]] = {
+    "1": ProjectArrowsMIGame,
+    "2": FlappyBirdMIGame,
+    "3": ArrowRunnerMIGame,
+    "4": EndlessWaveRunnerMIGame,
+    "5": DualArrowComponent,
+}
+
+def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, game_cls: Type[MIGame], console):
 
 
     # Emulacion de entrenamiento offline para obtener matriz de características y modelo entrenado.
@@ -45,7 +55,8 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, console
     #ArrowRunnerMIGame
     #FlappyBirdMIGame
     #EndlessWaveRunnerMIGame
-    migame_process = MIGameProcess(EndlessWaveRunnerMIGame)
+    #ProjectArrowsMIGame
+    migame_process = MIGameProcess(game_cls)
     migame_process.start()
 
     interpreter_process = RT_interpreter_process(RT_interpreter_slider, game_pipe=migame_process.get_send_pipe())
@@ -92,13 +103,31 @@ def interfaz_experimento_RT(emulation_fif, fif_train, console):
 
     console.print(f"Guardando ficheros en: {carpeta_salida}")
 
+    game_cls = choose_game()
+
+
     experimento_offline_RT(
         emulation_fif,
         fif_train,
         SalidaPredicciones,
+        game_cls,
         console,
     )
 
+def choose_game() -> Type[MIGame]:
+    print("\n=== Selecciona un juego MI ===")
+
+    for key, game_cls in GAMES.items():
+        print(f"{key}. {game_cls.__name__}")
+
+    while True:
+        option = input("Opción: ").strip()
+
+        game_cls = GAMES.get(option)
+        if game_cls is not None:
+            return game_cls
+
+        print("Opción no válida. Prueba otra vez.")
 
 if __name__ == "__main__":
         
