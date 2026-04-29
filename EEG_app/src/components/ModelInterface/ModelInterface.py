@@ -50,5 +50,23 @@ class ModelInterface(ABC):
         """
         ...
 
+    @abstractmethod
+    def save(self, path: str) -> None:
+        """
+        Guarda los pesos del modelo en *path*.
+        """
+        ...
+
+    @abstractmethod
+    def get_constructor_params(self, weight_path: str) -> dict:
+        """
+        Devuelve un dict con los argumentos necesarios para reconstruir
+        este objeto con ``NombreClase(**params)``.
+
+        Args:
+            weight_path: ruta al fichero de pesos guardado con :meth:`save`.
+        """
+        ...
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
