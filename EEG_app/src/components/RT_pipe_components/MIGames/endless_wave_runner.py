@@ -43,7 +43,7 @@ class EndlessWaveRunnerMIGame(MIGame):
         self.MIN_GAP_SIZE = 120          # El hueco mínimo al que puede llegar el juego
 
         # --- Sistema de "Respawn" (Reaparición) ---
-        self.AUTO_RESPAWN = False  # True: te recoloca en el centro. False: Game Over
+        self.AUTO_RESPAWN = True  # True: te recoloca en el centro. False: Game Over
 
         # --- Sistema de Dificultad Progresiva ---
         self.INCREASE_SPEED = True

@@ -124,7 +124,7 @@ class ProjectArrowsMIGame(MIGame):
                     enemy['x'] = self.CENTER_X + (enemy['side'] * self.SWAP_DISTANCE)
 
             if enemy['is_swapping']:
-                salto_speed = (self.current_speed * 1.5) / (self.SWAP_DISTANCE * 2)
+                salto_speed = (self.current_speed * 2) / (self.SWAP_DISTANCE * 1)
                 enemy['swap_t'] += salto_speed * move_multiplier
 
                 if enemy['swap_t'] >= 1.0:
