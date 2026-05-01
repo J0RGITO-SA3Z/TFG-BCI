@@ -269,8 +269,6 @@ class ArrowRunnerMIGame(MIGame):
             if info["name"] == "ExponentialSmoothing":
                 umbral = 1 - SEVERIDAD_AIMBOT
                 self.heuristica_aimbot_2(prediction, info, umbral)
-            
-        
         else:
             self.string_to_action(prediction)
 
@@ -292,7 +290,7 @@ class ArrowRunnerMIGame(MIGame):
             else: # rest seguro
                 if info["p_right_smooth"] > SEVERIDAD_AIMBOT:
                     self.mover_jugador(1, 0)
-                elif info["p_left_smooth"] >  SEVERIDAD_AIMBOT:
+                elif info["p_left_smooth"] > SEVERIDAD_AIMBOT:
                     self.mover_jugador(-1, 0)
                 else:
                     # Nada

@@ -15,6 +15,9 @@ PREDICTED_LEFT  = pygame.USEREVENT + 10
 PREDICTED_RIGHT = pygame.USEREVENT + 11
 PREDICTED_REST  = pygame.USEREVENT + 12
 
+AIMBOT_MODE = True
+SEVERIDAD_AIMBOT = 1
+
 
 class ProjectArrowsMIGame(MIGame):
     """
@@ -37,9 +40,9 @@ class ProjectArrowsMIGame(MIGame):
         self.CENTER_Y = self.HEIGHT // 2
 
         # --- Constantes Solicitadas: Dificultad y Velocidad ---
-        self.BASE_ENEMY_SPEED = 5.0          # Velocidad inicial base de las flechas (píxeles por frame aprox)
+        self.BASE_ENEMY_SPEED = 3.0          # Velocidad inicial base de las flechas (píxeles por frame aprox)
         self.INCREASE_SPEED_OVER_TIME = True # ¿Aumenta la velocidad con el tiempo?
-        self.SPEED_INC_PER_0_01S = 0.002     # Cuánto aumenta la velocidad por cada 0.01 segundos
+        self.SPEED_INC_PER_0_01S = 0.0005     # Cuánto aumenta la velocidad por cada 0.01 segundos
 
         # --- Constantes Solicitadas: Mecánicas ---
         self.ALLOW_INVERTED_ARROWS = True    # Generar flechas invertidas que cambian de lado
@@ -49,7 +52,7 @@ class ProjectArrowsMIGame(MIGame):
         self.SWAP_DISTANCE = 250             # Distancia al centro donde la flecha invertida empieza a cambiar de lado
         self.ARC_HEIGHT = 150                # Altura máxima del salto visual de la flecha invertida
         self.HITBOX_RADIUS = 35              # Distancia al centro para considerar que la flecha ha impactado
-        self.BASE_SPAWN_RATE = 1000          # Tiempo base de aparición (en milisegundos)
+        self.BASE_SPAWN_RATE = 5000          # Tiempo base de aparición (en milisegundos)
 
         # =====================================================================
 
@@ -216,9 +219,47 @@ class ProjectArrowsMIGame(MIGame):
         elif prediction == "right_hand":
             self.player_dir = 1
 
-    def controlAssist(self, prediction: str, _info: dict) -> None:
-        """Aplica la predicción como acción directa del juego."""
-        self.string_to_action(prediction)
+    def controlAssist(self, prediction: str, info: dict) -> None:
+        if AIMBOT_MODE:
+            if info["name"] == "ExponentialSmoothing":
+                self.heuristica_aimbot_1(prediction, info)
+        else:
+            self.string_to_action(prediction)
+
+    def heuristica_aimbot_1(self, prediction, info):
+        enemigo_mas_cercano = None
+        distancia_minima = float('inf')
+
+        for enemy in self.enemies: # Sacamos el enemigo más cercano y su distancia
+            # La distancia absoluta desde la posición X del enemigo hasta nuestro centro
+            distancia = abs(enemy['x'] - self.CENTER_X)
+            
+            if distancia < distancia_minima:
+                distancia_minima = distancia
+                enemigo_mas_cercano = enemy
+
+        if enemigo_mas_cercano:
+            lado_origen = enemigo_mas_cercano['side']
+            
+            es_engano = enemigo_mas_cercano['is_inverted'] and not enemigo_mas_cercano['has_swapped'] # para comprobar si la flecha va a cambiar de lado
+
+            if es_engano:
+                lado_real_impacto = lado_origen * -1
+            else:
+                lado_real_impacto = lado_origen
+
+            umbral = 1 - SEVERIDAD_AIMBOT
+
+            if lado_real_impacto == -1: # deberíamos apuntar a la izquierda
+                if info["p_right_smooth"] >= umbral:
+                    self.player_dir = -1
+                else:
+                    self.string_to_action(prediction)
+            elif lado_real_impacto == 1: # deberíamos apuntar a la derecha
+                if info["p_left_smooth"] >= umbral:
+                    self.player_dir = 1
+                else:
+                    self.string_to_action(prediction)
 
     # ------------------------------------------------------------------
     # BUCLE PRINCIPAL
@@ -269,6 +310,8 @@ class ProjectArrowsMIGame(MIGame):
                         pass
             except OSError:
                 running = False
+            
+            #self.controlAssist("right_hand", {"name":"ExponentialSmoothing", "p_right_smooth":100, "p_left_smooth":100})
 
             if self.state == "PLAYING":
                 self.update_logic(dt)
