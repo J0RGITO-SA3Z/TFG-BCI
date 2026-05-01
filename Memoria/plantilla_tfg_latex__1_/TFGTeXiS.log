@@ -1,37 +1,37 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.3)  23 APR 2026 22:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.1)  1 MAY 2026 20:02
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**c:/Users/julianix/Documents/programacion/python/TFG-BCI/Memoria/plantilla_tfg_latex__1_/TFGTeXiS.tex
-(c:/Users/julianix/Documents/programacion/python/TFG-BCI/Memoria/plantilla_tfg_latex__1_/TFGTeXiS.tex
-LaTeX2e <2023-11-01> patch level 1
-L3 programming layer <2024-01-04>
-(C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/base\book.cls
-Document Class: book 2023/05/17 v1.4n Standard LaTeX document class
-(C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/base\bk12.clo
-File: bk12.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
+**c:/Users/julia/Documents/Programacion/pyton/TFG-BCI/Memoria/plantilla_tfg_latex__1_/TFGTeXiS.tex
+(c:/Users/julia/Documents/Programacion/pyton/TFG-BCI/Memoria/plantilla_tfg_latex__1_/TFGTeXiS.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+(C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/base\book.cls
+Document Class: book 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/base\bk12.clo
+File: bk12.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
 )
-\c@part=\count187
-\c@chapter=\count188
-\c@section=\count189
-\c@subsection=\count190
-\c@subsubsection=\count191
-\c@paragraph=\count192
-\c@subparagraph=\count193
-\c@figure=\count194
-\c@table=\count195
-\abovecaptionskip=\skip48
-\belowcaptionskip=\skip49
-\bibindent=\dimen140
+\c@part=\count275
+\c@chapter=\count276
+\c@section=\count277
+\c@subsection=\count278
+\c@subsubsection=\count279
+\c@paragraph=\count280
+\c@subparagraph=\count281
+\c@figure=\count282
+\c@table=\count283
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen148
 )
 
 LaTeX Warning: \include should only be used after \begin{document} on input line 75.
 
 (config.tex) (TeXiS/TeXiS.sty
 Package: TeXiS/TeXiS 
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/tools\verbatim.sty
-Package: verbatim 2023-11-06 v1.5v LaTeX2e package for verbatim enhancements
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/tools\verbatim.sty
+Package: verbatim 2024-01-22 v1.5x LaTeX2e package for verbatim enhancements
 \every@verbatim=\toks17
 \verbatim@line=\toks18
 \verbatim@in@stream=\read2
@@ -41,33 +41,46 @@ Package: verbatim 2023-11-06 v1.5v LaTeX2e package for verbatim enhancements
 
 LaTeX Warning: \include should only be used after \begin{document} on input line 460.
 
-(TeXiS/TeXiS_pream.tex (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/base\shortvrb.sty
-Package: shortvrb 2022/11/13 v3.0m Standard LaTeX documentation package V3 (FMi)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
-Package: inputenc 2021/02/14 v1.3d Input encoding file
+(TeXiS/TeXiS_pream.tex (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/base\shortvrb.sty
+Package: shortvrb 2024/12/25 v3.0q Standard LaTeX documentation package V3 (FMi)
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
 \inpenc@prehook=\toks19
 \inpenc@posthook=\toks20
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/natbib\natbib.sty
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/natbib\natbib.sty
 Package: natbib 2010/09/13 8.31b (PWD, AO)
-\bibhang=\skip50
-\bibsep=\skip51
+\bibhang=\skip51
+\bibsep=\skip52
 LaTeX Info: Redefining \cite on input line 694.
-\c@NAT@ctr=\count196
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/babel\babel.sty
-Package: babel 2024/01/07 v24.1 The Babel package
-\babel@savecnt=\count197
-\U@D=\dimen141
+\c@NAT@ctr=\count284
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/babel\babel.sty
+Package: babel 2025/12/11 v25.17 The multilingual framework for LuaLaTeX, pdfLaTeX and XeLaTeX
+\babel@savecnt=\count285
+LaTeX Encoding Info:    Redeclaring text command \ij (encoding OT1) on input line 2068.
+LaTeX Encoding Info:    Redeclaring text command \IJ (encoding OT1) on input line 2070.
+LaTeX Encoding Info:    Redeclaring text command \ij (encoding T1) on input line 2072.
+LaTeX Encoding Info:    Redeclaring text command \IJ (encoding T1) on input line 2073.
+LaTeX Encoding Info:    Ignoring declaration for text command \ij (encoding ?) on input line 2074.
+LaTeX Encoding Info:    Ignoring declaration for text command \IJ (encoding ?) on input line 2076.
+LaTeX Encoding Info:    Ignoring declaration for text command \SS (encoding ?) on input line 2101.
+\U@D=\dimen149
 \l@unhyphenated=\language79
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/babel\txtbabel.def)
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/babel\txtbabel.def)
 \bbl@readstream=\read3
-\bbl@dirlevel=\count198
+\bbl@dirlevel=\count286
+Package babel Info: Configuration files are deprecated, as
+(babel)             they can break document portability.
+(babel)             Reported on input line 4196.
 
 *************************************
 * Local config file bblopts.cfg used
 *
-(C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/arabi\bblopts.cfg
+(C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/arabi\bblopts.cfg
 File: bblopts.cfg 2005/09/08 v0.1 add Arabic and Farsi to "declared" options of babel
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/babel-english\english.ldf
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/babel/locale/en\babel-english.tex) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/babel/locale/es\babel-spanish.tex)
+Package babel Info: Importing font and identification data for english
+(babel)             from babel-en.ini. Reported on input line 4320.
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/babel-english\english.ldf
 Language: english 2017/06/06 v3.3r English support from the babel system
 Package babel Info: Hyphen rules for 'canadian' set to \l@english
 (babel)             (\language0). Reported on input line 102.
@@ -75,154 +88,145 @@ Package babel Info: Hyphen rules for 'australian' set to \l@ukenglish
 (babel)             (\language73). Reported on input line 105.
 Package babel Info: Hyphen rules for 'newzealand' set to \l@ukenglish
 (babel)             (\language73). Reported on input line 108.
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/babel-spanish\spanish.ldf
+)
+Package babel Info: Importing font and identification data for spanish
+(babel)             from babel-es.ini. Reported on input line 4320.
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/babel-spanish\spanish.ldf
 Language: spanish.ldf 2021/05/27 v5.0q Spanish support from the babel system
 \es@quottoks=\toks21
-\es@quotdepth=\count199
+\es@quotdepth=\count287
 Package babel Info: Making " an active character on input line 570.
 Package babel Info: Making . an active character on input line 675.
 Package babel Info: Making < an active character on input line 722.
 Package babel Info: Making > an active character on input line 722.
 Package babel Info: Making ' an active character on input line 740.
-)) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/babel/locale/es\babel-spanish.tex
-Package babel Info: Importing font and identification data for spanish
-(babel)             from babel-es.ini. Reported on input line 11.
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/babel/locale/en\babel-english.tex
-Package babel Info: Importing font and identification data for english
-(babel)             from babel-en.ini. Reported on input line 11.
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
-\Urlmuskip=\muskip16
+))
+LaTeX Encoding Info:    Redeclaring text command \guillemotleft (encoding OT1) on input line 211.
+LaTeX Encoding Info:    Redeclaring text command \guillemotright (encoding OT1) on input line 211.
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
+\Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifpdf.sty
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifpdf.sty
 Package: ifpdf 2019/10/25 v3.4 ifpdf legacy package. Use iftex instead.
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
-Package: iftex 2022/02/03 v1.0f TeX engine tests
-)) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/fncychap\fncychap.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+)) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/fncychap\fncychap.sty
 Package: fncychap 2007/07/30 v1.34 LaTeX package (Revised chapters)
-\RW=\skip52
-\mylen=\skip53
-\myhi=\skip54
-\px=\skip55
-\py=\skip56
-\pyy=\skip57
-\pxx=\skip58
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
-Package: hyperref 2023-11-26 v7.01g Hypertext links for LaTeX
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.sty
-Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+\RW=\skip53
+\mylen=\skip54
+\myhi=\skip55
+\px=\skip56
+\py=\skip57
+\pyy=\skip58
+\pxx=\skip59
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+Package: hyperref 2025-07-12 v7.01o Hypertext links for LaTeX
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks22
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
 Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefinekeys.sty
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefinekeys.sty
 Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.sty
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.sty
 Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
 Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.sty
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.sty
 Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
-)) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty
+)) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty
 Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/letltxmacro\letltxmacro.sty
-Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/auxhook\auxhook.sty
-Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
-Package: nameref 2023-11-26 v2.56 Cross-referencing by name of section
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+Package: nameref 2025-06-21 v2.57 Cross-referencing by name of section
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty
 Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettitlestring.sty
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
-\c@section@level=\count266
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty
-Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count267
+\c@section@level=\count288
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count289
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO)
 )
-\@linkdim=\dimen142
-\Hy@linkcounter=\count268
-\Hy@pagecounter=\count269
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
-File: pd1enc.def 2023-11-26 v7.01g Hyperref: PDFDocEncoding definition (HO)
+\@linkdim=\dimen150
+\Hy@linkcounter=\count290
+\Hy@pagecounter=\count291
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
+File: pd1enc.def 2025-07-12 v7.01o Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
-\Hy@SavedSpaceFactor=\count270
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
-File: puenc.def 2023-11-26 v7.01g Hyperref: PDF Unicode definition (HO)
+\Hy@SavedSpaceFactor=\count292
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
+File: puenc.def 2025-07-12 v7.01o Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
 ... no UTF-8 mapping file for font encoding PU
 )
 
 Package hyperref Warning: Invalid value `0'
 (hyperref)                for option `pdfborder'.
-(hyperref)                Option setting is ignored on input line 4064.
+(hyperref)                Option setting is ignored on input line 4066.
 
-Package hyperref Info: Option `hyperindex' set `true' on input line 4064.
-Package hyperref Info: Option `pdfpagelabels' set `true' on input line 4064.
-Package hyperref Info: Option `hypertexnames' set `false' on input line 4064.
-Package hyperref Info: Hyper figures OFF on input line 4181.
-Package hyperref Info: Link nesting OFF on input line 4186.
-Package hyperref Info: Hyper index ON on input line 4189.
-Package hyperref Info: Plain pages OFF on input line 4196.
-Package hyperref Info: Backreferencing OFF on input line 4201.
+Package hyperref Info: Option `hyperindex' set `true' on input line 4066.
+Package hyperref Info: Option `pdfpagelabels' set `true' on input line 4066.
+Package hyperref Info: Option `hypertexnames' set `false' on input line 4066.
+Package hyperref Info: Hyper figures OFF on input line 4195.
+Package hyperref Info: Link nesting OFF on input line 4200.
+Package hyperref Info: Hyper index ON on input line 4203.
+Package hyperref Info: Plain pages OFF on input line 4210.
+Package hyperref Info: Backreferencing OFF on input line 4215.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
-Package hyperref Info: Bookmarks ON on input line 4448.
-\c@Hy@tempcnt=\count271
-LaTeX Info: Redefining \url on input line 4786.
-\XeTeXLinkMargin=\dimen143
-(C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+Package hyperref Info: Bookmarks ON on input line 4462.
+\c@Hy@tempcnt=\count293
+LaTeX Info: Redefining \url on input line 4801.
+\XeTeXLinkMargin=\dimen151
+(C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc.sty
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
 ))
-\Fld@menulength=\count272
-\Field@Width=\dimen144
-\Fld@charsize=\dimen145
-Package hyperref Info: Hyper figures OFF on input line 6065.
-Package hyperref Info: Link nesting OFF on input line 6070.
-Package hyperref Info: Hyper index ON on input line 6073.
-Package hyperref Info: backreferencing OFF on input line 6080.
-Package hyperref Info: Link coloring OFF on input line 6085.
-Package hyperref Info: Link coloring with OCG OFF on input line 6090.
-Package hyperref Info: PDF/A mode OFF on input line 6095.
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/base\atbegshi-ltx.sty
-Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
-package with kernel methods
-)
-\Hy@abspage=\count273
-\c@Item=\count274
-\c@Hfootnote=\count275
+\Fld@menulength=\count294
+\Field@Width=\dimen152
+\Fld@charsize=\dimen153
+Package hyperref Info: Hyper figures OFF on input line 6078.
+Package hyperref Info: Link nesting OFF on input line 6083.
+Package hyperref Info: Hyper index ON on input line 6086.
+Package hyperref Info: backreferencing OFF on input line 6093.
+Package hyperref Info: Link coloring OFF on input line 6098.
+Package hyperref Info: Link coloring with OCG OFF on input line 6103.
+Package hyperref Info: PDF/A mode OFF on input line 6108.
+\Hy@abspage=\count295
+\c@Item=\count296
+\c@Hfootnote=\count297
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
-File: hpdftex.def 2023-11-26 v7.01g Hyperref driver for pdfTeX
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/base\atveryend-ltx.sty
-Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend package
-with kernel methods
-)
-\Fld@listcount=\count276
-\c@bookmark@seq@number=\count277
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfilecheck.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+File: hpdftex.def 2025-07-12 v7.01o Hyperref driver for pdfTeX
+\Fld@listcount=\count298
+\c@bookmark@seq@number=\count299
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfilecheck.sty
 Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquecounter.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquecounter.sty
 Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 )
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 284.
 )
-\Hy@SectionHShift=\skip59
+\Hy@SectionHShift=\skip60
 )
 Package hyperref Info: Option `colorlinks' set `false' on input line 290.
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/base\makeidx.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/base\makeidx.sty
 Package: makeidx 2021/10/04 v1.0m Standard LaTeX package
 )
 \@indexfile=\write4
@@ -230,32 +234,30 @@ Package: makeidx 2021/10/04 v1.0m Standard LaTeX package
 
 
 Writing index file TFGTeXiS.idx
-(C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/tools\multicol.sty
-Package: multicol 2023/03/30 v1.9f multicolumn formatting (FMi)
-\c@tracingmulticols=\count278
-\mult@box=\box51
-\multicol@leftmargin=\dimen146
-\c@unbalance=\count279
-\c@collectmore=\count280
-\doublecol@number=\count281
-\multicoltolerance=\count282
-\multicolpretolerance=\count283
-\full@width=\dimen147
-\page@free=\dimen148
-\premulticols=\dimen149
-\postmulticols=\dimen150
-\multicolsep=\skip60
-\multicolbaselineskip=\skip61
-\partial@page=\box52
-\last@line=\box53
-\mc@boxedresult=\box54
-\maxbalancingoverflow=\dimen151
-\mult@rightbox=\box55
-\mult@grightbox=\box56
-\mult@firstbox=\box57
-\mult@gfirstbox=\box58
-\@tempa=\box59
-\@tempa=\box60
+(C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/tools\multicol.sty
+Package: multicol 2025/10/21 v2.0b multicolumn formatting (FMi)
+\c@tracingmulticols=\count300
+\mult@box=\box53
+\multicol@leftmargin=\dimen154
+\c@unbalance=\count301
+\c@collectmore=\count302
+\doublecol@number=\count303
+\multicoltolerance=\count304
+\multicolpretolerance=\count305
+\full@width=\dimen155
+\page@free=\dimen156
+\premulticols=\dimen157
+\postmulticols=\dimen158
+\multicolsep=\skip61
+\multicolbaselineskip=\skip62
+\partial@page=\box54
+\last@line=\box55
+\mc@boxedresult=\box56
+\maxbalancingoverflow=\dimen159
+\mult@rightbox=\box57
+\mult@grightbox=\box58
+\mult@firstbox=\box59
+\mult@gfirstbox=\box60
 \@tempa=\box61
 \@tempa=\box62
 \@tempa=\box63
@@ -290,244 +292,317 @@ Package: multicol 2023/03/30 v1.9f multicolumn formatting (FMi)
 \@tempa=\box92
 \@tempa=\box93
 \@tempa=\box94
-\c@minrows=\count284
-\c@columnbadness=\count285
-\c@finalcolumnbadness=\count286
-\last@try=\dimen152
-\multicolovershoot=\dimen153
-\multicolundershoot=\dimen154
-\mult@nat@firstbox=\box95
-\colbreak@box=\box96
-\mc@col@check@num=\count287
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/subfig\subfig.sty
+\@tempa=\box95
+\@tempa=\box96
+\c@minrows=\count306
+\c@columnbadness=\count307
+\c@finalcolumnbadness=\count308
+\last@try=\dimen160
+\multicolovershoot=\dimen161
+\multicolundershoot=\dimen162
+\mult@nat@firstbox=\box97
+\colbreak@box=\box98
+\mc@col@check@num=\count309
+\g__mc_curr_col_int=\count310
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/subfig\subfig.sty
 Package: subfig 2005/06/28 ver: 1.3 subfig package
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
 Package: caption 2023/08/05 v3.6o Customizing captions (AR)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty
 Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
-\caption@tempdima=\dimen155
-\captionmargin=\dimen156
-\caption@leftmargin=\dimen157
-\caption@rightmargin=\dimen158
-\caption@width=\dimen159
-\caption@indent=\dimen160
-\caption@parindent=\dimen161
-\caption@hangindent=\dimen162
+\caption@tempdima=\dimen163
+\captionmargin=\dimen164
+\caption@leftmargin=\dimen165
+\caption@rightmargin=\dimen166
+\caption@width=\dimen167
+\caption@indent=\dimen168
+\caption@parindent=\dimen169
+\caption@hangindent=\dimen170
 Package caption Info: Standard document class detected.
 )
-\c@caption@flags=\count288
-\c@continuedfloat=\count289
+\c@caption@flags=\count311
+\c@continuedfloat=\count312
 Package caption Info: hyperref package is loaded.
 )
-\c@KVtest=\count290
-\sf@farskip=\skip62
-\sf@captopadj=\dimen163
-\sf@capskip=\skip63
-\sf@nearskip=\skip64
-\c@subfigure=\count291
-\c@subfigure@save=\count292
-\c@lofdepth=\count293
-\c@subtable=\count294
-\c@subtable@save=\count295
-\c@lotdepth=\count296
-\sf@top=\skip65
-\sf@bottom=\skip66
+\c@KVtest=\count313
+\sf@farskip=\skip63
+\sf@captopadj=\dimen171
+\sf@capskip=\skip64
+\sf@nearskip=\skip65
+\c@subfigure=\count314
+\c@subfigure@save=\count315
+\c@lofdepth=\count316
+\c@subtable=\count317
+\c@subtable@save=\count318
+\c@lotdepth=\count319
+\sf@top=\skip66
+\sf@bottom=\skip67
 )
-\sf@box=\box97
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
-\lst@mode=\count297
-\lst@gtempboxa=\box98
+\sf@box=\box99
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
+\lst@mode=\count320
+\lst@gtempboxa=\box100
 \lst@token=\toks23
-\lst@length=\count298
-\lst@currlwidth=\dimen164
-\lst@column=\count299
-\lst@pos=\count300
-\lst@lostspace=\dimen165
-\lst@width=\dimen166
-\lst@newlines=\count301
-\lst@lineno=\count302
-\lst@maxwidth=\dimen167
- (C:\Program Files\MiKTeX\tex/latex/listings\lstpatch.sty
-File: lstpatch.sty 2023/02/27 1.9 (Carsten Heinz)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
-File: lstmisc.sty 2023/02/27 1.9 (Carsten Heinz)
-\c@lstnumber=\count303
-\lst@skipnumbers=\count304
-\lst@framebox=\box99
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
-File: listings.cfg 2023/02/27 1.9 listings configuration
+\lst@length=\count321
+\lst@currlwidth=\dimen172
+\lst@column=\count322
+\lst@pos=\count323
+\lst@lostspace=\dimen173
+\lst@width=\dimen174
+\lst@newlines=\count324
+\lst@lineno=\count325
+\lst@maxwidth=\dimen175
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstpatch.sty
+File: lstpatch.sty 2025/11/14 1.11b (Carsten Heinz)
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
+File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
+\c@lstnumber=\count326
+\lst@skipnumbers=\count327
+\lst@framebox=\box101
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
+File: listings.cfg 2025/11/14 1.11b listings configuration
 ))
-Package: listings 2023/02/27 1.9 (Carsten Heinz)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.sty
-Package: tabularx 2023/07/08 v2.11c `tabularx' package (DPC)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
-Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
-\col@sep=\dimen168
-\ar@mcellbox=\box100
-\extrarowheight=\dimen169
+Package: listings 2025/11/14 1.11b (Carsten Heinz)
+
+==> First Aid for listings.sty no longer applied!
+    Expected:
+        2024/09/23 1.10c (Carsten Heinz)
+    but found:
+        2025/11/14 1.11b (Carsten Heinz)
+    so I'm assuming it got fixed.
+(C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.sty
+Package: tabularx 2023/12/11 v2.12a `tabularx' package (DPC)
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
+Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
+\col@sep=\dimen176
+\ar@mcellbox=\box102
+\extrarowheight=\dimen177
 \NC@list=\toks24
-\extratabsurround=\skip67
-\backup@length=\skip68
-\ar@cellbox=\box101
+\extratabsurround=\skip68
+\backup@length=\skip69
+\ar@cellbox=\box103
 )
-\TX@col@width=\dimen170
-\TX@old@table=\dimen171
-\TX@old@col=\dimen172
-\TX@target=\dimen173
-\TX@delta=\dimen174
-\TX@cols=\count305
+\TX@col@width=\dimen178
+\TX@old@table=\dimen179
+\TX@old@col=\dimen180
+\TX@target=\dimen181
+\TX@delta=\dimen182
+\TX@cols=\count328
 \TX@ftn=\toks25
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
-Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/graphics\epsfig.sty
-Package: epsfig 2017/06/25 v1.7b (e)psfig emulation (SPQR)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
-Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
-Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
-Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.cfg
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/graphics\epsfig.sty
+Package: epsfig 2024/01/14 v1.7b (e)psfig emulation (SPQR)
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
-Package graphics Info: Driver file: pdftex.def on input line 107.
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
-File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
+Package graphics Info: Driver file: pdftex.def on input line 106.
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
 ))
-\Gin@req@height=\dimen175
-\Gin@req@width=\dimen176
+\Gin@req@height=\dimen183
+\Gin@req@width=\dimen184
 )
-\epsfxsize=\dimen177
-\epsfysize=\dimen178
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/tools\calc.sty
-Package: calc 2023/07/08 v4.3 Infix arithmetic (KKT,FJ)
-\calc@Acount=\count306
-\calc@Bcount=\count307
-\calc@Adimen=\dimen179
-\calc@Bdimen=\dimen180
-\calc@Askip=\skip69
-\calc@Bskip=\skip70
-LaTeX Info: Redefining \setlength on input line 80.
-LaTeX Info: Redefining \addtolength on input line 81.
-\calc@Ccount=\count308
-\calc@Cskip=\skip71
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
-Package: geometry 2020/01/02 v5.9 Page Geometry
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+\epsfxsize=\dimen185
+\epsfysize=\dimen186
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/tools\calc.sty
+Package: calc 2025/03/01 v4.3b Infix arithmetic (KKT,FJ)
+\calc@Acount=\count329
+\calc@Bcount=\count330
+\calc@Adimen=\dimen187
+\calc@Bdimen=\dimen188
+\calc@Askip=\skip70
+\calc@Bskip=\skip71
+LaTeX Info: Redefining \setlength on input line 86.
+LaTeX Info: Redefining \addtolength on input line 87.
+\calc@Ccount=\count331
+\calc@Cskip=\skip72
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+Package: geometry 2026/03/07 v6.0 Page Geometry
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 )
-\Gm@cnth=\count309
-\Gm@cntv=\count310
-\c@Gm@tempcnt=\count311
-\Gm@bindingoffset=\dimen181
-\Gm@wd@mp=\dimen182
-\Gm@odd@mp=\dimen183
-\Gm@even@mp=\dimen184
-\Gm@layoutwidth=\dimen185
-\Gm@layoutheight=\dimen186
-\Gm@layouthoffset=\dimen187
-\Gm@layoutvoffset=\dimen188
+\Gm@cnth=\count332
+\Gm@cntv=\count333
+\c@Gm@tempcnt=\count334
+\Gm@bindingoffset=\dimen189
+\Gm@wd@mp=\dimen190
+\Gm@odd@mp=\dimen191
+\Gm@even@mp=\dimen192
+\Gm@layoutwidth=\dimen193
+\Gm@layoutheight=\dimen194
+\Gm@layouthoffset=\dimen195
+\Gm@layoutvoffset=\dimen196
 \Gm@dimlist=\toks26
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg)) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/titlesec\titlesec.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg)) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/titlesec\titlesec.sty
 Package: titlesec 2025/01/04 v2.17 Sectioning titles
-\ttl@box=\box102
-\beforetitleunit=\skip72
-\aftertitleunit=\skip73
-\ttl@plus=\dimen189
-\ttl@minus=\dimen190
+\ttl@box=\box104
+\beforetitleunit=\skip73
+\aftertitleunit=\skip74
+\ttl@plus=\dimen197
+\ttl@minus=\dimen198
 \ttl@toksa=\toks27
-\titlewidth=\dimen191
-\titlewidthlast=\dimen192
-\titlewidthfirst=\dimen193
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/csquotes\csquotes.sty
+\titlewidth=\dimen199
+\titlewidthlast=\dimen256
+\titlewidthfirst=\dimen257
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip75
+
+For additional information on amsmath, use the `?' option.
+(C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks28
+\ex@=\dimen258
+)) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen259
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count335
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count336
+\leftroot@=\count337
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count338
+\DOTSCASE@=\count339
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box105
+\strutbox@=\box106
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen260
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count340
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count341
+\dotsspace@=\muskip18
+\c@parentequation=\count342
+\dspbrk@lvl=\count343
+\tag@help=\toks29
+\row@=\count344
+\column@=\count345
+\maxfields@=\count346
+\andhelp@=\toks30
+\eqnshift@=\dimen261
+\alignsep@=\dimen262
+\tagshift@=\dimen263
+\tagwidth@=\dimen264
+\totwidth@=\dimen265
+\lineht@=\dimen266
+\@envbody=\toks31
+\multlinegap=\skip76
+\multlinetaggap=\skip77
+\mathdisplay@stack=\toks32
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/csquotes\csquotes.sty
 Package: csquotes 2024-04-04 v5.2o context-sensitive quotations (JAW)
-\csq@reset=\count312
-\csq@gtype=\count313
-\csq@glevel=\count314
-\csq@qlevel=\count315
-\csq@maxlvl=\count316
-\csq@tshold=\count317
-\csq@ltx@everypar=\toks28
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/csquotes\csquotes.def
+\csq@reset=\count347
+\csq@gtype=\count348
+\csq@glevel=\count349
+\csq@qlevel=\count350
+\csq@maxlvl=\count351
+\csq@tshold=\count352
+\csq@ltx@everypar=\toks33
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/csquotes\csquotes.def
 File: csquotes.def 2024-04-04 v5.2o csquotes generic definitions (JAW)
 )
 Package csquotes Info: Trying to load configuration file 'csquotes.cfg'...
 Package csquotes Info: ... configuration file loaded successfully.
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/csquotes\csquotes.cfg
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/csquotes\csquotes.cfg
 File: csquotes.cfg 
-)) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/pdfpages\pdfpages.sty
+)) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/pdfpages\pdfpages.sty
 Package: pdfpages 2026/03/30 v0.6h Insert pages of external PDF documents (AM)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.sty
-Package: ifthen 2022/04/13 v1.1d Standard LaTeX ifthen package (DPC)
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/eso-pic\eso-pic.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.sty
+Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/eso-pic\eso-pic.sty
 Package: eso-pic 2025/12/10 v3.0d eso-pic (RN)
-\ESO@tempdima=\dimen194
-\ESO@tempdimb=\dimen195
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
-Package: xcolor 2023/11/15 v3.01 LaTeX color extensions (UK)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
+\ESO@tempdima=\dimen267
+\ESO@tempdimb=\dimen268
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package xcolor Info: Driver file: pdftex.def on input line 274.
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx)
-Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1350.
-Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1354.
-Package xcolor Info: Model `RGB' extended on input line 1366.
-Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1368.
-Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1369.
-Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1370.
-Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1371.
-Package xcolor Info: Model `Gray' substituted by `gray' on input line 1372.
-Package xcolor Info: Model `wave' substituted by `hsb' on input line 1373.
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
 ))
-\AM@pagewidth=\dimen196
-\AM@pageheight=\dimen197
-\AM@fboxrule=\dimen198
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/pdfpages\pppdftex.def
+\AM@pagewidth=\dimen269
+\AM@pageheight=\dimen270
+\AM@fboxrule=\dimen271
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/pdfpages\pppdftex.def
 File: pppdftex.def 2026/03/30 v0.6h Pdfpages driver for pdfTeX (AM)
 )
-\pdfpages@includegraphics@status=\count318
-\AM@pagebox=\box103
-\AM@global@opts=\toks29
-\AM@pagecnt=\count319
-\AM@toc@title=\toks30
-\AM@lof@heading=\toks31
-\c@AM@survey=\count320
-\AM@templatesizebox=\box104
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/lipsum\lipsum.sty (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/l3keys2e\l3keys2e.sty (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.sty
-Package: expl3 2024-01-04 L3 programming layer (loader) 
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
-File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count321
-\l__pdf_internal_box=\box105
+\pdfpages@includegraphics@status=\count353
+\AM@pagebox=\box107
+\AM@global@opts=\toks34
+\AM@pagecnt=\count354
+\AM@toc@title=\toks35
+\AM@lof@heading=\toks36
+\c@AM@survey=\count355
+\AM@templatesizebox=\box108
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/lipsum\lipsum.sty (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/l3keys2e\l3keys2e.sty (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.sty
+Package: expl3 2025-12-24 L3 programming layer (loader) 
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count356
 ))
-Package: l3keys2e 2023-10-10 LaTeX2e option processing using LaTeX3 keys
+Package: l3keys2e 2025-10-09 LaTeX2e option processing using LaTeX3 keys
 )
 Package: lipsum 2021-09-20 v2.7 150 paragraphs of Lorem Ipsum dummy text
-\g__lipsum_par_int=\count322
-\l__lipsum_a_int=\count323
-\l__lipsum_b_int=\count324
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/lipsum\lipsum.ltd.tex)))
+\g__lipsum_par_int=\count357
+\l__lipsum_a_int=\count358
+\l__lipsum_b_int=\count359
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/lipsum\lipsum.ltd.tex)))
 
 LaTeX Warning: \include should only be used after \begin{document} on input line 464.
 
-(TeXiS/TeXiS_cab.tex (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/fancyhdr\fancyhdr.sty
+(TeXiS/TeXiS_cab.tex (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/fancyhdr\fancyhdr.sty
 Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
-\f@nch@headwidth=\skip74
-\f@nch@offset@elh=\skip75
-\f@nch@offset@erh=\skip76
-\f@nch@offset@olh=\skip77
-\f@nch@offset@orh=\skip78
-\f@nch@offset@elf=\skip79
-\f@nch@offset@erf=\skip80
-\f@nch@offset@olf=\skip81
-\f@nch@offset@orf=\skip82
-\f@nch@height=\skip83
-\f@nch@footalignment=\skip84
-\f@nch@widthL=\skip85
-\f@nch@widthC=\skip86
-\f@nch@widthR=\skip87
-\@temptokenb=\toks32
+\f@nch@headwidth=\skip78
+\f@nch@offset@elh=\skip79
+\f@nch@offset@erh=\skip80
+\f@nch@offset@olh=\skip81
+\f@nch@offset@orh=\skip82
+\f@nch@offset@elf=\skip83
+\f@nch@offset@erf=\skip84
+\f@nch@offset@olf=\skip85
+\f@nch@offset@orf=\skip86
+\f@nch@height=\skip87
+\f@nch@footalignment=\skip88
+\f@nch@widthL=\skip89
+\f@nch@widthC=\skip90
+\f@nch@widthR=\skip91
+\@temptokenb=\toks37
 ))
 
 LaTeX Warning: \include should only be used after \begin{document} on input line 467.
@@ -552,6 +627,8 @@ Package csquotes Info: Redefining alias 'default' -> 'spanish'.
  (TFGTeXiS.aux (Cascaras/cover.aux)
 LaTeX Info: Redefining \. on input line 13.
 LaTeX Info: Redefining \% on input line 13.
+Package babel Info: 'spanish' activates 'spanish' shorthands.
+(babel)             Reported on input line 13.
  (Cascaras/agradecimientos.aux) (Cascaras/resumen.aux) (Cascaras/abstract.aux) (TeXiS/TeXiS_toc.aux)
 LaTeX Info: Redefining \. on input line 19.
 LaTeX Info: Redefining \% on input line 19.
@@ -590,24 +667,24 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
-\c@lstlisting=\count325
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
+\c@lstlisting=\count360
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count326
-\scratchdimen=\dimen199
-\scratchbox=\box106
-\nofMPsegments=\count327
-\nofMParguments=\count328
-\everyMPshowfont=\toks33
-\MPscratchCnt=\count329
-\MPscratchDim=\dimen256
-\MPnumerator=\count330
-\makeMPintoPDFobject=\count331
-\everyMPtoPDFconversion=\toks34
-) (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base.sty
+\scratchcounter=\count361
+\scratchdimen=\dimen272
+\scratchbox=\box109
+\nofMPsegments=\count362
+\nofMParguments=\count363
+\everyMPshowfont=\toks38
+\MPscratchCnt=\count364
+\MPscratchDim=\dimen273
+\MPnumerator=\count365
+\makeMPintoPDFobject=\count366
+\everyMPtoPDFconversion=\toks39
+) (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
 *geometry* driver: auto-detecting
@@ -644,11 +721,11 @@ File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-(C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape.sty
+(C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape.sty
 Package: pdflscape 2022-10-27 v0.13 Display of landscape pages in PDF
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape-nometadata.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape-nometadata.sty
 Package: pdflscape-nometadata 2022-10-28 v0.13 Display of landscape pages in PDF (HO)
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/graphics\lscape.sty
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/graphics\lscape.sty
 Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
 )
 Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
@@ -656,23 +733,23 @@ Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
 \openout2 = `Cascaras/cover.aux'.
 
  (Cascaras/cover.tex
-\cambioIzquierdo=\skip88
-\cambioDerecho=\skip89
-\margenPortada=\skip90
-\evensidemarginOriginal=\skip91
-\oddsidemarginOriginal=\skip92
-\longTitulo=\skip93
-<Imagenes/Bitmap/escudoUCMcolor.png, id=131, 600.3228pt x 678.3744pt>
+\cambioIzquierdo=\skip92
+\cambioDerecho=\skip93
+\margenPortada=\skip94
+\evensidemarginOriginal=\skip95
+\oddsidemarginOriginal=\skip96
+\longTitulo=\skip97
+<Imagenes/Bitmap/escudoUCMcolor.png, id=151, 600.3228pt x 678.3744pt>
 File: Imagenes/Bitmap/escudoUCMcolor.png Graphic file (type png)
 <use Imagenes/Bitmap/escudoUCMcolor.png>
 Package pdftex.def Info: Imagenes/Bitmap/escudoUCMcolor.png  used on input line 185.
 (pdftex.def)             Requested size: 120.06242pt x 135.67247pt.
-\c@lastyear=\count332
+\c@lastyear=\count367
  [1
 
 
 
-{C:/Users/julianix/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <./Imagenes/Bitmap/escudoUCMcolor.png>] [2] [3])
+{C:/Users/julia/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <./Imagenes/Bitmap/escudoUCMcolor.png>] [2] [3])
 \openout2 = `Cascaras/agradecimientos.aux'.
 
  (Cascaras/agradecimientos.tex [4
@@ -688,14 +765,7 @@ Package pdftex.def Info: Imagenes/Bitmap/escudoUCMcolor.png  used on input line 
 
 
 
-]
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 9.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 9.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 9.
-) [7]
+]) [7]
 \openout2 = `Cascaras/abstract.aux'.
 
  (Cascaras/abstract.tex [8
@@ -718,9 +788,13 @@ LaTeX Info: Redefining \. on input line 1.
 LaTeX Info: Redefining \% on input line 1.
 LaTeX Info: Redefining \. on input line 3.
 LaTeX Info: Redefining \% on input line 3.
-LaTeX Info: Redefining \. on input line 28.
-LaTeX Info: Redefining \% on input line 28.
- [11])
+
+Underfull \vbox (badness 1953) has occurred while \output is active []
+
+ [11]
+LaTeX Info: Redefining \. on input line 35.
+LaTeX Info: Redefining \% on input line 35.
+)
 \tf@toc=\write6
 \openout6 = `TFGTeXiS.toc'.
 
@@ -760,30 +834,29 @@ LaTeX Info: Redefining \% on input line 12.
  (Capitulos/Introduccion.tex
 Cap\'itulo 1.
 LaTeX Font Info:    Trying to load font information for OT1+phv on input line 1.
-(C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1phv.fd
+(C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1phv.fd
 File: ot1phv.fd 2020/03/25 scalable font definitions for OT1/phv.
 )
 LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 1.
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1ptm.fd
+ (C:\Users\julia\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 6.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 6.
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 6.
- (C:\Users\julianix\AppData\Local\Programs\MiKTeX\tex/latex/base\t1cmtt.fd
-File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-) [1
+Overfull \hbox (10.82397pt too wide) in paragraph at lines 10--11
+[]\T1/cmr/m/n/12 La me-mo-ria de-be in-cluir la des-crip-ción de-ta-lla-da de la pro-pues-ta hard-wa-re/software
+ []
+
+[1
 
 
-{C:/Users/julianix/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}]
+{C:/Users/julia/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}]
 Overfull \hbox (0.68625pt too wide) in paragraph at lines 44--45
 \T1/cmr/m/n/12 che-ro [][]\T1/cmtt/m/n/12 TeXiS\TeXiS_pream.tex []\T1/cmr/m/n/12 y co-men-ta la lí-nea [][]\T1/cmtt/m/n/12 \usepackage[Lenny]{fncychap}
  []
 
 LaTeX Info: Redefining \. on input line 51.
 LaTeX Info: Redefining \% on input line 51.
+Package babel Info: 'spanish' activates 'spanish' shorthands.
+(babel)             Reported on input line 51.
 
 Package fancyhdr Warning: \headheight is too small (14.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -845,7 +918,7 @@ Package fancyhdr Warning: \headheight is too small (14.0pt):
  (Capitulos/EstadoDeLaCuestion.tex
 Cap\'itulo 2.
 
-Overfull \hbox (15.91432pt too wide) in paragraph at lines 4--5
+Overfull \hbox (15.91563pt too wide) in paragraph at lines 4--5
 []\T1/cmr/m/n/12 En las úl-ti-mas dé-ca-das, el in-te-rés y la via-bi-li-dad de las in-ter-fa-ces cerebro-computador
  []
 
@@ -888,23 +961,48 @@ Package fancyhdr Warning: \headheight is too small (14.0pt):
 
 ]
 Cap\'itulo 3.
-<Imagenes/Vectorial/Todo.pdf, id=332, 408.52625pt x 256.96pt>
+<Imagenes/Vectorial/Todo.pdf, id=357, 408.52625pt x 256.96pt>
 File: Imagenes/Vectorial/Todo.pdf Graphic file (type pdf)
 <use Imagenes/Vectorial/Todo.pdf>
 Package pdftex.def Info: Imagenes/Vectorial/Todo.pdf  used on input line 8.
 (pdftex.def)             Requested size: 213.39568pt x 134.22377pt.
-) [11 <./Imagenes/Vectorial/Todo.pdf>]
+(Capitulos/Preprocesado.tex
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [11 <./Imagenes/Vectorial/Todo.pdf>]
+LaTeX Info: Redefining \. on input line 32.
+LaTeX Info: Redefining \% on input line 32.
+
+
+Package fancyhdr Warning: \headheight is too small (14.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-0.49998pt}.
+
+[12]))
+LaTeX Info: Redefining \. on input line 142.
+LaTeX Info: Redefining \% on input line 142.
+
+
+Package fancyhdr Warning: \headheight is too small (14.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-0.49998pt}.
+
+[13]
 \openout2 = `Capitulos/ProtocoloAdquisicion.aux'.
 
- (Capitulos/ProtocoloAdquisicion.tex [12
+ (Capitulos/ProtocoloAdquisicion.tex [14
 
 
 
 
 ]
 Cap\'itulo 4.
-[13]
-<Imagenes/Bitmap/electrodos_layout.png, id=354, 471.9231pt x 503.9628pt>
+[15]
+<Imagenes/Bitmap/electrodos_layout.png, id=397, 471.9231pt x 503.9628pt>
 File: Imagenes/Bitmap/electrodos_layout.png Graphic file (type png)
 <use Imagenes/Bitmap/electrodos_layout.png>
 Package pdftex.def Info: Imagenes/Bitmap/electrodos_layout.png  used on input line 35.
@@ -919,7 +1017,7 @@ Package fancyhdr Warning: \headheight is too small (14.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-0.49998pt}.
 
-[14]
+[16]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 LaTeX Info: Redefining \. on input line 71.
@@ -932,7 +1030,7 @@ Package fancyhdr Warning: \headheight is too small (14.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-0.49998pt}.
 
-[15 <./Imagenes/Bitmap/electrodos_layout.png>]
+[17 <./Imagenes/Bitmap/electrodos_layout.png>]
 LaTeX Info: Redefining \. on input line 94.
 LaTeX Info: Redefining \% on input line 94.
 
@@ -943,8 +1041,8 @@ Package fancyhdr Warning: \headheight is too small (14.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-0.49998pt}.
 
-[16]
-<Imagenes/Vectorial/estructuraEpoch.pdf, id=371, 411.78844pt x 146.04562pt>
+[18]
+<Imagenes/Vectorial/estructuraEpoch.pdf, id=413, 411.78844pt x 146.04562pt>
 File: Imagenes/Vectorial/estructuraEpoch.pdf Graphic file (type pdf)
 <use Imagenes/Vectorial/estructuraEpoch.pdf>
 Package pdftex.def Info: Imagenes/Vectorial/estructuraEpoch.pdf  used on input line 98.
@@ -959,7 +1057,7 @@ Package fancyhdr Warning: \headheight is too small (14.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-0.49998pt}.
 
-[17 <./Imagenes/Vectorial/estructuraEpoch.pdf>])
+[19 <./Imagenes/Vectorial/estructuraEpoch.pdf>])
 LaTeX Info: Redefining \. on input line 143.
 LaTeX Info: Redefining \% on input line 143.
 
@@ -970,12 +1068,12 @@ Package fancyhdr Warning: \headheight is too small (14.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-0.49998pt}.
 
-[18]
+[20]
 \openout2 = `Capitulos/ConclusionesTrabajoFuturo.aux'.
 
  (Capitulos/ConclusionesTrabajoFuturo.tex
 Cap\'itulo 5.
-) [19
+) [21
 
 
 
@@ -983,70 +1081,67 @@ Cap\'itulo 5.
 ]
 \openout2 = `Capitulos/Introduction.aux'.
 
- (Capitulos/Introduction.tex [20
-
-
-
-
-]) [21]
-\openout2 = `Capitulos/ConclusionsFutureWork.aux'.
-
- (Capitulos/ConclusionsFutureWork.tex [22
+ (Capitulos/Introduction.tex [22
 
 
 
 
 ]) [23]
-LaTeX Info: Redefining \. on input line 153.
-LaTeX Info: Redefining \% on input line 153.
-\openout2 = `Capitulos/ContribucionesPersonales.aux'.
+\openout2 = `Capitulos/ConclusionsFutureWork.aux'.
 
- (Capitulos/ContribucionesPersonales.tex [24
+ (Capitulos/ConclusionsFutureWork.tex [24
 
 
 
 
 ]) [25]
+LaTeX Info: Redefining \. on input line 153.
+LaTeX Info: Redefining \% on input line 153.
+\openout2 = `Capitulos/ContribucionesPersonales.aux'.
+
+ (Capitulos/ContribucionesPersonales.tex [26
+
+
+
+
+]) [27]
 \openout2 = `Cascaras/bibliografia.aux'.
 
- (Cascaras/bibliografia.tex (TFGTeXiS.bbl [26
+ (Cascaras/bibliografia.tex (TFGTeXiS.bbl [28
 
 
 
 
-]
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 1.
-)) [27]
+])) [29]
 \openout2 = `Apendices/appendixA.aux'.
 
- (Apendices/appendixA.tex [28
+ (Apendices/appendixA.tex [30
 
 
 
 
 ]
 Ap\'{e}ndice A.
-) [29]
+) [31]
 \openout2 = `Apendices/appendixB.aux'.
 
- (Apendices/appendixB.tex [30
+ (Apendices/appendixB.tex [32
 
 
 
 
 ]
 Ap\'{e}ndice B.
-) [31] [32
+) [33] [34
 
 
 
 ]
 \openout2 = `Cascaras/fin.aux'.
 
- (Cascaras/fin.tex [33
+ (Cascaras/fin.tex [35
 
-] [34]) (TFGTeXiS.aux (Cascaras/cover.aux)
+] [36]) (TFGTeXiS.aux (Cascaras/cover.aux)
 LaTeX Info: Redefining \. on input line 13.
 LaTeX Info: Redefining \% on input line 13.
  (Cascaras/agradecimientos.aux) (Cascaras/resumen.aux) (Cascaras/abstract.aux) (TeXiS/TeXiS_toc.aux)
@@ -1057,24 +1152,24 @@ LaTeX Info: Redefining \. on input line 29.
 LaTeX Info: Redefining \% on input line 29.
  (Cascaras/bibliografia.aux) (Apendices/appendixA.aux) (Apendices/appendixB.aux) (Cascaras/fin.aux))
  ***********
-LaTeX2e <2023-11-01> patch level 1
-L3 programming layer <2024-01-04>
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `TFGTeXiS.out' has not changed.
-(rerunfilecheck)             Checksum: 736FDD4A81061EE9ADA3FF0999596C4B;5063.
+(rerunfilecheck)             Checksum: 7625DF7D1267977B8A789A1259C3B7BA;5919.
  ) 
 Here is how much of TeX's memory you used:
- 18611 strings out of 474479
- 319692 string characters out of 5742176
- 1936542 words of memory out of 5000000
- 40121 multiletter control sequences out of 15000+600000
- 578351 words of font info for 71 fonts, out of 8000000 for 9000
+ 19403 strings out of 467871
+ 328344 string characters out of 5418377
+ 856686 words of memory out of 5000000
+ 47480 multiletter control sequences out of 15000+600000
+ 651357 words of font info for 86 fonts, out of 8000000 for 9000
  1379 hyphenation exceptions out of 8191
- 101i,11n,112p,1290b,871s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti0800.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1095.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1095.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1200.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0700.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1200.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1200.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1440.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm2488.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\julianix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk><C:/Users/julianix/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/julianix/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/julianix/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/julianix/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvr8a.pfb><C:/Users/julianix/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb>
-Output written on TFGTeXiS.pdf (50 pages, 954980 bytes).
+ 97i,11n,109p,1286b,898s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti0800.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1095.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1095.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1200.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0700.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1200.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1200.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1440.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm2488.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\julia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk><C:/Users/julia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/julia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/julia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/julia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/julia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/julia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/julia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/julia/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvr8a.pfb><C:/Users/julia/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb>
+Output written on TFGTeXiS.pdf (52 pages, 1005780 bytes).
 PDF statistics:
- 1146 PDF objects out of 1200 (max. 8388607)
- 109 named destinations out of 1000 (max. 500000)
- 277 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1216 PDF objects out of 1440 (max. 8388607)
+ 120 named destinations out of 1000 (max. 500000)
+ 317 words of extra memory for PDF output out of 10000 (max. 10000000)
 

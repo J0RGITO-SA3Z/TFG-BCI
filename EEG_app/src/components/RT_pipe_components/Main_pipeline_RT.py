@@ -62,6 +62,8 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, game_cl
     interpreter_process = RT_interpreter_process(RT_interpreter_slider, game_pipe=migame_process.get_send_pipe())
     interpreter_process.start(filename=SalidaPredicciones)
 
+    eeg.iniciarGrabacion()
+    
     # Crea el pipeline en proceso separado y conecta su salida al interprete.
     modelPipeline = RT_pipeline_process(
         ea_matrix = EA_matrix,
