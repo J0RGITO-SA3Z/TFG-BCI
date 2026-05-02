@@ -16,7 +16,7 @@ PREDICTED_RIGHT = pygame.USEREVENT + 11
 PREDICTED_REST  = pygame.USEREVENT + 12
 
 AIMBOT_MODE = True
-SEVERIDAD_AIMBOT = 1
+SEVERIDAD_AIMBOT = 0
 
 
 class ProjectArrowsMIGame(MIGame):
@@ -40,19 +40,19 @@ class ProjectArrowsMIGame(MIGame):
         self.CENTER_Y = self.HEIGHT // 2
 
         # --- Constantes Solicitadas: Dificultad y Velocidad ---
-        self.BASE_ENEMY_SPEED = 3.0          # Velocidad inicial base de las flechas (píxeles por frame aprox)
+        self.BASE_ENEMY_SPEED = 1.0          # Velocidad inicial base de las flechas (píxeles por frame aprox)
         self.INCREASE_SPEED_OVER_TIME = True # ¿Aumenta la velocidad con el tiempo?
         self.SPEED_INC_PER_0_01S = 0.0005     # Cuánto aumenta la velocidad por cada 0.01 segundos
 
         # --- Constantes Solicitadas: Mecánicas ---
-        self.ALLOW_INVERTED_ARROWS = True    # Generar flechas invertidas que cambian de lado
+        self.ALLOW_INVERTED_ARROWS = False    # Generar flechas invertidas que cambian de lado
         self.AUTO_RESPAWN = False            # True: Reinicia sin pantalla Game Over. False: Pantalla clásica.
 
         # --- Distancias y Comportamiento ---
         self.SWAP_DISTANCE = 250             # Distancia al centro donde la flecha invertida empieza a cambiar de lado
         self.ARC_HEIGHT = 150                # Altura máxima del salto visual de la flecha invertida
         self.HITBOX_RADIUS = 35              # Distancia al centro para considerar que la flecha ha impactado
-        self.BASE_SPAWN_RATE = 5000          # Tiempo base de aparición (en milisegundos)
+        self.BASE_SPAWN_RATE = 6000          # Tiempo base de aparición (en milisegundos)
 
         # =====================================================================
 
@@ -127,7 +127,7 @@ class ProjectArrowsMIGame(MIGame):
                     enemy['x'] = self.CENTER_X + (enemy['side'] * self.SWAP_DISTANCE)
 
             if enemy['is_swapping']:
-                salto_speed = (self.current_speed * 2) / (self.SWAP_DISTANCE * 1)
+                salto_speed = (self.current_speed * 10) / (self.SWAP_DISTANCE * 1)
                 enemy['swap_t'] += salto_speed * move_multiplier
 
                 if enemy['swap_t'] >= 1.0:

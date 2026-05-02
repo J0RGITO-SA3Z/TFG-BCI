@@ -15,7 +15,7 @@ PREDICTED_RIGHT = pygame.USEREVENT + 11
 PREDICTED_REST  = pygame.USEREVENT + 12
 
 AIMBOT_MODE = True
-SEVERIDAD_AIMBOT = 1
+SEVERIDAD_AIMBOT = 0
 
 
 class EndlessWaveRunnerMIGame(MIGame):
@@ -34,15 +34,15 @@ class EndlessWaveRunnerMIGame(MIGame):
 
         # --- Configuración de la Nave ---
         self.SHIP_FIXED_Y = 450  # Coordenada Y estática donde se queda la nave
-        self.SHIP_X_SPEED = 3.0  # Cuánto avanza la nave en X por cada tick
+        self.SHIP_X_SPEED = 1.0  # Cuánto avanza la nave en X por cada tick
         self.SHIP_SIZE = 15      # Tamaño (radio) de la hitbox de la nave
 
         # --- Configuración del Entorno y Scroll ---
-        self.INITIAL_SCROLL_SPEED = 3.0  # Velocidad a la que el mapa y obstáculos bajan
+        self.INITIAL_SCROLL_SPEED = 1.0  # Velocidad a la que el mapa y obstáculos bajan
         self.ENABLE_OBSTACLES = True     # Activa/Desactiva los pinchos laterales
 
         # --- Configuración de Dificultad Base ---
-        self.INITIAL_GAP_SIZE = 400      # Hueco inicial entre la pared izquierda y derecha
+        self.INITIAL_GAP_SIZE = 600      # Hueco inicial entre la pared izquierda y derecha
         self.MIN_GAP_SIZE = 120          # El hueco mínimo al que puede llegar el juego
 
         # --- Sistema de "Respawn" (Reaparición) ---
@@ -50,7 +50,7 @@ class EndlessWaveRunnerMIGame(MIGame):
 
         # --- Sistema de Dificultad Progresiva ---
         self.INCREASE_SPEED = True
-        self.SPEED_INCREMENT_AMOUNT = 0.5   # Cuánto aumenta la velocidad de scroll
+        self.SPEED_INCREMENT_AMOUNT = 0.01   # Cuánto aumenta la velocidad de scroll
         self.SPEED_INCREMENT_INTERVAL = 300 # Cada cuántos ticks se aumenta (300 ticks = 5 seg a 60fps)
 
         self.DECREASE_GAP = True
@@ -204,7 +204,7 @@ class EndlessWaveRunnerMIGame(MIGame):
                 else:
                     self.ship_x = self.SCREEN_WIDTH / 2
                 # Apuntar recto para no chocar de inmediato
-                self.ship_direction = 0
+                #self.ship_direction = 0
             else:
                 self.is_game_over = True
 

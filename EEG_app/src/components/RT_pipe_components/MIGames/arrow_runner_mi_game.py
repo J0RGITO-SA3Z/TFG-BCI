@@ -31,9 +31,9 @@ PREDICTED_LEFT = pygame.USEREVENT
 PREDICTED_RIGHT = pygame.USEREVENT
 
 AIMBOT_MODE = True
-SEVERIDAD_AIMBOT = 1 # 0.0 (sin ayuda) a 1.0 (ayuda total)
+SEVERIDAD_AIMBOT = 0
 
-VELOCIDAD_INICIAL = 2000
+VELOCIDAD_INICIAL = 10000
 
 class Configuracion:
     def __init__(self):
