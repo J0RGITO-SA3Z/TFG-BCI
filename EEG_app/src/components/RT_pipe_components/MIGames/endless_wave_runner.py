@@ -15,7 +15,7 @@ PREDICTED_RIGHT = pygame.USEREVENT + 11
 PREDICTED_REST  = pygame.USEREVENT + 12
 
 AIMBOT_MODE = True
-SEVERIDAD_AIMBOT = 0
+SEVERIDAD_AIMBOT = 0.7
 
 
 class EndlessWaveRunnerMIGame(MIGame):
@@ -56,6 +56,9 @@ class EndlessWaveRunnerMIGame(MIGame):
         self.DECREASE_GAP = True
         self.GAP_DECREASE_AMOUNT = 15       # Cuánto se reduce el hueco (espacio para pasar)
         self.GAP_DECREASE_INTERVAL = 300    # Cada cuántos ticks se reduce
+
+        self.right = False
+        self.left = False
 
         # =====================================================================
 
@@ -205,6 +208,8 @@ class EndlessWaveRunnerMIGame(MIGame):
                     self.ship_x = self.SCREEN_WIDTH / 2
                 # Apuntar recto para no chocar de inmediato
                 #self.ship_direction = 0
+                self.current_scroll_speed = self.INITIAL_SCROLL_SPEED
+                self.current_gap_size = self.INITIAL_GAP_SIZE
             else:
                 self.is_game_over = True
 
@@ -422,10 +427,12 @@ class EndlessWaveRunnerMIGame(MIGame):
         umbral_min = 1 - SEVERIDAD_AIMBOT
         umbral_max = 1
 
-        tunnel_center_left = tunnel_center - self.current_gap_size/5
-        tunnel_center_right = tunnel_center + self.current_gap_size/5
+        tunnel_center_left = tunnel_center - (self.current_gap_size/3)
+        tunnel_center_right = tunnel_center + (self.current_gap_size/3)
+
 
         if self.ship_x < tunnel_center_left: # en principio hay q ir a la derecha
+            self.right = True
             left_dist = self.ship_x-left_bound
             max_dist = tunnel_center_left - left_bound
             umbral_normalizado = umbral_min + (left_dist / max_dist) * (umbral_max - umbral_min)
@@ -434,6 +441,7 @@ class EndlessWaveRunnerMIGame(MIGame):
             else:
                 self.string_to_action(prediction)
         elif self.ship_x > tunnel_center_right: # en principio hay q ir a la izquierda (ignoramos el caso en el q estamos justo en el centro)
+            self.left = True
             right_dist = right_bound-self.ship_x
             max_dist = right_bound - tunnel_center_right
             umbral_normalizado = umbral_max - (right_dist / max_dist) * (umbral_max - umbral_min)
@@ -441,8 +449,16 @@ class EndlessWaveRunnerMIGame(MIGame):
                 self.ship_direction = -1
             else:
                 self.string_to_action(prediction)
+        elif self.left and self.ship_x < tunnel_center:
+            self.left = False
+        elif self.right and self.ship_x > tunnel_center:
+            self.right = False
+        elif self.right:
+            self.ship_direction = 1
+        elif self.left:
+            self.ship_direction = -1
         else:
-            self.ship_direction = self.ship_direction
+            self.string_to_action(prediction)
 
     # ------------------------------------------------------------------
     # BUCLE PRINCIPAL
@@ -491,7 +507,7 @@ class EndlessWaveRunnerMIGame(MIGame):
             except OSError:
                 running = False
 
-            #self.controlAssist("right_hand", {"name":"ExponentialSmoothing", "p_right_smooth":100, "p_left_smooth":100})
+            self.controlAssist("right_hand", {"name":"ExponentialSmoothing", "p_right_smooth":100, "p_left_smooth":100})
 
             self.update()
 

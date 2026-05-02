@@ -38,7 +38,7 @@ class Training_real_time:
         self.classes = None
 
     # Métodos Publicos de la clase  ─────────────────────────────────────────────────────────────────────
-    def start(self, puerto_COM, channelsConfig, lista=["left_hand", "right_hand", "feet", "rest"], numTrialsClase=15, epochs=10, seed=42, fif_name=None):
+    def start(self, puerto_COM, channelsConfig, lista=["left_hand", "right_hand", "feet", "rest"], numTrialsClase=30, epochs=10, seed=42, fif_name=None):
         """
         Ejecuta un experimento visual con las clases pasadas en lista y con ello hace el fine tuning del modelo MiRepNet
         y calcula la matriz de alineamiento euclídeo (EA).
@@ -68,7 +68,7 @@ class Training_real_time:
             channelsConfig=channelsConfig,
             numTrialsClase=numTrialsClase,
             lista=lista,
-            tmp_baseline_inicial=0,
+            tmp_baseline_inicial=20,
         )
 
         X, Y, classes = data_provider.get_data(fif_path=fif_name)

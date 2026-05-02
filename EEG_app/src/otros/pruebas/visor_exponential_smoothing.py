@@ -14,11 +14,11 @@ if PROJECT_ROOT not in sys.path:
 
 CSV_PATH = os.path.join(
     PROJECT_ROOT, "recordings", "simulations_RT",
-    "juego_test_1", "SalidaPredicciones.csv"
+    "[NEW]ES_2_6_85_75", "SalidaPredicciones.csv"
 )
 FIF_PATH = os.path.join(
     PROJECT_ROOT, "recordings", "simulations_RT",
-    "juego_test_1", "suj2_6_raw.fif"
+    "[NEW]ES_2_6_85_75", "suj2_6_raw.fif"
 )
 
 ANNOTATION_MAP = {

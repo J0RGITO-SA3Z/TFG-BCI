@@ -33,8 +33,8 @@ class RT_interpreter_slider(RT_interpreter):
         #self.filter = Mayoria()
         #self.filter = ScorePonderado()
         #self.filter = MediaProbabilidades()
-        self.filter = IntegradorFuga(leak_r=0.1, leak_l=0.1, threshold=1.0, reset_on_decision=True)
-        #self.filter = ExponentialSmoothing(alpha=0.85, threshold=0.75)
+        #self.filter = IntegradorFuga(leak_r=0.1, leak_l=0.1, threshold=1.0, reset_on_decision=True)
+        self.filter = ExponentialSmoothing(alpha=0.85, threshold=0.75)
         # =========================
 
     def _listen(self, filename: Optional[str] = None) -> None:

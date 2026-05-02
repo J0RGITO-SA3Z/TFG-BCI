@@ -37,9 +37,24 @@ GAMES: dict[str, Type[MIGame]] = {
     "5": DualArrowComponent,
 }
 
+def choose_game() -> Type[MIGame]:
+    print("\n=== Selecciona un juego MI ===")
+
+    for key, game_cls in GAMES.items():
+        print(f"{key}. {game_cls.__name__}")
+
+    while True:
+        option = input("Opción: ").strip()
+
+        game_cls = GAMES.get(option)
+        if game_cls is not None:
+            return game_cls
+
+        print("Opción no válida. Prueba otra vez.")
+
 def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral, SalidaPredicciones, game_cls: Type[MIGame], console):
     rtTraining = Training_real_time()
-    EA_matrix, model = rtTraining.start(puerto_COM=puertoCom, channelsConfig=channelsConfig, fif_name=SalidaEntrenamiento, numTrialsClase = 3)
+    EA_matrix, model = rtTraining.start(puerto_COM=puertoCom, channelsConfig=channelsConfig,lista=["left_hand", "right_hand"], fif_name=SalidaEntrenamiento, numTrialsClase = 30)
 
     eeg = EEGRecorder()
     live_server = None
@@ -172,18 +187,3 @@ def interfaz_experimento_RT(channelsConfig, console):
         game_cls,
         console,
     )
-
-    def choose_game() -> Type[MIGame]:
-        print("\n=== Selecciona un juego MI ===")
-
-        for key, game_cls in GAMES.items():
-            print(f"{key}. {game_cls.__name__}")
-
-        while True:
-            option = input("Opción: ").strip()
-
-            game_cls = GAMES.get(option)
-            if game_cls is not None:
-                return game_cls
-
-            print("Opción no válida. Prueba otra vez.")

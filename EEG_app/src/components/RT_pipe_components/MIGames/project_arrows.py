@@ -16,7 +16,7 @@ PREDICTED_RIGHT = pygame.USEREVENT + 11
 PREDICTED_REST  = pygame.USEREVENT + 12
 
 AIMBOT_MODE = True
-SEVERIDAD_AIMBOT = 0
+SEVERIDAD_AIMBOT = 1
 
 
 class ProjectArrowsMIGame(MIGame):
@@ -46,13 +46,13 @@ class ProjectArrowsMIGame(MIGame):
 
         # --- Constantes Solicitadas: Mecánicas ---
         self.ALLOW_INVERTED_ARROWS = False    # Generar flechas invertidas que cambian de lado
-        self.AUTO_RESPAWN = False            # True: Reinicia sin pantalla Game Over. False: Pantalla clásica.
+        self.AUTO_RESPAWN = True            # True: Reinicia sin pantalla Game Over. False: Pantalla clásica.
 
         # --- Distancias y Comportamiento ---
         self.SWAP_DISTANCE = 250             # Distancia al centro donde la flecha invertida empieza a cambiar de lado
         self.ARC_HEIGHT = 150                # Altura máxima del salto visual de la flecha invertida
         self.HITBOX_RADIUS = 35              # Distancia al centro para considerar que la flecha ha impactado
-        self.BASE_SPAWN_RATE = 6000          # Tiempo base de aparición (en milisegundos)
+        self.BASE_SPAWN_RATE = 8000          # Tiempo base de aparición (en milisegundos)
 
         # =====================================================================
 
@@ -75,7 +75,7 @@ class ProjectArrowsMIGame(MIGame):
         self.current_speed = self.BASE_ENEMY_SPEED
         self.survived_time = 0.0
         self.time_accumulator = 0.0
-        self.spawn_timer = 0.0
+        self.spawn_timer = 10.0
 
         self.state = "PLAYING"
 
@@ -229,6 +229,7 @@ class ProjectArrowsMIGame(MIGame):
     def heuristica_aimbot_1(self, prediction, info):
         enemigo_mas_cercano = None
         distancia_minima = float('inf')
+        lado_real_impacto = 1
 
         for enemy in self.enemies: # Sacamos el enemigo más cercano y su distancia
             # La distancia absoluta desde la posición X del enemigo hasta nuestro centro
@@ -248,15 +249,16 @@ class ProjectArrowsMIGame(MIGame):
             else:
                 lado_real_impacto = lado_origen
 
-            umbral = 1 - SEVERIDAD_AIMBOT
+        umbral = 1 - SEVERIDAD_AIMBOT
 
+        if distancia_minima < self.WIDTH/4:
             if lado_real_impacto == -1: # deberíamos apuntar a la izquierda
-                if info["p_right_smooth"] >= umbral:
+                if info["p_left_smooth"] >= umbral:
                     self.player_dir = -1
                 else:
                     self.string_to_action(prediction)
             elif lado_real_impacto == 1: # deberíamos apuntar a la derecha
-                if info["p_left_smooth"] >= umbral:
+                if info["p_right_smooth"] >= umbral:
                     self.player_dir = 1
                 else:
                     self.string_to_action(prediction)
