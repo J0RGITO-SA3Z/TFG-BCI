@@ -20,7 +20,7 @@ class BandpassFilter(RawProcessor):
 
     def process(self, raw: mne.io.Raw) -> mne.io.Raw:
         raw = raw.copy()
-        raw.filter(l_freq=self.l_freq, h_freq=self.h_freq, verbose=False)
+        raw.filter(l_freq=self.l_freq, h_freq=self.h_freq,method='fir', verbose=False)
         return raw
 
     def __repr__(self) -> str:
