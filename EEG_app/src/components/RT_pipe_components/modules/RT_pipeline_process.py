@@ -62,6 +62,8 @@ class RT_pipeline:
             next_time += 0.15
             if self.predecir_event.is_set():
                 data, last_sample, last_timestamp = self.buffer.getData()
+                if last_timestamp is None:
+                    continue
                 data = np.expand_dims(data, axis=0)  # (1, C, T)
                 data, _ = self.epoch_pipeline.process_np(data, [0])
                 data = data[0]

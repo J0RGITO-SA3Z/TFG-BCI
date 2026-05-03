@@ -14,6 +14,9 @@ PREDICTED_LEFT  = pygame.USEREVENT + 10
 PREDICTED_RIGHT = pygame.USEREVENT + 11
 PREDICTED_REST  = pygame.USEREVENT + 12
 
+AIMBOT_MODE = True
+SEVERIDAD_AIMBOT = 0.7
+
 
 class EndlessWaveRunnerMIGame(MIGame):
     def __init__(self, pipe: Connection, stop_event: Event) -> None:
@@ -31,28 +34,31 @@ class EndlessWaveRunnerMIGame(MIGame):
 
         # --- Configuración de la Nave ---
         self.SHIP_FIXED_Y = 450  # Coordenada Y estática donde se queda la nave
-        self.SHIP_X_SPEED = 7.0  # Cuánto avanza la nave en X por cada tick
+        self.SHIP_X_SPEED = 1.0  # Cuánto avanza la nave en X por cada tick
         self.SHIP_SIZE = 15      # Tamaño (radio) de la hitbox de la nave
 
         # --- Configuración del Entorno y Scroll ---
-        self.INITIAL_SCROLL_SPEED = 5.0  # Velocidad a la que el mapa y obstáculos bajan
+        self.INITIAL_SCROLL_SPEED = 1.0  # Velocidad a la que el mapa y obstáculos bajan
         self.ENABLE_OBSTACLES = True     # Activa/Desactiva los pinchos laterales
 
         # --- Configuración de Dificultad Base ---
-        self.INITIAL_GAP_SIZE = 400      # Hueco inicial entre la pared izquierda y derecha
+        self.INITIAL_GAP_SIZE = 600      # Hueco inicial entre la pared izquierda y derecha
         self.MIN_GAP_SIZE = 120          # El hueco mínimo al que puede llegar el juego
 
         # --- Sistema de "Respawn" (Reaparición) ---
-        self.AUTO_RESPAWN = False  # True: te recoloca en el centro. False: Game Over
+        self.AUTO_RESPAWN = True  # True: te recoloca en el centro. False: Game Over
 
         # --- Sistema de Dificultad Progresiva ---
         self.INCREASE_SPEED = True
-        self.SPEED_INCREMENT_AMOUNT = 0.5   # Cuánto aumenta la velocidad de scroll
+        self.SPEED_INCREMENT_AMOUNT = 0.01   # Cuánto aumenta la velocidad de scroll
         self.SPEED_INCREMENT_INTERVAL = 300 # Cada cuántos ticks se aumenta (300 ticks = 5 seg a 60fps)
 
         self.DECREASE_GAP = True
         self.GAP_DECREASE_AMOUNT = 15       # Cuánto se reduce el hueco (espacio para pasar)
         self.GAP_DECREASE_INTERVAL = 300    # Cada cuántos ticks se reduce
+
+        self.right = False
+        self.left = False
 
         # =====================================================================
 
@@ -201,7 +207,9 @@ class EndlessWaveRunnerMIGame(MIGame):
                 else:
                     self.ship_x = self.SCREEN_WIDTH / 2
                 # Apuntar recto para no chocar de inmediato
-                self.ship_direction = 0
+                #self.ship_direction = 0
+                self.current_scroll_speed = self.INITIAL_SCROLL_SPEED
+                self.current_gap_size = self.INITIAL_GAP_SIZE
             else:
                 self.is_game_over = True
 
@@ -335,11 +343,122 @@ class EndlessWaveRunnerMIGame(MIGame):
         elif prediction == "right_hand":
             self.ship_direction = 1
         else:
-            self.ship_direction = 0
+            self.ship_direction = self.ship_direction #0 # NOTA: no se contempla la posibilidad de ir recto
 
     def controlAssist(self, prediction: str, info: dict) -> None:
-        """Aplica la predicción como acción directa del juego."""
-        self.string_to_action(prediction)
+        if AIMBOT_MODE:
+            if info["name"] == "ExponentialSmoothing":
+                self.heuristica_aimbot_2(prediction, info)
+        else:
+            self.string_to_action(prediction)
+
+    def heuristica_aimbot_1(self, prediction, info): 
+        left_bound, right_bound = 0, self.SCREEN_WIDTH
+        for i in range(len(self.tunnel_points) - 1): # CALCULAMOS LOS BORDES IZQUIERDO Y DERECHO
+            p1 = self.tunnel_points[i]
+            p2 = self.tunnel_points[i+1]
+
+            # p1 tiene una Y mayor (más abajo) y p2 una Y menor (más arriba)
+            if p2['y'] <= self.SHIP_FIXED_Y <= p1['y']:
+                # Hacemos una interpolación lineal simple para calcular el ancho exacto en la Y de la nave
+                t = (self.SHIP_FIXED_Y - p2['y']) / (p1['y'] - p2['y']) if p1['y'] != p2['y'] else 0
+                left_bound = p2['left_x'] + t * (p1['left_x'] - p2['left_x'])
+                right_bound = p2['right_x'] + t * (p1['right_x'] - p2['right_x'])
+                break
+
+        tunnel_center = (left_bound + right_bound) / 2
+
+        # formulas que vamos a aplicar para sacar el umbral normalizado
+        # umbral_normalizado = umbral_min + (distancia / distancia_maxima) * (umbral_max - umbral_min)
+        # y cuando queramos q 0 sea el max (para el lado derecho)
+        # umbral_normalizado = umbral_max - (distancia / distancia_maxima) * (umbral_max - umbral_min)
+
+        umbral_min = 1 - SEVERIDAD_AIMBOT
+        umbral_max = 1
+
+        # POR SI QUEDA MUY ANTINATURAL:
+        # para lado izq:
+        # tunnel_center -= self.current_gap_size/3
+        # para lado der:
+        # tunnel_center += self.current_gap_size/3
+        # habría q adaptar el if tb:
+        # if self.ship_x < (tunnel_center-self.current_gap_size/3)
+        # elif self.ship_x > (tunnel_center+self.current_gap/3)
+        # else //lo q digamos para el caso neutro//
+
+        if self.ship_x < tunnel_center: # en principio hay q ir a la derecha
+            left_dist = self.ship_x-left_bound
+            max_dist = tunnel_center - left_bound
+            umbral_normalizado = umbral_min + (left_dist / max_dist) * (umbral_max - umbral_min)
+            if info["p_right_smooth"] > umbral_normalizado:
+                self.ship_direction = 1
+            else:
+                self.string_to_action(prediction)
+        else: # en principio hay q ir a la izquierda (ignoramos el caso en el q estamos justo en el centro)
+            right_dist = right_bound-self.ship_x
+            max_dist = right_bound - tunnel_center
+            umbral_normalizado = umbral_max - (right_dist / max_dist) * (umbral_max - umbral_min)
+            if info["p_left_smooth"] > umbral_normalizado:
+                self.ship_direction = -1
+            else:
+                self.string_to_action(prediction)
+
+    def heuristica_aimbot_2(self, prediction, info): 
+        left_bound, right_bound = 0, self.SCREEN_WIDTH
+        for i in range(len(self.tunnel_points) - 1): # CALCULAMOS LOS BORDES IZQUIERDO Y DERECHO
+            p1 = self.tunnel_points[i]
+            p2 = self.tunnel_points[i+1]
+
+            # p1 tiene una Y mayor (más abajo) y p2 una Y menor (más arriba)
+            if p2['y'] <= self.SHIP_FIXED_Y <= p1['y']:
+                # Hacemos una interpolación lineal simple para calcular el ancho exacto en la Y de la nave
+                t = (self.SHIP_FIXED_Y - p2['y']) / (p1['y'] - p2['y']) if p1['y'] != p2['y'] else 0
+                left_bound = p2['left_x'] + t * (p1['left_x'] - p2['left_x'])
+                right_bound = p2['right_x'] + t * (p1['right_x'] - p2['right_x'])
+                break
+
+        tunnel_center = (left_bound + right_bound) / 2
+
+        # formulas que vamos a aplicar para sacar el umbral normalizado
+        # umbral_normalizado = umbral_min + (distancia / distancia_maxima) * (umbral_max - umbral_min)
+        # y cuando queramos q 0 sea el max (para el lado derecho)
+        # umbral_normalizado = umbral_max - (distancia / distancia_maxima) * (umbral_max - umbral_min)
+
+        umbral_min = 1 - SEVERIDAD_AIMBOT
+        umbral_max = 1
+
+        tunnel_center_left = tunnel_center - (self.current_gap_size/3)
+        tunnel_center_right = tunnel_center + (self.current_gap_size/3)
+
+
+        if self.ship_x < tunnel_center_left: # en principio hay q ir a la derecha
+            self.right = True
+            left_dist = self.ship_x-left_bound
+            max_dist = tunnel_center_left - left_bound
+            umbral_normalizado = umbral_min + (left_dist / max_dist) * (umbral_max - umbral_min)
+            if info["p_right_smooth"] > umbral_normalizado:
+                self.ship_direction = 1
+            else:
+                self.string_to_action(prediction)
+        elif self.ship_x > tunnel_center_right: # en principio hay q ir a la izquierda (ignoramos el caso en el q estamos justo en el centro)
+            self.left = True
+            right_dist = right_bound-self.ship_x
+            max_dist = right_bound - tunnel_center_right
+            umbral_normalizado = umbral_max - (right_dist / max_dist) * (umbral_max - umbral_min)
+            if info["p_left_smooth"] > umbral_normalizado:
+                self.ship_direction = -1
+            else:
+                self.string_to_action(prediction)
+        elif self.left and self.ship_x < tunnel_center:
+            self.left = False
+        elif self.right and self.ship_x > tunnel_center:
+            self.right = False
+        elif self.right:
+            self.ship_direction = 1
+        elif self.left:
+            self.ship_direction = -1
+        else:
+            self.string_to_action(prediction)
 
     # ------------------------------------------------------------------
     # BUCLE PRINCIPAL
@@ -377,13 +496,18 @@ class EndlessWaveRunnerMIGame(MIGame):
                     self.ship_direction = 0
 
             # -- Lectura no bloqueante del pipe BCI: cada predicción nueva cambia la dirección --
-            while self.pipe.poll(0):
-                try:
-                    prediction, info = self.read_msg()
-                    if not self.is_game_over:
-                        self.controlAssist(prediction, info)
-                except Exception:
-                    pass
+            try:
+                while self.pipe.poll(0):
+                    try:
+                        prediction, info = self.read_msg()
+                        if not self.is_game_over:
+                            self.controlAssist(prediction, info)
+                    except Exception:
+                        pass
+            except OSError:
+                running = False
+
+            self.controlAssist("right_hand", {"name":"ExponentialSmoothing", "p_right_smooth":100, "p_left_smooth":100})
 
             self.update()
 

@@ -20,6 +20,12 @@ class IntegradorFuga(Decision_filter):
         for p_left, p_right in window_probs:
             self.integrator += float(p_right) - float(p_left)
 
+        info = {
+            "name ": "IntegradorFuga",
+            "integrator": self.integrator,
+            "threshold": self.threshold,
+        }
+
         if self.integrator > self.threshold:
             pred_final = "right_hand"
             if self.reset_on_decision:
@@ -30,11 +36,5 @@ class IntegradorFuga(Decision_filter):
                 self.integrator = 0.0
         else:
             pred_final = None
-
-        info = {
-            "name ": "IntegradorFuga",
-            "integrator": self.integrator,
-            "threshold": self.threshold,
-        }
 
         return pred_final, info

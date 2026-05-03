@@ -9,31 +9,30 @@
 \contentsline {subsection}{\numberline {1.4.1}Texto de prueba}{3}{subsection.19}%
 \contentsline {chapter}{\numberline {2}Estado de la Cuestión}{7}{chapter.20}%
 \contentsline {chapter}{\numberline {3}Descripción del Trabajo}{11}{chapter.21}%
-\contentsline {section}{\numberline {3.1}Modelo}{12}{section.24}%
-\contentsline {subsection}{\numberline {3.1.1}Arquitectura basada en transformer}{13}{subsection.25}%
-\contentsline {subsubsection}{\numberline {3.1.1.1}Estructura tokenizador}{13}{subsubsection.26}%
-\contentsline {subsubsection}{\numberline {3.1.1.2}Estructura pretraining}{14}{subsubsection.27}%
-\contentsline {subsubsection}{\numberline {3.1.1.3}Estructura Downstream}{15}{subsubsection.29}%
-\contentsline {subsection}{\numberline {3.1.2}Implementación}{16}{subsection.31}%
-\contentsline {chapter}{\numberline {4}Experimento piloto de adquisición de grabaciones con trials}{17}{chapter.32}%
-\contentsline {chapter}{\numberline {5}Experimento de adquisición de grabaciones con trials}{19}{chapter.33}%
-\contentsline {section}{\numberline {5.1}Participantes}{19}{section.34}%
-\contentsline {section}{\numberline {5.2}Equipamiento y Configuración EEG}{20}{section.35}%
-\contentsline {subsection}{\numberline {5.2.1}Dispositivo EEG}{20}{subsection.36}%
-\contentsline {subsection}{\numberline {5.2.2}Software de adquisición}{21}{subsection.39}%
-\contentsline {section}{\numberline {5.3}Entorno experimental}{22}{section.40}%
-\contentsline {section}{\numberline {5.4}Paradigma Experimental}{22}{section.41}%
-\contentsline {subsection}{\numberline {5.4.1}Diseño General}{22}{subsection.42}%
-\contentsline {subsection}{\numberline {5.4.2}Estructura de cada grabación}{22}{subsection.43}%
-\contentsline {subsection}{\numberline {5.4.3}Instrucciones al participante}{23}{subsection.45}%
-\contentsline {section}{\numberline {5.5}Formato de los datos}{24}{section.46}%
-\contentsline {chapter}{\numberline {6}Experimento en tiempo real con juegos}{25}{chapter.47}%
-\contentsline {chapter}{\numberline {7}Conclusiones y Trabajo Futuro}{27}{chapter.48}%
-\contentsline {chapter}{Introduction}{29}{chapter*.49}%
+\contentsline {section}{\numberline {3.1}Preprocesado de la señal}{12}{section.24}%
+\contentsline {subsection}{\numberline {3.1.1}Filtrado}{12}{subsection.25}%
+\contentsline {subsubsection}{\numberline {3.1.1.1}Filtro notch}{12}{subsubsection.26}%
+\contentsline {subsubsection}{\numberline {3.1.1.2}Filtro paso de banda}{12}{subsubsection.27}%
+\contentsline {subsection}{\numberline {3.1.2}Rereferencia CAR}{12}{subsection.28}%
+\contentsline {subsection}{\numberline {3.1.3}Análisis de Componentes Independientes (ICA)}{13}{subsection.30}%
+\contentsline {subsection}{\numberline {3.1.4}Implementación}{13}{subsection.32}%
+\contentsline {chapter}{\numberline {4}Experimento de adquisición de datos}{15}{chapter.33}%
+\contentsline {section}{\numberline {4.1}Participantes}{15}{section.34}%
+\contentsline {section}{\numberline {4.2}Equipamiento y Configuración EEG}{16}{section.35}%
+\contentsline {subsection}{\numberline {4.2.1}Dispositivo EEG}{16}{subsection.36}%
+\contentsline {subsection}{\numberline {4.2.2}Software de adquisición}{16}{subsection.39}%
+\contentsline {section}{\numberline {4.3}Entorno experimental}{18}{section.40}%
+\contentsline {section}{\numberline {4.4}Paradigma Experimental}{18}{section.41}%
+\contentsline {subsection}{\numberline {4.4.1}Diseño General}{18}{subsection.42}%
+\contentsline {subsection}{\numberline {4.4.2}Estructura de cada grabación}{18}{subsection.43}%
+\contentsline {subsection}{\numberline {4.4.3}Instrucciones al participante}{19}{subsection.45}%
+\contentsline {section}{\numberline {4.5}Formato de los datos}{20}{section.46}%
+\contentsline {chapter}{\numberline {5}Conclusiones y Trabajo Futuro}{21}{chapter.47}%
+\contentsline {chapter}{Introduction}{23}{chapter*.48}%
 \babel@toc {english}{}\relax 
-\contentsline {chapter}{Conclusions and Future Work}{31}{chapter*.50}%
-\contentsline {chapter}{Contribuciones Personales}{33}{chapter*.51}%
+\contentsline {chapter}{Conclusions and Future Work}{25}{chapter*.49}%
+\contentsline {chapter}{Contribuciones Personales}{27}{chapter*.50}%
 \babel@toc {spanish}{}\relax 
-\contentsline {chapter}{Bibliograf\'{\i }a}{35}{chapter*.52}%
-\contentsline {chapter}{\numberline {A}Título del Apéndice A}{37}{appendix.53}%
-\contentsline {chapter}{\numberline {B}Título del Apéndice B}{39}{appendix.54}%
+\contentsline {chapter}{Bibliograf\'{\i }a}{29}{chapter*.51}%
+\contentsline {chapter}{\numberline {A}Título del Apéndice A}{31}{appendix.52}%
+\contentsline {chapter}{\numberline {B}Título del Apéndice B}{33}{appendix.53}%

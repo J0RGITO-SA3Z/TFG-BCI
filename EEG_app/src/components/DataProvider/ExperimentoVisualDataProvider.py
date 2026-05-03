@@ -144,7 +144,7 @@ class ExperimentoVisualDataProvider(DataProvider):
             time.sleep(self._tmp_baseline_inicial - 5)
             winsound.Beep(1000, 500)
             time.sleep(5)
-
+ 
             for i, trial in enumerate(trials, start=1):
                 trial_str = str(trial)
                 live_server.setAction(trial_str)

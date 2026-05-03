@@ -31,9 +31,9 @@ PREDICTED_LEFT = pygame.USEREVENT
 PREDICTED_RIGHT = pygame.USEREVENT
 
 AIMBOT_MODE = True
-SEVERIDAD_AIMBOT = 1 # 0.0 (sin ayuda) a 1.0 (ayuda total)
+SEVERIDAD_AIMBOT = 1.0
 
-VELOCIDAD_INICIAL = 500
+VELOCIDAD_INICIAL = 10000
 
 class Configuracion:
     def __init__(self):
@@ -130,9 +130,9 @@ class ArrowRunnerMIGame(MIGame):
                         self.mapa_obstaculos.append((x, y))
                         self.matriz_obstaculos[x][y] = True
 
-        print(f"[DEBUG] Camino seguro: {self.camino_seguro}")
-        print(f"[DEBUG] Posiciones seguras: {self.posiciones_seguras}")
-        print(f"[DEBUG] Matriz obstaculos: {self.matriz_obstaculos}")
+        #print(f"[DEBUG] Camino seguro: {self.camino_seguro}")
+        #print(f"[DEBUG] Posiciones seguras: {self.posiciones_seguras}")
+        #print(f"[DEBUG] Matriz obstaculos: {self.matriz_obstaculos}")
 
     def mover_jugador(self, dx, dy):
         if self.game_over: return
@@ -179,7 +179,7 @@ class ArrowRunnerMIGame(MIGame):
         self.jugador_x = self.cfg.columnas // 2 
         self.generar_obstaculos()
         
-        self.pantalla.fill(AZUL)
+        '''self.pantalla.fill(AZUL)
         texto = self.fuente_grande.render(f"NIVEL {self.nivel}", True, BLANCO)
         rect = texto.get_rect(center=(ANCHO_VENTANA//2, ALTO_VENTANA//2))
         self.pantalla.blit(texto, rect)
@@ -188,10 +188,10 @@ class ArrowRunnerMIGame(MIGame):
         if self.cfg.avance_auto:
             vel_txt = self.fuente.render(f"Velocidad: {self.cfg.velocidad}ms", True, BLANCO)
             vel_rect = vel_txt.get_rect(center=(ANCHO_VENTANA//2, ALTO_VENTANA//2 + 50))
-            self.pantalla.blit(vel_txt, vel_rect)
+            self.pantalla.blit(vel_txt, vel_rect)'''
 
         pygame.display.flip()
-        time.sleep(1) 
+        #time.sleep(1) 
 
     def dibujar_flecha(self):
         cx = self.jugador_x * self.ancho_celda + self.ancho_celda // 2
@@ -242,6 +242,20 @@ class ArrowRunnerMIGame(MIGame):
 
             self.dibujar_flecha()
 
+            if self.cfg.avance_auto:
+                tiempo_actual = pygame.time.get_ticks()
+                tiempo_transcurrido = tiempo_actual - self.ultimo_tiempo_mov
+                # Calculamos el porcentaje (0.0 a 1.0) de progreso hasta el siguiente tick
+                progreso = min(1.0, tiempo_transcurrido / max(1, self.cfg.velocidad))
+                
+                alto_barra = 12
+                y_barra = ALTO_VENTANA - 60  # Posición de la barra justo encima del texto
+                
+                # Fondo gris oscuro
+                pygame.draw.rect(self.pantalla, GRIS, (0, y_barra, ANCHO_VENTANA, alto_barra))
+                # Relleno blanco dependiente del tiempo
+                pygame.draw.rect(self.pantalla, AZUL, (0, y_barra, ANCHO_VENTANA * progreso, alto_barra))
+
             # UI
             info_score = self.fuente.render(f"Puntos: {self.puntuacion}", True, BLANCO)
             info_level = self.fuente.render(f"Nivel: {self.nivel}", True, BLANCO)
@@ -255,8 +269,6 @@ class ArrowRunnerMIGame(MIGame):
             if info["name"] == "ExponentialSmoothing":
                 umbral = 1 - SEVERIDAD_AIMBOT
                 self.heuristica_aimbot_2(prediction, info, umbral)
-            
-        
         else:
             self.string_to_action(prediction)
 
@@ -278,19 +290,13 @@ class ArrowRunnerMIGame(MIGame):
             else: # rest seguro
                 if info["p_right_smooth"] > SEVERIDAD_AIMBOT:
                     self.mover_jugador(1, 0)
-                elif info["p_left_smooth"] >  SEVERIDAD_AIMBOT:
+                elif info["p_left_smooth"] > SEVERIDAD_AIMBOT:
                     self.mover_jugador(-1, 0)
                 else:
                     # Nada
                     self.mover_jugador(0, 0)
 
     def heuristica_aimbot_2(self, prediction, info, umbral):
-<<<<<<< Updated upstream
-        print(f"[DEBUG] Posiciones jugador (x,y): ({self.jugador_x}, {self.jugador_y})")
-        if self.jugador_y == 0 or (not self.matriz_obstaculos[self.jugador_x][self.jugador_y-1] and self.camino_seguro.__contains__((self.jugador_x, self.jugador_y-1))): # si no tenemos un obstáculo encima
-            print(f"[DEBUG] RECTOOOOO")
-=======
-
         # Definición de colores ANSI
         CYAN = '\033[96m'
         VERDE = '\033[92m'
@@ -299,70 +305,61 @@ class ArrowRunnerMIGame(MIGame):
         RESET = '\033[0m'
         NEGRILLA = '\033[1m'
 
-        print(f"{NEGRILLA}--- DEBUG AIMBOT ---{RESET}")
+        #print(f"{NEGRILLA}--- DEBUG AIMBOT ---{RESET}")
 
         # si no tenemos un obstáculo encima
-        print(f"[DEBUG info] j_y = {self.jugador_y}; matriz_act = {self.matriz_obstaculos[self.jugador_x][self.jugador_y]}; matriz_sig = {self.matriz_obstaculos[self.jugador_x][self.jugador_y-1]}")
+        #print(f"[DEBUG info] j_y = {self.jugador_y}; matriz_act = {self.matriz_obstaculos[self.jugador_x][self.jugador_y]}; matriz_sig = {self.matriz_obstaculos[self.jugador_x][self.jugador_y-1]}")
         if self.jugador_y == 0 or (not self.matriz_obstaculos[self.jugador_x][self.jugador_y-1]):
-            print(f"{CYAN}[Libre]{RESET} Sin obstáculos arriba.")
+            #print(f"{CYAN}[Libre]{RESET} Sin obstáculos arriba.")
             
             if info["p_right_smooth"] > SEVERIDAD_AIMBOT:
-                print(f"{VERDE}  -> Moviendo DERECHA (Suave){RESET} p_right: {info['p_right_smooth']:.2f}")
+                #print(f"{VERDE}  -> Moviendo DERECHA (Suave){RESET} p_right: {info['p_right_smooth']:.2f}")
                 self.mover_jugador(1, 0)
             elif info["p_left_smooth"] > SEVERIDAD_AIMBOT:
-                print(f"{VERDE}  -> Moviendo IZQUIERDA (Suave){RESET} p_left: {info['p_left_smooth']:.2f}")
+                #print(f"{VERDE}  -> Moviendo IZQUIERDA (Suave){RESET} p_left: {info['p_left_smooth']:.2f}")
                 self.mover_jugador(-1, 0)
             else:
-                print(f"{AMARILLO}  -> QUIETO (Sin tendencia clara){RESET}")
+                #print(f"{AMARILLO}  -> QUIETO (Sin tendencia clara){RESET}")
                 self.mover_jugador(0, 0)
 
         # Derecha segura
         elif self.jugador_x < self.posiciones_seguras[self.jugador_y]:
-            print(f"{AMARILLO}[Obstáculo]{RESET} Buscando Derecha Segura...")
+            #print(f"{AMARILLO}[Obstáculo]{RESET} Buscando Derecha Segura...")
             
             if info["p_right_smooth"] >= umbral:
-                print(f"{VERDE}  -> Moviendo DERECHA (Supera umbral){RESET}")
+                #print(f"{VERDE}  -> Moviendo DERECHA (Supera umbral){RESET}")
                 self.mover_jugador(1, 0)
             else:
-                print(f"{ROJO}  -> Siguiendo Predicción (Bajo umbral){RESET} Pred: {prediction}")
+                #print(f"{ROJO}  -> Siguiendo Predicción (Bajo umbral){RESET} Pred: {prediction}")
                 self.string_to_action(prediction)
 
         # Izquierda segura
         elif self.jugador_x > self.posiciones_seguras[self.jugador_y]:
-            print(f"{AMARILLO}[Obstáculo]{RESET} Buscando Izquierda Segura...")
+            #print(f"{AMARILLO}[Obstáculo]{RESET} Buscando Izquierda Segura...")
             
             if info["p_left_smooth"] >= umbral:
-                print(f"{VERDE}  -> Moviendo IZQUIERDA (Supera umbral){RESET}")
+                #print(f"{VERDE}  -> Moviendo IZQUIERDA (Supera umbral){RESET}")
                 self.mover_jugador(-1, 0)
             else:
-                print(f"{ROJO}  -> Siguiendo Predicción (Bajo umbral){RESET} Pred: {prediction}")
+                #print(f"{ROJO}  -> Siguiendo Predicción (Bajo umbral){RESET} Pred: {prediction}")
                 self.string_to_action(prediction)
 
     def heuristica_aimbot_3(self, prediction, info, umbral):
         if self.jugador_y == 0 or (not self.matriz_obstaculos[self.jugador_x][self.jugador_y-1]):
->>>>>>> Stashed changes
             if info["p_right_smooth"] > SEVERIDAD_AIMBOT:
                 self.mover_jugador(1, 0)
             elif info["p_left_smooth"] >  SEVERIDAD_AIMBOT:
                 self.mover_jugador(-1, 0)
             else:
                 self.mover_jugador(0, 0)
-<<<<<<< Updated upstream
         elif self.jugador_x < self.posiciones_seguras[self.jugador_y]: # Derecha segura
             print(f"[DEBUG] DCHAAA")
-=======
-        elif self.jugador_x < 2 and (not self.matriz_obstaculos[self.jugador_x+1][self.jugador_y]):
->>>>>>> Stashed changes
             if info["p_right_smooth"] >= umbral:
                 self.mover_jugador(1, 0)
             else :
                 self.string_to_action(prediction)
-<<<<<<< Updated upstream
         elif self.jugador_x > self.posiciones_seguras[self.jugador_y]: # Izquierda segura
             print(f"[DEBUG] IZQDAAA")
-=======
-        elif self.jugador_x > 0 and (not self.matriz_obstaculos[self.jugador_x-11][self.jugador_y]):
->>>>>>> Stashed changes
             if info["p_left_smooth"] >= umbral:
                 self.mover_jugador(-1, 0)
             else :
@@ -418,12 +415,15 @@ class ArrowRunnerMIGame(MIGame):
                     self.mover_jugador(1, 0)'''
             
             # ── Pipe BCI — no bloqueante ──────────────────────────────────────
-            while self.pipe.poll(0):
-                try:
-                    prediction, info = self.read_msg()
-                    self.controlAssist(prediction, info)
-                except Exception:
-                    pass
+            try:
+                while self.pipe.poll(0):
+                    try:
+                        prediction, info = self.read_msg()
+                        self.controlAssist(prediction, info)
+                    except Exception:
+                        pass
+            except OSError:
+                running = False
 
             if self.cfg.avance_auto and not self.game_over:
                 ahora = pygame.time.get_ticks()

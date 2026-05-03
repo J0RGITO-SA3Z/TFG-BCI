@@ -185,17 +185,20 @@ class DualArrowComponent(MIGame):
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     running = False
 
-            while self.pipe.poll(0):
-                try:
-                    prediction, _ = self.read_msg()
-                    if prediction == "right_hand":
-                        self.add_right()
-                    elif prediction == "left_hand":
-                        self.add_left()
-                    elif prediction == "rest":
-                        self.sub_both()
-                except Exception:
-                    pass
+            try:
+                while self.pipe.poll(0):
+                    try:
+                        prediction, _ = self.read_msg()
+                        if prediction == "right_hand":
+                            self.add_right()
+                        elif prediction == "left_hand":
+                            self.add_left()
+                        elif prediction == "rest":
+                            self.sub_both()
+                    except Exception:
+                        pass
+            except OSError:
+                running = False
 
             self.draw(self.screen)
             pygame.display.flip()

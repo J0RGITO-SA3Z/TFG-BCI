@@ -1,0 +1,53 @@
+\section{Preprocesado de la señal}
+\label{sec:preprocesado}
+
+El objetivo del preprocesado es aumentar la relación señal-ruido (SNR) de las señales EEG antes de extraer características y clasificar. Las señales crudas capturadas por los electrodos están contaminadas por múltiples fuentes de interferencia, tanto externas (red eléctrica, electromagnetic interference) como fisiológicas (parpadeos, actividad muscular). Las etapas descritas a continuación actúan en cadena para atenuar estas interferencias preservando al máximo la información neural de interés.
+
+\subsection{Filtrado}
+\label{subsec:filtrado}
+
+\subsubsection{Filtro notch}
+
+Se aplica un filtro notch centrado en 50~Hz para suprimir la interferencia introducida por la red eléctrica. Este tipo de interferencia aparece como un pico de gran amplitud en el espectro y enmascara las bandas de frecuencia relevantes para la imaginación motora. El filtro notch elimina selectivamente esa frecuencia y sus armónicos sin afectar al resto del espectro.
+
+\subsubsection{Filtro paso de banda}
+
+La elección del filtro paso de banda condiciona qué información frecuencial se retiene. Se barajaron dos opciones:
+
+\begin{itemize}
+    \item \textbf{1--40~Hz}: rango amplio que conserva prácticamente toda la actividad EEG de interés, incluyendo ondas delta, theta, alfa y beta. Es una opción más general y menos restrictiva, útil cuando no se quiere descartar actividad de baja frecuencia.
+    \item \textbf{8--30~Hz}: rango específico para imaginación motora. Cubre directamente las bandas mu (8--12~Hz) y beta (13--30~Hz), que son las frecuencias donde se manifiesta la \textit{desincronización relacionada con eventos} (ERD) característica de los procesos de imaginación motora. Al reducir el rango, se atenúan más agresivamente los artefactos de baja frecuencia y la actividad gamma de alta frecuencia, mejorando la SNR en las bandas de interés.
+\end{itemize}
+
+\subsection{Rereferencia CAR}
+\label{subsec:car}
+
+La señal registrada en cada electrodo es siempre relativa a un electrodo de referencia. Si esa referencia está contaminada, el ruido se propaga a todos los canales. La rereferencia por promedio común (\textit{Common Average Reference}, CAR) recalcula la señal de cada electrodo restándole la media instantánea de todos los canales:
+
+\begin{equation}
+    x_i^{\text{CAR}}(t) = x_i(t) - \frac{1}{N}\sum_{j=1}^{N} x_j(t)
+\end{equation}
+
+donde $N$ es el número de electrodos. Esta operación cancela el ruido que es común a todos los canales (p.\,ej., interferencias electromagnéticas ambientales o artefactos de movimiento global), ya que esa componente queda recogida en el término de la media y se elimina. Desde el punto de vista espacial, la CAR actúa como un filtro espacial de paso alto que enfatiza la actividad local de cada electrodo frente a la actividad difusa y compartida, mejorando la resolución espacial de la señal.
+
+\subsection{Análisis de Componentes Independientes (ICA)}
+\label{subsec:ica}
+
+El Análisis de Componentes Independientes (ICA) es una técnica de separación de fuentes que descompone la señal multicanal en un conjunto de componentes estadísticamente independientes. Partiendo de la hipótesis de que las fuentes subyacentes (actividad neural, parpadeos, actividad muscular) son mutuamente independientes, el algoritmo busca una transformación lineal $\mathbf{W}$ tal que:
+
+\begin{equation}
+    \mathbf{s}(t) = \mathbf{W}\,\mathbf{x}(t)
+\end{equation}
+
+donde $\mathbf{x}(t)$ es el vector de señales multicanal y $\mathbf{s}(t)$ el vector de componentes independientes. Cada componente tiene una topografía espacial característica que permite identificar su origen: los artefactos de parpadeo presentan una distribución frontal muy marcada, mientras que los artefactos musculares muestran actividad de alta frecuencia en electrodos periféricos. Una vez identificados, los componentes de artefacto se anulan y la señal se reconstruye sin ellos.
+
+En este trabajo se empleó ICA con el objetivo de detectar y eliminar artefactos de parpadeo y ruido muscular. Sin embargo, la precisión de esta detección se ve limitada por la ausencia de un \textbf{electrodo EOG} (\textit{electrooculograma}). El electrodo EOG, colocado en la proximidad de los ojos, registra directamente los potenciales generados por los movimientos oculares y los parpadeos, proporcionando una referencia limpia con la que correlacionar los componentes ICA y así identificarlos de forma fiable y automática. Sin esta referencia, la asignación de componentes a fuentes de artefacto se basa únicamente en criterios heurísticos sobre la topografía y el espectro del componente, lo que introduce incertidumbre y puede llevar a eliminar componentes con actividad neural legítima o a no detectar correctamente los artefactos.
+
+\subsection{Implementación}
+\label{subsec:preprocesado_implementacion}
+
+El preprocesado se ha implementado mediante un sistema modular compuesto por dos elementos principales: una clase base abstracta \texttt{RawProcessor} y un contenedor denominado \texttt{RawProcessorPipeline}.
+
+\texttt{RawProcessor} define la interfaz común que debe satisfacer cualquier etapa de procesado: un único método \texttt{process(raw)} que recibe un objeto \texttt{mne.io.Raw}, aplica la transformación correspondiente y devuelve la señal modificada. Cada técnica descrita en las secciones anteriores se ha encapsulado en su propia subclase independiente: \texttt{NotchFilter} para el filtro notch, \texttt{BandpassFilter} para el filtro paso de banda, \texttt{CARReference} para la rereferencia por promedio común, e \texttt{ICAProcessor} para el análisis de componentes independientes.
+
+\texttt{RawProcessorPipeline} actúa como orquestador de estas etapas. Mantiene internamente una lista ordenada de instancias de \texttt{RawProcessor} que se van registrando mediante su método \texttt{add()}. Al invocar \texttt{process(raw)}, el pipeline aplica cada procesador de forma secuencial: la salida de uno se convierte en la entrada del siguiente, encadenando así todas las transformaciones de manera transparente. Este diseño permite configurar el preprocesado completo de forma declarativa, combinando y reordenando las etapas según las necesidades de cada experimento sin modificar el código de los procesadores individuales.
