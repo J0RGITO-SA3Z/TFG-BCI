@@ -40,8 +40,6 @@ En cuanto a los rangos de frecuencia a seleccionar hemos valorado dos opciones i
     \item \textbf{8--30~Hz}: Este rango está más focalizado en tareas de imaginación motora, ya que cubre directamente las bandas mu (8--12~Hz) y beta (13--30~Hz), donde se producen los patrones más característicos de este tipo de actividad. Al restringir el espectro a este intervalo, se reduce la influencia de artefactos de baja frecuencia y de actividad de alta frecuencia no relevante, lo que puede mejorar la relación señal-ruido en las bandas de interés.
 \end{itemize}
 
-[Aqui hay que poner que más adelante en el apartado de comparaciones de filtros el modelo responde mejor al filtro de 8-30HZ]
-
 \subsection{Rereferencia CAR}
 \label{subsec:car}
 
@@ -52,8 +50,6 @@ La señal registrada en cada electrodo es siempre relativa a un electrodo de ref
 \end{equation}
 
 donde $N$ es el número de electrodos. Esta operación cancela el ruido que es común a todos los canales (p.\,ej., interferencias electromagnéticas ambientales o artefactos de movimiento global), ya que esa componente queda recogida en el término de la media y se elimina. Desde el punto de vista espacial, la CAR actúa como un filtro que enfatiza la actividad local de cada electrodo frente a la actividad difusa y compartida, mejorando la resolución espacial de la señal. 
-
-[Aqui hay que hacer referencia a los resultados y explicar que normalmente se suele usar antes del paso de banda pero que las lecturas tan altas que nos salen antes del paso de banda hacen que aplicarlo antse no sea viable y que al aplicarlo después no funciona]
 
 \subsection{Análisis de Componentes Independientes (ICA)}
 \label{subsec:ica}
@@ -67,8 +63,6 @@ Este algoritmo está implementado en la librería MNE y puede emplearse para eli
 No obstante, para facilitar la detección automática de estos artefactos es habitual disponer de electrodos auxiliares específicos. En particular, los electrodos EOG situados cerca de los ojos permiten detectar parpadeos y movimientos oculares, los electrodos ECG colocados en el pecho registran la actividad cardíaca, y los electrodos EMG ubicados en distintas zonas musculares permiten identificar actividad muscular.
 
 Sin embargo, nuestro dispositivo no dispone de estos electrodos auxiliares y presenta una baja densidad de canales (15 electrodos frente a configuraciones más habituales de 64). Esta limitación dificulta la identificación automática de componentes asociadas a artefactos mediante ICA. En la práctica, únicamente fue posible detectar de forma fiable componentes relacionadas con actividad muscular, mientras que la detección automática de artefactos EOG y ECG acabó siendo imposible.
-
-[Poner referencia a la tabla de resultados y decir que empeora la predicción porque modifica la forma de la señal y la falta de electrodos EMG hacen poco fiable la detección automática]
 
 \subsection{Implementación}
 \label{subsec:preprocesado_implementacion}
