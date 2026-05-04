@@ -4,7 +4,6 @@ import sys, os
 import time
 from typing import List, Optional
 
-import numpy as np
 import winsound
 
 from brainaccess.core.eeg_manager import EEGManager
@@ -14,7 +13,8 @@ if SRC_ROOT not in sys.path:
     sys.path.insert(0, SRC_ROOT)
 
 from components.DataProvider.DataProvider import DataProvider
-from components.DataProvider.FifDataProvider import LABEL_MAP, _raw_to_epochs
+from components.DataProvider.FifDataProvider import LABEL_MAP, _raw_to_epochs, _extract_labels
+from components.EpochProcessing.BadChannelInterpolator import BadChannelInterpolator
 from app.EEGRecorder import EEGRecorder
 from app.tcp.eeg_live_server import EEGLiveServer, PORT
 from components.RawProcessing.AnnotationRenamer import AnnotationRenamer
@@ -28,7 +28,22 @@ class ExperimentoVisualDataProvider(DataProvider):
     DataProvider que ejecuta un experimento visual online
     """
 
-    def __init__(self, puerto_COM, channelsConfig, numTrialsClase, lista, tmp_baseline_inicial = 20, tmp_baseline_epoch = 2, tmp_break = 2, tmp_im = 4):
+    def __init__(
+        self,
+        puerto_COM,
+        channelsConfig,
+        numTrialsClase,
+        lista,
+        tmp_baseline_inicial=20,
+        tmp_baseline_epoch=2,
+        tmp_break=2,
+        tmp_im=4,
+        raw_pipeline_detection: Optional[RawProcessorPipeline] = None,
+        raw_pipeline_final: Optional[RawProcessorPipeline] = None,
+        bad_channel_interpolator: Optional[BadChannelInterpolator] = None,
+        interpolate_bad_channels: bool = True,
+        min_epochs_per_class: Optional[int] = None,
+    ):
         self._puerto_COM = puerto_COM
         self._channelsConfig = channelsConfig
         self._num_trials_clase = int(numTrialsClase)
@@ -44,11 +59,21 @@ class ExperimentoVisualDataProvider(DataProvider):
         self._tmp_baseline_epoch = tmp_baseline_epoch
         self._tmp_break = tmp_break
         self._tmp_im = tmp_im
+        self._bad_channel_interpolator = bad_channel_interpolator
+        self._interpolate_bad_channels = interpolate_bad_channels
+        self._min_epochs_per_class = min_epochs_per_class
 
-        self._raw_pipeline = RawProcessorPipeline([
-        BandpassFilter(8.0, 30.0),
-        AnnotationRenamer(LABEL_MAP),
+        _default_pipeline_detection = RawProcessorPipeline([
+            BandpassFilter(1.0, 40.0),
+            AnnotationRenamer(LABEL_MAP),
         ])
+        _default_pipeline_final = RawProcessorPipeline([
+            BandpassFilter(8.0, 30.0),
+            AnnotationRenamer(LABEL_MAP),
+        ])
+
+        self._raw_pipeline_detection = raw_pipeline_detection if raw_pipeline_detection is not None else _default_pipeline_detection
+        self._raw_pipeline_final = raw_pipeline_final if raw_pipeline_final is not None else _default_pipeline_final
 
         self._last_channel_names: Optional[List[str]] = None
 
@@ -176,27 +201,59 @@ class ExperimentoVisualDataProvider(DataProvider):
         return raw
 
     def get_data(self, fif_path=None):
-        self.raw = self._ejecutar_experimento_visual()    
+        self.raw = self._ejecutar_experimento_visual()
 
         if fif_path is not None:
             self.raw.save(fif_path, overwrite=True)
 
-        if self._raw_pipeline is not None:
-            processed_raw = self._raw_pipeline.process(self.raw.copy())
-
         annotations_names = self._get_event_filter_names()
-        epochs = _raw_to_epochs(processed_raw, anotationsNames=annotations_names)
 
-        X = epochs.get_data()
+        if self._bad_channel_interpolator is not None:
+            X, y = self._get_data_two_pass(self.raw, annotations_names)
+        else:
+            X, y = self._get_data_simple(self.raw, annotations_names)
 
-        true_labels_numeric = epochs.events[:, 2]
-        inv_event_id = {v: k for k, v in epochs.event_id.items()}
-        labels = np.array([inv_event_id[i] for i in true_labels_numeric])
-
-        classes = sorted(set(labels))
-        y = labels
-
+        classes = sorted(set(y))
         return X, y, classes
+
+    def _get_data_simple(self, raw, annotations_names):
+        processed_raw = self._raw_pipeline_final.process(raw.copy())
+        epochs = _raw_to_epochs(processed_raw, anotationsNames=annotations_names)
+        return epochs.get_data(), _extract_labels(epochs)
+
+    def _get_data_two_pass(self, raw, annotations_names):
+        interp = self._bad_channel_interpolator
+
+        # Paso 1: detección
+        raw_det = self._raw_pipeline_detection.process(raw.copy())
+        epochs_det = _raw_to_epochs(raw_det, anotationsNames=annotations_names)
+        bad_channels, discarded = interp.detect_only(epochs_det.get_data())
+        print(
+            f"  Detección: {sum(bool(ch) for ch in bad_channels)} epochs con canales malos, "
+            f"{len(discarded)} epochs descartados."
+        )
+
+        # Paso 2: procesado final
+        raw_final = self._raw_pipeline_final.process(raw.copy())
+        epochs_final = _raw_to_epochs(raw_final, anotationsNames=annotations_names)
+        X_final = epochs_final.get_data()
+        y_final = _extract_labels(epochs_final)
+
+        if self._min_epochs_per_class is not None:
+            discarded_set = set(discarded)
+            counts: dict = {}
+            for i, label in enumerate(y_final):
+                if i not in discarded_set:
+                    counts[label] = counts.get(label, 0) + 1
+            if counts and min(counts.values()) < self._min_epochs_per_class:
+                print(
+                    f"  Mínimo de epochs por clase no alcanzado tras eliminación "
+                    f"({min(counts.values())} < {self._min_epochs_per_class}). "
+                    f"Omitiendo eliminación de malos."
+                )
+                return X_final, y_final
+
+        return interp.apply_detected(X_final, y_final, interpolate=self._interpolate_bad_channels)
 
     def get_channel_names(self) -> List[str]:
         if self._last_channel_names is None:
