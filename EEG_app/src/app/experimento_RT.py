@@ -54,7 +54,15 @@ def choose_game() -> Type[MIGame]:
 
 def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral, SalidaPredicciones, game_cls: Type[MIGame], console):
     rtTraining = Training_real_time()
-    EA_matrix, model = rtTraining.start(puerto_COM=puertoCom, channelsConfig=channelsConfig,lista=["left_hand", "right_hand"], fif_name=SalidaEntrenamiento, numTrialsClase = 30)
+    EA_matrix, model = rtTraining.start(
+        puerto_COM=puertoCom,
+        channelsConfig=channelsConfig,
+        lista=["left_hand", "right_hand"],
+        fif_name=SalidaEntrenamiento,
+        numTrialsClase=30,
+        use_bad_channel_interpolator=True,
+        min_epochs_per_class=20,
+    )
 
     eeg = EEGRecorder()
     live_server = None

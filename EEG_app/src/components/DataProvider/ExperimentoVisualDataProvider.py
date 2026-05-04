@@ -15,12 +15,15 @@ if SRC_ROOT not in sys.path:
 from components.DataProvider.DataProvider import DataProvider
 from components.DataProvider.FifDataProvider import LABEL_MAP, _raw_to_epochs, _extract_labels
 from components.EpochProcessing.BadChannelInterpolator import BadChannelInterpolator
+from components.EpochProcessing.BadChannelDetectors.AmplitudeThresholdDetector import AmplitudeThresholdDetector
+from components.EpochProcessing.BadChannelDetectors.VarianceDetector import VarianceDetector
 from app.EEGRecorder import EEGRecorder
 from app.tcp.eeg_live_server import EEGLiveServer, PORT
 from components.RawProcessing.AnnotationRenamer import AnnotationRenamer
 from components.RawProcessing.BandpassFilter import BandpassFilter
 from components.RawProcessing.RawProcessorPipeline import RawProcessorPipeline
 from util.ventanaExperimentoVisual import ventanaExperimentoVisual
+from components.RawProcessing.NotchFilter import NotchFilter
 
 
 class ExperimentoVisualDataProvider(DataProvider):
@@ -40,7 +43,7 @@ class ExperimentoVisualDataProvider(DataProvider):
         tmp_im=4,
         raw_pipeline_detection: Optional[RawProcessorPipeline] = None,
         raw_pipeline_final: Optional[RawProcessorPipeline] = None,
-        bad_channel_interpolator: Optional[BadChannelInterpolator] = None,
+        use_bad_channel_interpolator: bool = False,
         interpolate_bad_channels: bool = True,
         min_epochs_per_class: Optional[int] = None,
     ):
@@ -59,15 +62,18 @@ class ExperimentoVisualDataProvider(DataProvider):
         self._tmp_baseline_epoch = tmp_baseline_epoch
         self._tmp_break = tmp_break
         self._tmp_im = tmp_im
-        self._bad_channel_interpolator = bad_channel_interpolator
+        self._use_bad_channel_interpolator = use_bad_channel_interpolator
         self._interpolate_bad_channels = interpolate_bad_channels
         self._min_epochs_per_class = min_epochs_per_class
+        self._bad_channel_interpolator: Optional[BadChannelInterpolator] = None
 
         _default_pipeline_detection = RawProcessorPipeline([
+            NotchFilter(50),
             BandpassFilter(1.0, 40.0),
             AnnotationRenamer(LABEL_MAP),
         ])
         _default_pipeline_final = RawProcessorPipeline([
+            NotchFilter(50),
             BandpassFilter(8.0, 30.0),
             AnnotationRenamer(LABEL_MAP),
         ])
@@ -120,12 +126,6 @@ class ExperimentoVisualDataProvider(DataProvider):
                 channelConfig=self._channelsConfig,
                 gain=8,
             )
-
-            self._last_channel_names = [
-                name.upper()
-                for name, ch_type in zip(eeg.get_ch_names_ordered(), eeg.get_ch_types_ordered())
-                if ch_type == "eeg"
-            ]
 
             eeg.iniciarGrabacion()
 
@@ -200,15 +200,33 @@ class ExperimentoVisualDataProvider(DataProvider):
         eeg.cerrarLibreria()
         return raw
 
+    def _build_bad_channel_interpolator(self) -> BadChannelInterpolator:
+        return BadChannelInterpolator(
+            channels_max=3,
+            print_history=False,
+            actual_channel_positions=self._last_channel_names,
+            detectors=[
+                AmplitudeThresholdDetector(threshold=100),
+                VarianceDetector(threshold=1000.0, dead_threshold=2),
+            ],
+        )
+
     def get_data(self, fif_path=None):
         self.raw = self._ejecutar_experimento_visual()
+
+        self._last_channel_names = [
+            name.upper()
+            for name, ch_type in zip(self.raw.ch_names, self.raw.get_channel_types())
+            if ch_type == "eeg"
+        ]
 
         if fif_path is not None:
             self.raw.save(fif_path, overwrite=True)
 
         annotations_names = self._get_event_filter_names()
 
-        if self._bad_channel_interpolator is not None:
+        if self._use_bad_channel_interpolator:
+            self._bad_channel_interpolator = self._build_bad_channel_interpolator()
             X, y = self._get_data_two_pass(self.raw, annotations_names)
         else:
             X, y = self._get_data_simple(self.raw, annotations_names)

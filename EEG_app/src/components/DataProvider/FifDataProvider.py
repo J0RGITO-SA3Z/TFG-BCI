@@ -97,11 +97,13 @@ class FifDataProvider(DataProvider):
         self._interpolate_bad_channels = interpolate_bad_channels
 
         _default_pipeline_detection = RawProcessorPipeline([
+            NotchFilter(50),
             BandpassFilter(1, 40.0),
             AnnotationRenamer(LABEL_MAP),
         ])
 
         _default_pipeline_final = RawProcessorPipeline([
+            NotchFilter(50),
             BandpassFilter(8, 30.0),
             AnnotationRenamer(LABEL_MAP),
         ])

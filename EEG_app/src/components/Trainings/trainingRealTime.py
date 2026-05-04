@@ -38,7 +38,7 @@ class Training_real_time:
         self.classes = None
 
     # Métodos Publicos de la clase  ─────────────────────────────────────────────────────────────────────
-    def start(self, puerto_COM, channelsConfig, lista=["left_hand", "right_hand", "feet", "rest"], numTrialsClase=30, epochs=10, seed=42, fif_name=None):
+    def start(self, puerto_COM, channelsConfig, lista=["left_hand", "right_hand", "feet", "rest"], numTrialsClase=30, epochs=10, seed=42, fif_name=None, use_bad_channel_interpolator: bool = False, min_epochs_per_class: int = None):
         """
         Ejecuta un experimento visual con las clases pasadas en lista y con ello hace el fine tuning del modelo MiRepNet
         y calcula la matriz de alineamiento euclídeo (EA).
@@ -52,6 +52,8 @@ class Training_real_time:
             - epochs: Número de épocas a usar en el fine-tuning del modelo (default: 10)
             - seed: Semilla para la reproducibilidad del experimento (default: 42)
             - fif_name: Nombre del archivo .fif donde se guardará la grabación del experimento visual (default: None, no se guarda)
+            - use_bad_channel_interpolator: Si True, crea y aplica un eliminador de epochs/canales malos (default: False)
+            - min_epochs_per_class: Mínimo de epochs por clase tras la eliminación; si no se supera se omite la eliminación (default: None)
         """
         if self._params_exist():
             resp = ""
@@ -69,6 +71,8 @@ class Training_real_time:
             numTrialsClase=numTrialsClase,
             lista=lista,
             tmp_baseline_inicial=20,
+            use_bad_channel_interpolator=use_bad_channel_interpolator,
+            min_epochs_per_class=min_epochs_per_class,
         )
 
         X, Y, classes = data_provider.get_data(fif_path=fif_name)
