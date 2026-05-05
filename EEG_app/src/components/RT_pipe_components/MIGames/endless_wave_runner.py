@@ -15,7 +15,7 @@ PREDICTED_RIGHT = pygame.USEREVENT + 11
 PREDICTED_REST  = pygame.USEREVENT + 12
 
 AIMBOT_MODE = True
-SEVERIDAD_AIMBOT = 0.7
+SEVERIDAD_AIMBOT = 1
 
 
 class EndlessWaveRunnerMIGame(MIGame):
@@ -507,7 +507,7 @@ class EndlessWaveRunnerMIGame(MIGame):
             except OSError:
                 running = False
 
-            self.controlAssist("right_hand", {"name":"ExponentialSmoothing", "p_right_smooth":100, "p_left_smooth":100})
+            #self.controlAssist("right_hand", {"name":"ExponentialSmoothing", "p_right_smooth":100, "p_left_smooth":100})
 
             self.update()
 
