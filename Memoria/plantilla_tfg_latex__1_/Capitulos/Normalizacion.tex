@@ -1,2 +1,81 @@
 \section{Normalización de los trials}
 \label{sec:normalizacion}
+
+En la mayoría de aplicaciones de algoritmos de aprendizaje automático es necesaria la normalización de los datos que va a recibir el modelo. Este proceso se realiza con el fin de que las distintas variables presenten escalas comparables, evitando que aquellas con magnitudes mayores dominen el proceso de aprendizaje y facilitando así la identificación de relaciones relevantes entre los datos.
+
+La normalización adquiere una relevancia especial en el contexto de los sistemas BCI (Brain-Computer Interface), donde uno de los principales desafíos es la variabilidad intersujeto. Las diferencias anatómicas y fisiológicas entre individuos, como el grosor del cráneo, las características del cuero cabelludo, el tipo de cabello o la propia actividad cerebral, dificultan la capacidad de generalización de los modelos entre distintos sujetos. Además, incluso entre diferentes sesiones de un mismo individuo pueden aparecer variaciones debidas a cambios en la posición de los electrodos, el estado mental del sujeto u otros factores relacionados con el proceso de adquisición de señales.
+
+Mediante el proceso de normalización en sistemas BCI se busca favorecer la generalización intersujeto, permitiendo utilizar datos procedentes de múltiples individuos y aumentando significativamente la cantidad de datos disponibles para entrenamiento. Además, este proceso reduce la necesidad de reentrenar el modelo cada vez que el usuario retira y vuelve a colocarse el electroencefalógrafo.
+
+\subsection{Baseline}
+\label{subsec:baseline}
+
+Uno de los métodos más básicos de normalización intersujeto en sistemas BCI es la técnica de baseline. Esta técnica se basa en la hipótesis de que cada individuo presenta una actividad cerebral basal en estado de reposo y que, al realizar una determinada tarea o estímulo, las nuevas fuentes de actividad cerebral se superponen a dicha señal base.
+
+Por ello, antes de comenzar una grabación o una sesión de uso del sistema BCI, se realiza una fase de calibración en reposo, cuya duración puede variar desde varios segundos hasta varios minutos. Durante este periodo se registran señales EEG del sujeto y se calcula una señal media de referencia. Posteriormente, esta señal basal se resta del resto de la grabación con el objetivo de reducir la variabilidad entre sujetos y hacer que las señales obtenidas presenten características más homogéneas entre distintos individuos.
+
+En un principio se iba a utilizar este método por ser uno de lo más utilizados pero tras la elección del modelo MiRepNet y debido a que los pesos de dicho modelo vienen preentrenados utilizando la normalizacion de alineamiento euclideo acabamos desechando este método.
+
+\subsection{Alineamiento Euclídeo}
+\label{subsec:alineamiento_euclideon}
+
+El alineamiento euclideo a diferencia de otros métodos de normalización por escalado como Min-Max no pretende mantener los valores en un intervalo definido entre por ejemplo 0 y 1. 
+Por otro lado lo que intenta es alinear la distribución de los datos de diferentes sujetos para facilitar que el modelo generalice de un sujeto a otro. 
+
+Para ello, se calcula la covarianza media entre cada par de electrodos. El conjunto de estas covarianzas refleja las correlaciones características de cada sujeto entre los distintos canales EEG. Posteriormente, se aplica una transformación orientada a neutralizar parcialmente dichas relaciones propias de cada individuo.
+
+Desde el punto de vista práctico, dado un sujeto con $n$ trials $\{X_i' \in \mathbb{R}^{C \times T}\}_{i=1}^{n}$, donde $C$ es el número de canales y $T$ el número de muestras temporales, se calcula en primer lugar la matriz de covarianza de referencia como la media de las covarianzas de todos los trials:
+
+\begin{equation}
+    \bar{R} = \frac{1}{n} \sum_{i=1}^{n} X_i'(X_i')^\top
+\end{equation}
+
+A continuación, cada trial se normaliza multiplicándolo por la raíz cuadrada inversa de dicha matriz de referencia:
+
+\begin{equation}
+    \tilde{X}_i = \bar{R}^{-1/2} X_i', \quad i = 1, \ldots, n
+\end{equation}
+
+Tras aplicar esta transformación para los trials de cualquier sujeto, la covarianza media de los trials transformados es la matriz identidad:
+
+\begin{equation}
+    \frac{1}{n} \sum_{i=1}^{n} \tilde{X}_i \tilde{X}_i^\top = I
+\end{equation}
+
+En el gráfico \ref{fig:proyeccion_alineamiento_euclideo} tomado del paper de MiRepNet se proyecta en un espacio de 2 dimensiones mediante t-SNE los datos de EEG de diferentes sujetos antes y después del alineamiento euclídeo. En él se observa como efectivamente EA alinea los datos de los diferentes sujetos.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Imagenes/Bitmap/ProyeccionAlineamientoEuclideo}
+    \caption{Proyección t-SNE de los datos EEG de diferentes sujetos antes y después del alineamiento euclídeo. Imagen tomada del paper de MiRepNet.}
+    \label{fig:proyeccion_alineamiento_euclideo}
+\end{figure}
+
+A la hora de la implementación nombraremos a la raíz cuadrada inversa de la matriz de covarianza de referencia como matriz de transformación. Para poder usar este método hay que calcular una matriz de transformación para cada sujeto por separado. Además es importante calcular una matriz con los datos de entrenamiento y otra matriz con los datos de test para evitar fugas de infromación.
+
+En cuanto a la implementación en tiempo real se valoraron 2 alternativas sobre cómo calcular la matriz de transformación para los datos de test. La primera consiste en mantener X ventanas consecutivas en un buffer circular y calcular la matriz de transformación para cada trial siendo esta la más compleja tanto en cuanto a la implementación como a la complejidad computacional. 
+La segunda opción es calcular la matriz de transformación con los datos del sujeto que se hanutilizado para el fine tunning del modelo. Desde el punto de vista de implementación es mucho más sencilla y desde el punto de vista computacional el alineamiento euclideo tras el calculo de la matriz de transformación se reduce a una multiplicación de matrices que es facilmente accelerable por multihilo con numpy. También existe la posibilidad de accelerarlo por GPU pero debido al bajo delay que introduce la operación con numpy y a la complejidad que implicaría implementarlo y medir la mejora de velocidad teniendo en cuenta el tiempo de transporte de los datos se decidió mantener los calculos en CPU con numpy.
+
+Para determinar si la segunda alternativa era viable se realizó un experimento de validación cruzada estratificada de 5 folds sobre los 8 sujetos disponibles, comparando ambas estrategias. En la condición de \textit{EA independiente} se calcula una matriz de transformación distinta para el conjunto de finetuning y para el conjunto de test. En la condición de \textit{EA compartida} la matriz se calcula únicamente con los datos de finetuning y se reutiliza para alinear el conjunto de test. 
+Cabe resaltar que en este caso no existe fuga de datos porque no se usan los datos de test en entrenamiento esto solo ocurriría si la matriz compartida se calculase tanto con los datos de test como con los de finetuning. 
+Los resultados se muestran en la Tabla~\ref{tab:ea_strategy_cv}.
+
+\begin{table}[h]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lcccccccc}
+        \hline
+        & \textbf{suj1} & \textbf{suj2} & \textbf{suj3} & \textbf{suj4} & \textbf{suj5} & \textbf{suj6} & \textbf{suj7} & \textbf{suj8} \\
+        \hline
+        EA independiente & $0.861 \pm 0.023$ & $0.508 \pm 0.013$ & $0.655 \pm 0.060$ & $0.508 \pm 0.019$ & $0.835 \pm 0.027$ & $0.511 \pm 0.047$ & $0.543 \pm 0.050$ & $0.551 \pm 0.033$ \\
+        EA compartida    & $0.880 \pm 0.024$ & $0.514 \pm 0.030$ & $0.620 \pm 0.028$ & $0.482 \pm 0.027$ & $0.810 \pm 0.045$ & $0.487 \pm 0.045$ & $0.539 \pm 0.026$ & $0.563 \pm 0.046$ \\
+        \hline
+    \end{tabular}}
+    \caption{Accuracy medio $\pm$ desviación típica en validación cruzada (5-Fold) para cada sujeto, comparando EA con matrices independientes por conjunto frente a EA con la matriz calculada en finetuning reutilizada en test.}
+    \label{tab:ea_strategy_cv}
+\end{table}
+
+Los resultados muestran que las diferencias de rendimiento entre ambas estrategias son pequeñas y sin un patrón consistente entre sujetos, lo que indica que reutilizar la matriz de transformación calculada en finetuning no degrada el rendimiento de forma significativa. Por tanto, se optó por la segunda alternativa en la implementación en tiempo real.
+
+\subsection{Transpolación Espacial}
+\label{subsec:transpolacion_espacial}

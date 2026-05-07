@@ -16,13 +16,13 @@ from components.RawProcessing.CARReference import CARReference
 from components.RawProcessing.ICAProcessor import ICAProcessor
 from components.RawProcessing.AnnotationRenamer import AnnotationRenamer
 
-PATH = "C:/Users/julianix/Documents/programacion/python/TFG-BCI/EEG_app/recordings/experimento_visual/suj3/suj3_3_raw.fif"
+PATH = "C:/Users/julianix/Documents/programacion/python/TFG-BCI/EEG_app/recordings/experimento_visual/suj5/suj5_4_raw.fif"
 
 raw_pipeline = RawProcessorPipeline([
     NotchFilter(50.0),
     BandpassFilter(1, 40.0),
-    #AnnotationRenamer(LABEL_MAP),
-    #CARReference(),
+    # AnnotationRenamer(LABEL_MAP),
+    # CARReference(),
     # Resampler(250),
     # ICAProcessor(),
 ])
