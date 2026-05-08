@@ -414,7 +414,7 @@ def test_riemannian_potato(epoch):
 
 def main() -> None:
     anotationsNames=["right_hand", "left_hand", "feet"]
-    fif_path = "EEG_controller_app/recordings/suj1_2_raw.fif"
+    fif_path = "EEG_app/recordings/experimento_visual/suj1/suj1_2_raw.fif"
     epoch = fif_to_epochs(fif_path, anotationsNames=anotationsNames)
 
     #test_faster_thresholds(epochs=epoch)

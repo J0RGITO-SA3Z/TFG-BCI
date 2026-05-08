@@ -23,6 +23,7 @@ from app.configuracion_acciones import menu_acciones
 from app.configuracion_acciones import load_default_actions
 from app.validacion_sujeto import evaluar_sujeto_MiRepNet
 from app.experimento_RT import interfaz_experimento_RT
+from app.visualizar_fif import visualizar_fif
     
 DIR_ACCIONES = "acciones"
 
@@ -50,7 +51,8 @@ def build_root_menu():
     menu.append("  7) Experimento Visual\n")
     menu.append("  8) Evaluar sujeto MiRepNet\n")
     menu.append("  9) Experimento Tiempo real\n")
-    menu.append("  10) Salir\n")
+    menu.append("  10) Visualizar FIFs\n")
+    menu.append("  11) Salir\n")
     content = Group(
         header,
         subtitle,
@@ -123,6 +125,9 @@ def main_menu(console):
                 interfaz_experimento_RT(channels, console)
 
             case "10":
+                visualizar_fif(console)
+
+            case "11":
                 console.print("[bold green]Saliendo del sistema BCI[/bold green]")
                 break
 
