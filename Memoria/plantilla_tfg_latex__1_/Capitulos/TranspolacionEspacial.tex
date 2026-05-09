@@ -1,18 +1,18 @@
-\section{interpolación Espacial}
+\section{Interpolación espacial}
 \label{sec:interpolación_espacial}
 
-La interpolación espacial es una técnica que permite estimar el potencial en una zona del cuero cabelludo donde no está situado ningún electrodo usando la información de los electrodos cercanos. 
+La interpolación espacial es una técnica que permite estimar el potencial en una zona del cuero cabelludo sin ningún electrodo situado, usando la información de los electrodos cercanos. 
 
-Esto tiene múltiples aplicaciones como la generación de mapas topográficos que representan la actividad sobre toda la superficie del craneo a partir de un número limitado de electrodos y la estimación de la señal correspondiente a un electrodo de una determinada posición utilizando las medidas de los canales vecinos. 
+Esto tiene múltiples aplicaciones, como la generación de mapas topográficos que representan la actividad sobre toda la superficie del craneo a partir de un número limitado de electrodos, o la estimación de la señal correspondiente a un electrodo de una determinada posición utilizando las medidas de los canales vecinos. 
 
-Cabe destacar que la interpolación aunque simula que el EEG cuenta con un mayor número de electrodos no aporta infromación extra al modelo a diferencia de si realmente contase con esa cantidad de electrodos. 
+Cabe destacar que la interpolación, aunque simula que el EEG cuenta con un mayor número de electrodos, no aporta infromación extra al modelo. A diferencia de si realmente contase con esa cantidad de electrodos. 
 
-Ha sido necesario emplear esta técnica ya que el modelo utilizado necesitaba las lecturas de 45 canales en posiciones concretas {F7, F5, F3, F1, FZ, F2, F4, F6, F8, FT7, FC5, FC3, FC1, FCZ, FC2, FC4, FC6, FT8, T7, C5, C3, C1, CZ, C2, C4, C6, T8, TP7, CP5, CP3, CP1, CPZ, CP2, CP4, CP6, TP8, P7, P5, P3, P1, PZ, P2, P4, P6, P8}. Sinembargo nuestro dispositivo EEG solo cuenta con 15 canales por lo que fue necesario estimar los valores para los canales faltantes para poder usar el modelo. Cabe destacar que en el proceso de entrenamiento empleado para el modelo y definido en [MiRepNet] se utiliza la interpolación espacial para entrenar el modelo con diferentes datasets de diferentes cantidades de electrodos. En los siguientes apartados se explican los diferentes métodos que han sido valorados. 
+Ha sido necesario emplear esta técnica ya que el modelo utilizado necesitaba las lecturas de 45 canales en posiciones concretas: {F7, F5, F3, F1, FZ, F2, F4, F6, F8, FT7, FC5, FC3, FC1, FCZ, FC2, FC4, FC6, FT8, T7, C5, C3, C1, CZ, C2, C4, C6, T8, TP7, CP5, CP3, CP1, CPZ, CP2, CP4, CP6, TP8, P7, P5, P3, P1, PZ, P2, P4, P6, P8}. Mientras que nuestro dispositivo EEG solo cuenta con 15 canales, por lo que fue necesario estimar los valores para los canales restantes para poder usar el modelo. Cabe destacar que en el proceso de entrenamiento empleado para el modelo y definido en [MiRepNet], se utiliza la interpolación espacial para entrenar el modelo con diferentes datasets de diferentes cantidades de electrodos. En los siguientes apartados se explican los diferentes métodos que han sido valorados. 
 
 \subsection{Relleno con ceros}
 \label{subsec:interp_ceros}
 
-Este es el método más sencillo y consiste en reemplazar con ceros los canales no disponibles. Tiene como inconveniente que si en el dispositivo EEG hay electrodos que no están incluidos en la disposición de MiRepNet y no se cuenta con algunos de los que sí son necesarios, la información de esos otros electrodos se pierde con este método.
+Este es el método más sencillo: consiste en reemplazar con ceros los canales no disponibles. Tiene como inconveniente que si, en el dispositivo EEG hay electrodos que no están incluidos en la disposición de MiRepNet y no se cuenta con algunos de los que sí son necesarios, la información de esos otros electrodos se pierde con este método.
 
 \subsection{Ponderación inversa de la distancia 2D}
 \label{subsec:interp_idw}
@@ -41,13 +41,13 @@ Este es el método por defecto utilizado en la mayoría de librerías de procesa
 
 Para comparar los distintos métodos de interpolación con el modelo MiRepNet se realizó una validación cruzada de 5 folds sobre los 8 sujetos disponibles. La Tabla~\ref{tab:interpolación_cv} muestra el accuracy medio $\pm$ desviación típica obtenido por cada método en cada sujeto.
 
-En dicha tabla se observa que el método de splins esféricos es el que obtiene peor rendimiento de todos, esto unido a que es el más complejo computacionalmente hablando ha llevado a que sea descartado. 
+En dicha tabla se observa que el método de \textit{splins} esféricos es el que obtiene peor rendimiento de todos, esto unido a que es el más complejo computacionalmente hablando ha llevado a que sea descartado. 
 
 Por otro lado los métodos IDW no ofrecen casi mejora de rendimiento frente a sustituir los canales no capturados con ceros. Esto probablemente se daba a la capacidad del modelo para detectar e ignorar canales que no aportan información relevante. 
 
-Sinembargo esto ocurre con una configuración de electrodos donde todos ellos están incluidos en la lista de electrodos pedidos por MiRepNet. Sinembargo en una configuración donde existiesen electrodos no pedidos por MiRepNet y faltasen otros que si son necesario, aplicar la tecnica de poner los canales que no se tienen a 0 y descartar los que no coincidan con los pedidos implicaría una pérdida de información útil y la interpolación en cierta manera permitiría incluir esta información que se va a descartar en los electrodos faltantes. 
+Esto ocurre con una configuración de electrodos donde todos ellos están incluidos en la lista de electrodos pedidos por MiRepNet. Sin embargo, en una configuración con electrodos no pedidos por MiRepNet y en la que falten otros que sí son necesarios, si se aplicara la técnica de poner los canales que no se tienen a 0 y descartar los que no coincidan con los pedidos, implicaría una pérdida de información útil. Mientras que la interpolación en cierta manera permitiría incluir esta información, que se hubiera descartado en los electrodos faltantes. 
 
-Al final por su rendimiento, simplicidad de implementación y la poca carga computacional que implica se ha decidido emplear la interpolación IDW con la función de proyección de electrodos 2D usada en el repositorio de MiRepNet. 
+Al final por su rendimiento, simplicidad de implementación y la poca carga computacional que implica, se ha decidido emplear la interpolación IDW con la función de proyección de electrodos 2D usada en el repositorio de MiRepNet. 
 
 \begin{table}[h]
     \centering
