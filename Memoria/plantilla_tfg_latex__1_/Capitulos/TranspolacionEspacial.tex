@@ -1,0 +1,72 @@
+\section{Interpolacion Espacial}
+\label{sec:transpolacion_espacial}
+
+La transpolación espacial es una técnica que permite estimar el potencial en una zona del cuero cabelludo donde no está situado ningún electrodo usando la información de los electrodos cercanos. 
+
+Esto tiene múltiples aplicaciones como la generación de mapas topográficos que representan la actividad sobre toda la superficie del craneo a partir de un número limitado de electrodos y la estimación de la señal correspondiente a un electrodo de una determinada posición utilizando las medidas de los canales vecinos. 
+
+Cabe destacar que la interpolacion aunque simula que el EEG cuenta con un mayor número de electrodos no aporta infromación extra al modelo a diferencia de si realmente contase con esa cantidad de electrodos. 
+
+Ha sido necesario emplear esta técnica ya que el modelo utilizado necesitaba las lecturas de 45 canales en posiciones concretas {F7, F5, F3, F1, FZ, F2, F4, F6, F8, FT7, FC5, FC3, FC1, FCZ, FC2, FC4, FC6, FT8, T7, C5, C3, C1, CZ, C2, C4, C6, T8, TP7, CP5, CP3, CP1, CPZ, CP2, CP4, CP6, TP8, P7, P5, P3, P1, PZ, P2, P4, P6, P8}. Sinembargo nuestro dispositivo EEG solo cuenta con 15 canales por lo que fue necesario estimar los valores para los canales faltantes para poder usar el modelo. Cabe destacar que en el proceso de entrenamiento empleado para el modelo y definido en [MiRepNet] se utiliza la interpolación espacial para entrenar el modelo con diferentes datasets de diferentes cantidades de electrodos. En los siguientes apartados se explican los diferentes métodos que han sido valorados. 
+
+\subsection{Relleno con ceros}
+\label{subsec:interp_ceros}
+
+Este es el método más sencillo y consiste en reemplazar con ceros los canales no disponibles. Tiene como inconveniente que si en el dispositivo EEG hay electrodos que no están incluidos en la disposición de MiRepNet y no se cuenta con algunos de los que sí son necesarios, la información de esos otros electrodos se pierde con este método.
+
+\subsection{Ponderación inversa de la distancia 2D}
+\label{subsec:interp_idw}
+
+Este método consiste en proyectar la superficie del cuero cabelludo en una superficie 2D, de manera que los electrodos pasan a tener una posición 2D en ese plano a través de la función $\phi(\cdot)$. Siendo $C_i$ el número de canales originales, $C_f$ el número de canales finales a obtener y $T$ el número de muestras del trial, para cada trial $X \in \mathbb{R}^{C_i \times T}$ grabado con los canales $\{e_k\}_{k=1}^{C_i}$, se calculan en primer lugar las distancias euclídeas entre los canales originales y los canales objetivo $\{t_i\}_{i=1}^{C_f}$:
+
+\[d_{ik} = \|\phi(t_i) - \phi(e_k)\|_2, \quad i=1,\ldots,C_f,\ k=1,\ldots,C_i.\]
+
+A continuación se calculan los pesos de interpolación:
+
+\[W_{ik} = \frac{d_{ik}^{-1}}{\sum_{l=1}^{C_i} d_{il}^{-1}}, \quad i=1,\ldots,C_f,\ k=1,\ldots,C_i.\]
+
+Finalmente se obtiene el trial interpolado:
+
+\[X'[i,t] = \sum_{c=1}^{C_i} W_{ic}\,X[c,t], \quad i=1,\ldots,C_f,\ t=1,\ldots,T.\]
+
+Este método tiene varias variantes según la función utilizada para proyectar los canales en 2D. Se han probado tanto la función proporcionada por MNE como la usada en el código original de MiRepNet. Como se puede observar en la figura [figura], la función de MNE respeta más las posiciones reales de los electrodos en el cuero cabelludo, mientras que la función de MiRepNet únicamente representa la posición relativa entre ellos.
+
+\subsection{Interpolación mediante splines esféricos}
+\label{subsec:interp_splines}
+
+Este es el método por defecto utilizado en la mayoría de librerías de procesamiento de EEG como MNE o EEGLab. Interpreta el cuero cabelludo como una superficie esférica y aprovecha esa geometría para crear una interpolación más fiel que la generada por los métodos anteriores.
+
+\subsection{Resultados}
+\label{subsec:resultados_interpolacion}
+
+Para comparar los distintos métodos de interpolación con el modelo MiRepNet se realizó una validación cruzada de 5 folds sobre los 8 sujetos disponibles. La Tabla~\ref{tab:interpolacion_cv} muestra el accuracy medio $\pm$ desviación típica obtenido por cada método en cada sujeto.
+
+En dicha tabla se observa que el método de splins esféricos es el que obtiene peor rendimiento de todos, esto unido a que es el más complejo computacionalmente hablando ha llevado a que sea descartado. 
+
+Por otro lado los métodos IDW no ofrecen casi mejora de rendimiento frente a sustituir los canales no capturados con ceros. Esto probablemente se daba a la capacidad del modelo para detectar e ignorar canales que no aportan información relevante. 
+
+Sinembargo esto ocurre con una configuración de electrodos donde todos ellos están incluidos en la lista de electrodos pedidos por MiRepNet. Sinembargo en una configuración donde existiesen electrodos no pedidos por MiRepNet y faltasen otros que si son necesario, aplicar la tecnica de poner los canales que no se tienen a 0 y descartar los que no coincidan con los pedidos implicaría una pérdida de información útil y la transpolación en cierta manera permitiría incluir esta información que se va a descartar en los electrodos faltantes. 
+
+Al final por su rendimiento, simplicidad de implementación y la poca carga computacional que implica se ha decidido emplear la interpolacion IDW con la función de proyección de electrodos 2D usada en el repositorio de MiRepNet. 
+
+\begin{table}[h]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lcccc}
+        \hline
+        & \textbf{IDW MiRepNet} & \textbf{IDW MNE} & \textbf{Spline esférico MNE} & \textbf{Ceros} \\
+        \hline
+        \textbf{suj1} & $0.880 \pm 0.024$ & $0.884 \pm 0.019$ & $0.810 \pm 0.020$ & $0.875 \pm 0.014$ \\
+        \textbf{suj2} & $0.514 \pm 0.030$ & $0.512 \pm 0.032$ & $0.496 \pm 0.025$ & $0.490 \pm 0.009$ \\
+        \textbf{suj3} & $0.620 \pm 0.028$ & $0.618 \pm 0.022$ & $0.502 \pm 0.023$ & $0.551 \pm 0.014$ \\
+        \textbf{suj4} & $0.482 \pm 0.027$ & $0.492 \pm 0.026$ & $0.455 \pm 0.025$ & $0.502 \pm 0.027$ \\
+        \textbf{suj5} & $0.810 \pm 0.045$ & $0.812 \pm 0.046$ & $0.698 \pm 0.093$ & $0.818 \pm 0.021$ \\
+        \textbf{suj6} & $0.514 \pm 0.021$ & $0.504 \pm 0.026$ & $0.502 \pm 0.040$ & $0.522 \pm 0.024$ \\
+        \textbf{suj7} & $0.539 \pm 0.026$ & $0.545 \pm 0.025$ & $0.551 \pm 0.063$ & $0.522 \pm 0.020$ \\
+        \textbf{suj8} & $0.563 \pm 0.046$ & $0.563 \pm 0.045$ & $0.557 \pm 0.030$ & $0.553 \pm 0.053$ \\
+        \hline
+    \end{tabular}}
+    \caption{Accuracy medio $\pm$ desviación típica en validación cruzada (5-Fold) por sujeto para cada método de interpolación espacial.}
+    \label{tab:interpolacion_cv}
+\end{table}
+
