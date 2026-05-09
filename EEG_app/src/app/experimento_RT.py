@@ -34,9 +34,8 @@ from rich.table import Table
 
 GAMES: dict[str, Type[MIGame]] = {
     "1": ProjectArrowsMIGame,
-    "2": ArrowRunnerMIGame,
-    "3": EndlessWaveRunnerMIGame,
-    "4": DualArrowComponent,
+    "2": EndlessWaveRunnerMIGame,
+    "3": DualArrowComponent,
 }
 
 def choose_game(console=None) -> Type[MIGame]:
