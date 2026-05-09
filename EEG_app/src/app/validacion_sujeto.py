@@ -6,96 +6,152 @@ if SRC_ROOT not in sys.path:
 from pathlib import Path
 
 from rich.panel import Panel
-from rich.prompt import Prompt
 from rich.table import Table
 
+from app.app_utils import RECORD_DIR, lee_indice
 from offline_tests.pipelineEval import run_MiRepNet_pipeline
 
-
-def _listar_fifs_disponibles(recordings_dir: Path) -> list[Path]:
-	if not recordings_dir.exists():
-		return []
-	return sorted(recordings_dir.glob("*.fif"), key=lambda p: p.name.lower())
+EXPERIMENTO_VISUAL_DIR = RECORD_DIR / "experimento_visual"
 
 
-def _mostrar_fifs_disponibles(console, fifs: list[Path]) -> None:
-	table = Table(title="Grabaciones disponibles", expand=True)
-	table.add_column("ID", style="cyan", justify="right")
-	table.add_column("Archivo")
-
-	if not fifs:
-		table.add_row("-", "[italic dim]No se encontraron archivos .fif en recordings[/]")
-	else:
-		for idx, fif in enumerate(fifs):
-			table.add_row(str(idx), fif.name)
-
-	console.print(table)
+def _listar_sujetos(base_dir: Path) -> list[Path]:
+    if not base_dir.exists():
+        return []
+    return sorted(
+        [d for d in base_dir.iterdir() if d.is_dir()],
+        key=lambda p: p.name.lower(),
+    )
 
 
-def _resolver_fif_paths_desde_entrada(entrada: str, recordings_dir: Path, fifs_disponibles: list[Path]) -> list[str]:
-	entrada = entrada.strip()
-	if not entrada:
-		return []
+def _listar_fifs(suj_dir: Path) -> list[Path]:
+    return sorted(suj_dir.glob("*.fif"), key=lambda p: p.name.lower())
 
-	# Si la entrada incluye ".fif" o comas, se interpreta como lista de archivos.
-	if ".fif" in entrada.lower() or "," in entrada:
-		tokens = [tok.strip() for tok in entrada.split(",") if tok.strip()]
-		paths: list[str] = []
 
-		for tok in tokens:
-			candidato = Path(tok)
-			if not candidato.is_absolute():
-				candidato = recordings_dir / tok
+def _mostrar_sujetos(console, sujetos: list[Path]) -> None:
+    table = Table(title="Sujetos disponibles — experimento_visual", expand=True)
+    table.add_column("ID", style="cyan", justify="right")
+    table.add_column("Carpeta")
+    table.add_column("Grabaciones .fif", justify="right")
 
-			candidato = candidato.resolve()
-			if candidato.exists() and candidato.suffix.lower() == ".fif":
-				paths.append(str(candidato))
+    if not sujetos:
+        table.add_row("-", "[italic dim]No se encontraron carpetas de sujetos[/]", "-")
+    else:
+        for idx, suj in enumerate(sujetos):
+            n_fifs = len(list(suj.glob("*.fif")))
+            table.add_row(str(idx), suj.name, str(n_fifs))
 
-		return paths
+    console.print(table)
 
-	# Si no, se interpreta como nombre (o fragmento) de sujeto.
-	sujeto = entrada.lower()
-	return [str(p.resolve()) for p in fifs_disponibles if sujeto in p.name.lower()]
+
+def _mostrar_fifs(console, fifs: list[Path], suj_name: str) -> None:
+    table = Table(title=f"Grabaciones — {suj_name}", expand=True)
+    table.add_column("ID", style="cyan", justify="right")
+    table.add_column("Archivo")
+
+    if not fifs:
+        table.add_row("-", "[italic dim]No se encontraron archivos .fif[/]")
+    else:
+        for idx, fif in enumerate(fifs):
+            table.add_row(str(idx), fif.name)
+
+    console.print(table)
+
+
+def _seleccionar_sujeto(console) -> Path | None:
+    sujetos = _listar_sujetos(EXPERIMENTO_VISUAL_DIR)
+
+    console.clear()
+    console.print(
+        Panel(
+            "[bold]Evaluacion de sujeto con MiRepNet[/bold]\n"
+            "Seleccione la carpeta del sujeto a evaluar.",
+            border_style="white",
+            padding=(1, 2),
+        )
+    )
+    _mostrar_sujetos(console, sujetos)
+
+    if not sujetos:
+        console.print("[red]No hay carpetas de sujetos en experimento_visual.[/red]")
+        console.input("[dim]Pulse Enter para continuar...[/dim]")
+        return None
+
+    indice = lee_indice(
+        console.input("\nSeleccione ID de sujeto [dim](-1 para cancelar)[/dim]: ")
+    )
+
+    while indice != -1 and (indice < 0 or indice >= len(sujetos)):
+        indice = lee_indice(
+            console.input("[red]Índice invalido. Intente de nuevo:[/red] ")
+        )
+
+    if indice == -1:
+        return None
+
+    return sujetos[indice]
+
+
+def _seleccionar_fifs(console, suj_dir: Path) -> list[str]:
+    fifs = _listar_fifs(suj_dir)
+
+    console.clear()
+    console.print(
+        Panel(
+            f"[bold]Evaluacion de sujeto con MiRepNet — {suj_dir.name}[/bold]\n"
+            "Introduzca los IDs separados por comas o [cyan]all[/cyan] para seleccionar todos.",
+            border_style="white",
+            padding=(1, 2),
+        )
+    )
+    _mostrar_fifs(console, fifs, suj_dir.name)
+
+    if not fifs:
+        console.print("[red]No hay archivos .fif en esta carpeta.[/red]")
+        console.input("[dim]Pulse Enter para continuar...[/dim]")
+        return []
+
+    entrada = console.input(
+        "\nIDs de grabaciones [dim](ej: 0,2 · all · -1 para cancelar)[/dim]: "
+    ).strip()
+
+    if entrada == "-1":
+        return []
+
+    if entrada.lower() == "all":
+        return [str(f.resolve()) for f in fifs]
+
+    paths: list[str] = []
+    for tok in entrada.split(","):
+        tok = tok.strip()
+        if not tok:
+            continue
+        idx = lee_indice(tok)
+        if 0 <= idx < len(fifs):
+            paths.append(str(fifs[idx].resolve()))
+        else:
+            console.print(f"[yellow]ID {tok!r} ignorado (fuera de rango).[/yellow]")
+
+    return paths
 
 
 def evaluar_sujeto_MiRepNet(console) -> None:
-	recordings_dir = Path(__file__).resolve().parents[1] / "recordings"
-	fifs_disponibles = _listar_fifs_disponibles(recordings_dir)
+    suj_dir = _seleccionar_sujeto(console)
+    if suj_dir is None:
+        return
 
-	console.clear()
-	console.print(
-		Panel(
-			"[bold]Evaluacion de sujeto con MiRepNet[/bold]\n"
-			"Introduce una lista de archivos .fif separada por comas\n"
-			"o un nombre de sujeto para buscar coincidencias en recordings.",
-			border_style="white",
-			padding=(1, 2),
-		)
-	)
-	_mostrar_fifs_disponibles(console, fifs_disponibles)
+    fif_paths = _seleccionar_fifs(console, suj_dir)
+    if not fif_paths:
+        return
 
-	entrada = Prompt.ask(
-		"Archivos .fif (coma separados) o nombre de sujeto [dim](-1 para cancelar)[/dim]"
-	).strip()
+    console.print("\n[cyan]Archivos seleccionados:[/cyan]")
+    for p in fif_paths:
+        console.print(f"  - {Path(p).name}")
 
-	if entrada == "-1":
-		return
+    console.print("\n[yellow]Ejecutando evaluacion MiRepNet...[/yellow]")
+    try:
+        run_MiRepNet_pipeline(fif_paths)
+        console.print("[green]Evaluacion finalizada correctamente.[/green]")
+    except Exception as e:
+        console.print(f"[red]Error durante la evaluacion: {e}[/red]")
 
-	fif_paths = _resolver_fif_paths_desde_entrada(entrada, recordings_dir, fifs_disponibles)
-	if not fif_paths:
-		console.print("[red]No se encontraron archivos .fif validos para esa entrada.[/red]")
-		console.input("[dim]Pulse Enter para continuar...[/dim]")
-		return
-
-	console.print("[cyan]Archivos seleccionados:[/cyan]")
-	for p in fif_paths:
-		console.print(f"  - {p}")
-
-	console.print("[yellow]Ejecutando evaluacion MiRepNet...[/yellow]")
-	try:
-		run_MiRepNet_pipeline(fif_paths)
-		console.print("[green]Evaluacion finalizada correctamente.[/green]")
-	except Exception as e:
-		console.print(f"[red]Error durante la evaluacion: {e}[/red]")
-
-	console.input("[dim]Pulse Enter para continuar...[/dim]")
+    console.input("[dim]Pulse Enter para continuar...[/dim]")
