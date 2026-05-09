@@ -28,31 +28,43 @@ from components.RT_pipe_components.MIGames.MIGame import MIGame
 import time
 from typing import Type
 from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import Prompt
+from rich.table import Table
 
 GAMES: dict[str, Type[MIGame]] = {
     "1": ProjectArrowsMIGame,
-    "2": FlappyBirdMIGame,
-    "3": ArrowRunnerMIGame,
-    "4": EndlessWaveRunnerMIGame,
-    "5": DualArrowComponent,
+    "2": ArrowRunnerMIGame,
+    "3": EndlessWaveRunnerMIGame,
+    "4": DualArrowComponent,
 }
 
-def choose_game() -> Type[MIGame]:
-    print("\n=== Selecciona un juego MI ===")
+def choose_game(console=None) -> Type[MIGame]:
+    table = Table(title="Selecciona un juego MI", expand=True)
+    table.add_column("ID", style="cyan", justify="right")
+    table.add_column("Juego")
 
     for key, game_cls in GAMES.items():
-        print(f"{key}. {game_cls.__name__}")
+        table.add_row(key, game_cls.__name__)
+
+    if console is not None:
+        console.print(table)
+    else:
+        for key, game_cls in GAMES.items():
+            print(f"{key}. {game_cls.__name__}")
 
     while True:
-        option = input("Opción: ").strip()
-
+        option = Prompt.ask("Opcion").strip() if console is not None else input("Opción: ").strip()
         game_cls = GAMES.get(option)
         if game_cls is not None:
             return game_cls
+        msg = "Opcion no valida. Prueba otra vez."
+        if console is not None:
+            console.print(f"[red]{msg}[/red]")
+        else:
+            print(msg)
 
-        print("Opción no válida. Prueba otra vez.")
-
-def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral, SalidaPredicciones, game_cls: Type[MIGame], console):
+def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral, SalidaPredicciones, game_cls: Type[MIGame], console, duracion_segundos: float | None = None):
     rtTraining = Training_real_time()
     EA_matrix, model = rtTraining.start(
         puerto_COM=puertoCom,
@@ -116,28 +128,42 @@ def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral
         eeg.register_callback(modelPipeline.sendData)
         console.print("Servidor TCP en linea. Esperando conexiones...")
 
-        console.print("Cargando buffer inicial durante 10 segundos antes de activar predicciones...")
+        console.print("Cargando buffer inicial durante 15 segundos antes de activar predicciones...")
         time.sleep(15)
         modelPipeline.activar_predecir()
-        console.print("Predicciones activadas.")
+        console.print("[green]Predicciones activadas.[/green]")
 
-        # Menu de control en consola.
-        running = True
-        while running:
-            console.print("\nMenu: [1] Pausar prediccion  [2] Reanudar prediccion  [0] Detener grabacion")
-            opcion = input("Selecciona opcion: ").strip()
+        if duracion_segundos is not None:
+            mins = int(duracion_segundos // 60)
+            segs = int(duracion_segundos % 60)
+            console.print(
+                Panel(
+                    f"[bold green]Experimento en curso[/bold green]\n"
+                    f"Duracion: [cyan]{mins}m {segs:02d}s[/cyan] — los procesos se detendran automaticamente.",
+                    border_style="green",
+                    padding=(1, 2),
+                )
+            )
+            time.sleep(duracion_segundos)
+            console.print("[yellow]Tiempo completado. Deteniendo grabacion y procesos...[/yellow]")
+        else:
+            # Menu de control manual.
+            running = True
+            while running:
+                console.print("\nMenu: [1] Pausar prediccion  [2] Reanudar prediccion  [0] Detener grabacion")
+                opcion = input("Selecciona opcion: ").strip()
 
-            if opcion == "1":
-                modelPipeline.desactivar_predecir()
-                console.print("Prediccion pausada. El buffer sigue recibiendo datos.")
-            elif opcion == "2":
-                modelPipeline.activar_predecir()
-                console.print("Prediccion reanudada.")
-            elif opcion == "0":
-                console.print("Deteniendo grabacion y procesos...")
-                running = False
-            else:
-                console.print("Opcion no valida.")
+                if opcion == "1":
+                    modelPipeline.desactivar_predecir()
+                    console.print("Prediccion pausada. El buffer sigue recibiendo datos.")
+                elif opcion == "2":
+                    modelPipeline.activar_predecir()
+                    console.print("Prediccion reanudada.")
+                elif opcion == "0":
+                    console.print("Deteniendo grabacion y procesos...")
+                    running = False
+                else:
+                    console.print("Opcion no valida.")
 
         # acaba la grabacion
         raw = eeg.get_mne()
@@ -157,19 +183,28 @@ def experimento_RT(channelsConfig, puertoCom, SalidaEntrenamiento, SalidaGeneral
     eeg.cerrarLibreria()
 
 def interfaz_experimento_RT(channelsConfig, console):
-    console.print("Bienvenido al experimento de entrenamiento y prediccion en tiempo real.")
+    console.clear()
+    console.print(
+        Panel(
+            "[bold]Experimento de Entrenamiento y Prediccion en Tiempo Real[/bold]\n"
+            "Configure el experimento antes de iniciar el flujo RT.",
+            border_style="white",
+            padding=(1, 2),
+        )
+    )
+
     console.print("Selecciona el puerto COM al que esta conectado el dispositivo EEG:")
     puertoCom = seleccionarPuertoCOM(console)
 
     if puertoCom is None:
-        console.print("No se selecciono un puerto COM. Cancelando experimento.")
+        console.print("[red]No se selecciono un puerto COM. Cancelando experimento.[/red]")
         return
 
     nombre_experimento = ""
     while not nombre_experimento:
-        nombre_experimento = input("Nombre del experimento (se creara una carpeta en recordings): ").strip()
+        nombre_experimento = Prompt.ask("Nombre del experimento [dim](se creara una carpeta en recordings)[/dim]").strip()
         if not nombre_experimento:
-            console.print("El nombre no puede estar vacio.")
+            console.print("[red]El nombre no puede estar vacio.[/red]")
 
     base_salida = os.path.normpath(
         os.path.join(os.path.dirname(__file__), "..", "recordings", "experimento_RT")
@@ -182,9 +217,15 @@ def interfaz_experimento_RT(channelsConfig, console):
     SalidaGeneral = os.path.join(carpeta_salida, "SalidaGeneral.fif")
     SalidaPredicciones = os.path.join(carpeta_salida, "SalidaPredicciones.csv")
 
-    console.print(f"Guardando ficheros en: {carpeta_salida}")
+    console.print(f"[dim]Guardando ficheros en: {carpeta_salida}[/dim]")
 
-    game_cls = choose_game()
+    game_cls = choose_game(console)
+
+    raw = Prompt.ask("Duracion del experimento en segundos [dim](0 = control manual)[/dim]", default="0").strip()
+    try:
+        duracion_segundos = float(raw) if float(raw) > 0 else None
+    except ValueError:
+        duracion_segundos = None
 
     experimento_RT(
         channelsConfig,
@@ -194,4 +235,5 @@ def interfaz_experimento_RT(channelsConfig, console):
         SalidaPredicciones,
         game_cls,
         console,
+        duracion_segundos,
     )

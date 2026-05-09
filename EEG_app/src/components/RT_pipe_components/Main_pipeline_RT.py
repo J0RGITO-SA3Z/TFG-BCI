@@ -27,6 +27,9 @@ from components.RT_pipe_components.MIGames.project_arrows import ProjectArrowsMI
 import time
 from typing import Type
 from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import Prompt
+from rich.table import Table
 
 GAMES: dict[str, Type[MIGame]] = {
     "1": ProjectArrowsMIGame,
@@ -51,7 +54,7 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, game_cl
     modelPipeline = None
 
     # Primero el juego, para obtener su pipe de entrada antes de crear el interpreter.
-    #DualArrowComponent 
+    #DualArrowComponent
     #ArrowRunnerMIGame
     #FlappyBirdMIGame
     #EndlessWaveRunnerMIGame
@@ -62,8 +65,7 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, game_cl
     interpreter_process = RT_interpreter_process(RT_interpreter_slider, game_pipe=migame_process.get_send_pipe())
     interpreter_process.start(filename=SalidaPredicciones)
 
-    eeg.iniciarGrabacion()
-    
+
     # Crea el pipeline en proceso separado y conecta su salida al interprete.
     modelPipeline = RT_pipeline_process(
         ea_matrix = EA_matrix,
@@ -78,7 +80,7 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, game_cl
     eeg.iniciarGrabacion(15)
     console.print("Buffer cargado.")
     modelPipeline.activar_predecir()
-    eeg.iniciarGrabacion()
+    eeg.iniciarGrabacion(10)
 
     modelPipeline.stop_process()
     interpreter_process.stop()
@@ -88,12 +90,21 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, game_cl
 
 
 def interfaz_experimento_RT(emulation_fif, fif_train, console):
-    console.print("=== Experimento de Simulación en Tiempo Real ===")
+    console.clear()
+    console.print(
+        Panel(
+            "[bold]Experimento de Simulacion en Tiempo Real[/bold]\n"
+            "Configure el experimento antes de iniciar el flujo RT.",
+            border_style="white",
+            padding=(1, 2),
+        )
+    )
+
     nombre_experimento = ""
     while not nombre_experimento:
-        nombre_experimento = input("Nombre del experimento (se creara una carpeta en recordings): ").strip()
+        nombre_experimento = Prompt.ask("Nombre del experimento [dim](se creara una carpeta en recordings)[/dim]").strip()
         if not nombre_experimento:
-            console.print("El nombre no puede estar vacio.")
+            console.print("[red]El nombre no puede estar vacio.[/red]")
 
     base_salida = os.path.normpath(
         os.path.join(os.path.dirname(__file__), "..", "..", "..", "recordings", "simulations_RT")
@@ -103,11 +114,9 @@ def interfaz_experimento_RT(emulation_fif, fif_train, console):
     os.makedirs(carpeta_salida, exist_ok=True)
 
     SalidaPredicciones = os.path.join(carpeta_salida, "SalidaPredicciones.csv")
+    console.print(f"[dim]Guardando ficheros en: {carpeta_salida}[/dim]")
 
-    console.print(f"Guardando ficheros en: {carpeta_salida}")
-
-    game_cls = choose_game()
-
+    game_cls = choose_game(console)
 
     experimento_offline_RT(
         emulation_fif,
@@ -117,20 +126,32 @@ def interfaz_experimento_RT(emulation_fif, fif_train, console):
         console,
     )
 
-def choose_game() -> Type[MIGame]:
-    print("\n=== Selecciona un juego MI ===")
+
+
+def choose_game(console=None) -> Type[MIGame]:
+    table = Table(title="Selecciona un juego MI", expand=True)
+    table.add_column("ID", style="cyan", justify="right")
+    table.add_column("Juego")
 
     for key, game_cls in GAMES.items():
-        print(f"{key}. {game_cls.__name__}")
+        table.add_row(key, game_cls.__name__)
+
+    if console is not None:
+        console.print(table)
+    else:
+        for key, game_cls in GAMES.items():
+            print(f"{key}. {game_cls.__name__}")
 
     while True:
-        option = input("Opción: ").strip()
-
+        option = Prompt.ask("Opcion").strip() if console is not None else input("Opción: ").strip()
         game_cls = GAMES.get(option)
         if game_cls is not None:
             return game_cls
-
-        print("Opción no válida. Prueba otra vez.")
+        msg = "Opcion no valida. Prueba otra vez."
+        if console is not None:
+            console.print(f"[red]{msg}[/red]")
+        else:
+            print(msg)
 
 if __name__ == "__main__":
         
