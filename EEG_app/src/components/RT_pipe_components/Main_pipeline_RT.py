@@ -80,7 +80,7 @@ def experimento_offline_RT(emulationfif,Trainingfif, SalidaPredicciones, game_cl
     eeg.iniciarGrabacion(15)
     console.print("Buffer cargado.")
     modelPipeline.activar_predecir()
-    eeg.iniciarGrabacion(10)
+    eeg.iniciarGrabacion()
 
     modelPipeline.stop_process()
     interpreter_process.stop()

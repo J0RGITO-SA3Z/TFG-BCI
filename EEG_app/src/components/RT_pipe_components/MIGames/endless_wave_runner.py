@@ -433,6 +433,7 @@ class EndlessWaveRunnerMIGame(MIGame):
 
         if self.ship_x < tunnel_center_left: # en principio hay q ir a la derecha
             self.right = True
+            self.left = False
             left_dist = self.ship_x-left_bound
             max_dist = tunnel_center_left - left_bound
             umbral_normalizado = umbral_min + (left_dist / max_dist) * (umbral_max - umbral_min)
@@ -442,6 +443,7 @@ class EndlessWaveRunnerMIGame(MIGame):
                 self.string_to_action(prediction)
         elif self.ship_x > tunnel_center_right: # en principio hay q ir a la izquierda (ignoramos el caso en el q estamos justo en el centro)
             self.left = True
+            self.right = False
             right_dist = right_bound-self.ship_x
             max_dist = right_bound - tunnel_center_right
             umbral_normalizado = umbral_max - (right_dist / max_dist) * (umbral_max - umbral_min)
@@ -449,10 +451,6 @@ class EndlessWaveRunnerMIGame(MIGame):
                 self.ship_direction = -1
             else:
                 self.string_to_action(prediction)
-        elif self.left and self.ship_x < tunnel_center:
-            self.left = False
-        elif self.right and self.ship_x > tunnel_center:
-            self.right = False
         elif self.right:
             self.ship_direction = 1
         elif self.left:
@@ -507,7 +505,7 @@ class EndlessWaveRunnerMIGame(MIGame):
             except OSError:
                 running = False
 
-            #self.controlAssist("right_hand", {"name":"ExponentialSmoothing", "p_right_smooth":100, "p_left_smooth":100})
+            self.controlAssist("right_hand", {"name":"ExponentialSmoothing", "p_right_smooth":100, "p_left_smooth":100})
 
             self.update()
 
