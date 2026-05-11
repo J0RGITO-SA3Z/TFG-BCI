@@ -17,17 +17,17 @@ Este es el método más sencillo: consiste en reemplazar con ceros los canales n
 \subsection{Ponderación inversa de la distancia 2D}
 \label{subsec:interp_idw}
 
-Este método consiste en proyectar la superficie del cuero cabelludo en una superficie 2D, de manera que los electrodos pasan a tener una posición 2D en ese plano a través de la función $\phi(\cdot)$. Siendo $C_i$ el número de canales originales, $C_f$ el número de canales finales a obtener y $T$ el número de muestras del trial, para cada trial $X \in \mathbb{R}^{C_i \times T}$ grabado con los canales $\{e_k\}_{k=1}^{C_i}$, se calculan en primer lugar las distancias euclídeas entre los canales originales y los canales objetivo $\{t_i\}_{i=1}^{C_f}$:
+Este método consiste en proyectar la superficie del cuero cabelludo en una superficie 2D, de manera que los electrodos pasan a tener una posición 2D en ese plano a través de la función $\phi(\cdot)$. Siendo $C_o$ el número de canales originales, $C_f$ el número de canales finales a obtener y $T$ el número de muestras del trial, para cada trial $X \in \mathbb{R}^{C_o \times T}$ grabado con los canales $\{e_k\}_{k=1}^{C_o}$, se calculan en primer lugar las distancias euclídeas entre los canales originales y los canales objetivo $\{t_i\}_{i=1}^{C_f}$:
 
-\[d_{ik} = \|\phi(t_i) - \phi(e_k)\|_2, \quad i=1,\ldots,C_f,\ k=1,\ldots,C_i.\]
+\[d_{ik} = \|\phi(t_i) - \phi(e_k)\|_2, \quad i=1,\ldots,C_f,\ k=1,\ldots,C_o.\]
 
 A continuación se calculan los pesos de interpolación:
 
-\[W_{ik} = \frac{d_{ik}^{-1}}{\sum_{l=1}^{C_i} d_{il}^{-1}}, \quad i=1,\ldots,C_f,\ k=1,\ldots,C_i.\]
+\[W_{ik} = \frac{d_{ik}^{-1}}{\sum_{l=1}^{C_o} d_{il}^{-1}}, \quad i=1,\ldots,C_f,\ k=1,\ldots,C_o.\]
 
 Finalmente se obtiene el trial interpolado:
 
-\[X'[i,t] = \sum_{c=1}^{C_i} W_{ic}\,X[c,t], \quad i=1,\ldots,C_f,\ t=1,\ldots,T.\]
+\[X'[i,t] = \sum_{c=1}^{C_o} W_{ic}\,X[c,t], \quad i=1,\ldots,C_f,\ t=1,\ldots,T.\]
 
 Este método tiene varias variantes según la función utilizada para proyectar los canales en 2D. Se han probado tanto la función proporcionada por MNE como la usada en el código original de MiRepNet. Como se puede observar en la figura [figura], la función de MNE respeta más las posiciones reales de los electrodos en el cuero cabelludo, mientras que la función de MiRepNet únicamente representa la posición relativa entre ellos.
 

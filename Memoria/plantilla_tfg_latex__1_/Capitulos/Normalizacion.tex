@@ -22,16 +22,16 @@ En un principio se iba a utilizar este método por ser uno de lo más utilizados
 El alineamiento euclideo, a diferencia de otros métodos de normalización por escalado como Min-Max, no pretende mantener los valores en un intervalo definido (por ejemplo, entre 0 y 1). 
 Trata de alinear la distribución de los datos de diferentes sujetos para que le sea más fácil generalizar. Este alineamiento lo consigue haciendo que la matriz de covarianza media entre canales de cada usuario sea igual a la matriz identidad.
 
-Para calcular la matriz identidad desde el punto de vista práctico, dado un sujeto con $n$ trials $\{X_i' \in \mathbb{R}^{C \times T}\}_{i=1}^{n}$, donde $C$ es el número de canales y $T$ el número de muestras temporales, en primer lugar se calcula tanto la matriz de covarianza de referencia como la media de las covarianzas de todos los trials:
+Para aplicar el alinemiento euclideo, dado un sujeto con $n$ trials $\{X_i \in \mathbb{R}^{C \times T}\}_{i=1}^{n}$, donde $C$ es el número de canales y $T$ el número de muestras temporales, en primer lugar se calcula tanto la matriz de covarianza de referencia como la media de las covarianzas de todos los trials:
 
 \begin{equation}
-    \bar{R} = \frac{1}{n} \sum_{i=1}^{n} X_i'(X_i')^\top.
+    \bar{R} = \frac{1}{n} \sum_{i=1}^{n} X_i(X_i)^\top.
 \end{equation}
 
 A continuación, cada trial se normaliza multiplicándolo por la raíz cuadrada inversa de dicha matriz de referencia:
 
 \begin{equation}
-    \tilde{X}_i = \bar{R}^{-1/2} X_i', \quad i = 1, \ldots, n.
+    \tilde{X}_i = \bar{R}^{-1/2} X_i, \quad i = 1, \ldots, n.
 \end{equation}
 
 Tras aplicar esta transformación la covarianza media de los trials transformados es la matriz identidad:
@@ -40,7 +40,7 @@ Tras aplicar esta transformación la covarianza media de los trials transformado
     \frac{1}{n} \sum_{i=1}^{n} \tilde{X}_i \tilde{X}_i^\top = I.
 \end{equation}
 
-En el gráfico \ref{fig:proyeccion_alineamiento_euclideo} se proyecta en un espacio de 2 dimensiones, mediante t-SNE, los datos de EEG de diferentes sujetos antes y después del alineamiento euclídeo. En él se observa como, efectivamente, EA alinea los datos de los diferentes sujetos.
+En el gráfico \ref{fig:proyeccion_alineamiento_euclideo} se proyecta en un espacio de 2 dimensiones, mediante t-SNE, los datos de EEG de diferentes sujetos antes y después del alineamiento euclídeo. En él se observa como, efectivamente, el alineamiento Euclídeo alinea los datos de los diferentes sujetos.
 
 \begin{figure}[h]
     \centering
@@ -49,14 +49,14 @@ En el gráfico \ref{fig:proyeccion_alineamiento_euclideo} se proyecta en un espa
     \label{fig:proyeccion_alineamiento_euclideo}
 \end{figure}
 
-A la hora de la implementación, se denomina \textit{matriz de transformación} a la raíz cuadrada inversa de la matriz de covarianza de referencia. Para poder usar este método, hay que calcular una matriz de transformación para cada sujeto por separado. Además, es importante calcular una matriz con los datos de entrenamiento y otra con los datos de \textit{test} para evitar fugas de información.
+A la hora de la implementación, denominaremos \textit{matriz de transformación} a la raíz cuadrada inversa de la matriz de covarianza de referencia. Para poder usar este método, hay que calcular una matriz de transformación para cada sujeto por separado. Además, es importante calcular una matriz con los datos de entrenamiento y otra con los datos de \textit{test} para evitar fugas de información.
 
 En cuanto a la implementación en tiempo real, se valoraron dos alternativas sobre cómo calcular la matriz de transformación para los datos de \textit{test}:
 
 \begin{itemize}
-    \item \textbf{Buffer circular:} trata de mantener $X$ ventanas consecutivas en un buffer circular y recalcular la matriz de transformación para cada predicción. Es la opción más precisa pero también la más compleja, tanto en implementación como en coste computacional. Lo cual en un sistema de tiempo real puede derivar en delays demasiado largos.
+    \item \textbf{Alineamiento euclídeo dinámico:} trata de mantener $X$ ventanas consecutivas en un buffer circular y recalcular la matriz de transformación para cada predicción. Es la opción más precisa pero también la más compleja, tanto en implementación como en coste computacional. Lo cual en un sistema de tiempo real puede derivar en delays demasiado largos.
 
-    \item \textbf{Matriz compartida:} consiste en calcular la matriz de transformación únicamente con los datos de \textit{fine-tuning} del sujeto y reutilizarla para los datos de test. Desde el punto de vista de implementación, es mucho más sencillo, y computacionalmente, el alineamiento euclídeo se reduce a una multiplicación de matrices fácilmente paralelizable con NumPy. También existe la posibilidad de acelerarlo por GPU, pero dado el bajo \textit{delay} que introduce la operación con NumPy y la complejidad adicional de medir la mejora teniendo en cuenta el tiempo de transporte de datos, se decidió mantener los cálculos en CPU.
+    \item \textbf{Matriz calculada en training:} consiste en calcular la matriz de transformación únicamente con los datos de \textit{fine-tuning} del sujeto y reutilizarla para los datos de test. Desde el punto de vista de implementación, es mucho más sencillo, y computacionalmente, el alineamiento euclídeo se reduce a una multiplicación de matrices fácilmente paralelizable con NumPy. También existe la posibilidad de acelerarlo por GPU, pero dado el bajo \textit{delay} que introduce la operación con NumPy y la complejidad adicional de medir la mejora teniendo en cuenta el tiempo de transporte de datos, se decidió mantener los cálculos en CPU.
 \end{itemize}
 
 Para determinar si la segunda alternativa era viable, se realizó un experimento de validación cruzada de 5 \textit{folds} sobre los 8 sujetos disponibles, comparando ambas estrategias. En la condición de \textit{EA independiente} se calcula una matriz de transformación distinta para el conjunto de finetuning y para el conjunto de test. En la condición de \textit{EA compartida} la matriz se calcula únicamente con los datos de finetuning y se reutiliza para alinear el conjunto de test. 
