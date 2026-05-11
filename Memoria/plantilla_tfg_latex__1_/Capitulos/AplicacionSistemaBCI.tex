@@ -77,7 +77,6 @@ Permite definir las acciones de imaginación motora que se utilizarán durante l
 
 Muestra el nivel de batería actual del dispositivo EEG. Resulta útil comprobar este valor antes de iniciar sesiones largas de grabación para evitar interrupciones (véase Figura~\ref{fig:visualizacionBateria}).
 
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{Imagenes/Bitmap/conexion_bluethooth_y_bateria_app.png}
@@ -139,7 +138,7 @@ Durante el experimento, se presenta al sujeto una secuencia de estímulos visual
 \subsubsection{Protocolo}
 \label{subsubsec:protocoloExperimento}
 
-El protocolo define la estructura temporal del experimento: el número de repeticiones de imaginación motora (epochs) por clase, y que clases aparecerán (mano izquierda, mano derecha y pies), la duración de los periodos de imaginación motora, los intervalos de descanso entre epochs y las instrucciones presentadas al sujeto durante cada fase. Todos estos parámetros son configurables, lo que permite adaptar el experimento de forma flexible a las necesidades específicas de cada sesión o participante.
+El protocolo define la estructura temporal del experimento: el número de repeticiones de imaginación motora (épocas) por clase,que clases aparecerán (mano izquierda, mano derecha y pies), la duración de los periodos de imaginación motora, los intervalos de descanso entre épocas y las instrucciones presentadas al sujeto durante cada fase. Todos estos parámetros son configurables, lo que permite adaptar el experimento de forma flexible a las necesidades específicas de cada sesión o participante.
 
 \subsection{Evaluación de sujetos con el modelo MiRepNet}
 \label{subsec:evaluacionMiRepNet}
@@ -148,7 +147,7 @@ Este módulo automatiza la evaluación del rendimiento del sistema sobre las gra
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{Imagenes/Bitmap/modelo_grafico_1.png}
-    \caption{Gráficos del resultado de evaluación con accuracy, loss y learning rate por epoch.}
+    \caption{Gráficos del resultado de evaluación con accuracy, loss y learning rate por época.}
     \label{fig:modeloGraficoFinetune}
 \end{figure}
 
@@ -188,3 +187,53 @@ El visualizador de grabaciones permite revisar los ficheros \textit{FIF} generad
 
 \subsection{Implementación}
 \label{subsec:implementacion}
+
+\subsubsection{Librerías y dependencias}
+\label{subsubsec:libreriasApp}
+
+A continuación se describen las principales librerías utilizadas en el desarrollo de la aplicación:
+
+\begin{itemize}
+
+\item \textbf{BrainAccess SDK:} librería oficial para la comunicación y control del dispositivo EEG. Cabe destacar que se ha trabajado con una versión antigua del SDK, ya que el dispositivo BrainAccess MIDI empleado es un modelo de varios años de antigüedad. Esto dificultó considerablemente la búsqueda de documentación válida y funcional, puesto que la mayoría de los repositorios disponibles, incluida la página oficial de BrainAccess, contienen datasheets correspondientes a versiones más modernas cuyas implementaciones no son compatibles con el dispositivo utilizado. A ello se suma la escasa información de dominio público (vídeos, tutoriales, guías, etc.) existente sobre este modelo concreto, lo que generó bloqueos significativos durante las primeras fases del desarrollo.
+
+Una vez localizada la versión compatible del SDK y la documentación correspondiente, fue posible hacer uso de estructuras de datos y métodos como \texttt{EEG.recorder()} para la grabación y la extracción de datos del casco. Asimismo, se revisó la implementación interna de la librería y su funcionamiento mediante multihilo en C++, lo que permitió diseñar estructuras de datos más eficientes para su integración en el pipeline del experimento en tiempo real (véase Sección~\ref{subsec:experimentoTiempoReal}).
+
+\item \textbf{MNE:} librería de referencia para el procesado de señales EEG y MEG. Ofrece herramientas para la lectura y escritura de ficheros en formato \textit{FIF}, la aplicación de filtros de frecuencia, el preprocesado de la señal y la extracción de épocas a partir de grabaciones continuas mediante la estructura \texttt{mne.Epochs}. Además, incorpora métodos de visualización de señales y representaciones en 2D del cuero cabelludo, empleados en el módulo de impedancias (véase Sección~\ref{subsubsec:testImpedancias}).
+
+\item \textbf{rich:} librería para la construcción de interfaces de usuario en consola. Proporciona componentes como tablas, paneles y texto con formato que han permitido implementar los menús y la presentación de información de la aplicación de forma clara y estructurada (véase Figura~\ref{fig:menuPrincipal}).
+
+\item \textbf{NumPy:} biblioteca fundamental de Python para la computación numérica con arrays multidimensionales. Se utiliza de forma transversal en toda la aplicación para la manipulación de señales EEG, operaciones matriciales en el pipeline de preprocesado y preparación de los datos de entrada al modelo.
+
+\item \textbf{PyTorch:} framework de aprendizaje profundo empleado para la carga, el ajuste fino (\textit{fine-tuning}) y la inferencia del modelo MiRepNet (véase Sección~\ref{subsec:evaluacionMiRepNet}). Permite aprovechar la GPU mediante CUDA cuando está disponible, lo que acelera significativamente el proceso de entrenamiento.
+
+\item \textbf{scikit-learn:} biblioteca de aprendizaje automático utilizada para el cálculo de métricas de evaluación —\textit{accuracy}, \textit{precision}, \textit{recall} y matriz de confusión— y la implementación de la validación cruzada sobre las grabaciones de los sujetos.
+
+\item \textbf{SciPy:} biblioteca de computación científica empleada en el pipeline de procesado de señal en tiempo real para la aplicación de filtros digitales y otras operaciones de tratamiento de señal.
+
+\item \textbf{Matplotlib:} biblioteca de visualización empleada para la representación gráfica de la distribución de impedancias en 2D (véase Figura~\ref{fig:visualizacionImpedancias}) y para la generación de los gráficos de evaluación del modelo (véase Figura~\ref{fig:modeloGraficoFinetune}).
+
+\item \textbf{PyQt5 / pyqtgraph:} frameworks utilizados para la implementación de la aplicación de visualización TCP en tiempo real, que permite monitorizar las señales EEG desde la misma máquina o desde un dispositivo externo durante el transcurso de una grabación o experimento (véase Sección~\ref{subsec:visualizacionTiempoReal}).
+
+\item \textbf{Pygame:} librería empleada con dos propósitos principales: la implementación del experimento visual y la presentación de los estímulos visuales en pantalla (véase Sección~\ref{subsec:experimentoVisual}), y el desarrollo de los juegos y benchmarks utilizados en el experimento en tiempo real (véase Sección~\ref{subsubsec:juegosBCI}).
+
+\end{itemize}
+
+\subsubsection{Resolución de conflictos con multihilo}
+\label{subsubsec:multithread}
+
+Durante el desarrollo surgieron incompatibilidades entre \textbf{Pygame} y el \textbf{BrainAccess SDK} al ejecutarse de forma simultánea. Pygame gestiona su bucle de visualización haciendo uso de hilos internos de Python, mientras que el SDK de BrainAccess implementa su lógica de adquisición en C++ con multihilo nativo. Ambos compiten por el GIL (\textit{Global Interpreter Lock}) de Python, lo que provocaba bloqueos e inestabilidad al intentar ejecutarlos en paralelo dentro del mismo proceso. La solución adoptada consistió en separar ambos componentes en procesos independientes mediante el módulo \texttt{multiprocessing} de Python, desacoplando así la lógica de visualización de la adquisición de señal y eliminando la contención sobre el GIL.
+
+\subsubsection{Instalación y entorno}
+\label{subsubsec:instalacion}
+
+Con el objetivo de facilitar la puesta en marcha de la aplicación, se ha desarrollado un script de consola \texttt{.bat} que automatiza la configuración completa del entorno de ejecución. El script detecta si Conda o Miniconda están instalados en el sistema, crea un entorno virtual denominado \texttt{bci-mi-tfg}, instala el repositorio de MiRepNet, el SDK de BrainAccess en la versión compatible con el dispositivo EEG y todas las dependencias recogidas en el fichero \texttt{requirements.txt}.
+
+Los únicos requisitos previos son disponer de Conda o Miniconda instalado con su variable de entorno configurada y tener el repositorio clonado localmente. Opcionalmente, aunque muy recomendado, se aconseja tener CUDA instalado para aprovechar la aceleración por GPU durante el entrenamiento e inferencia del modelo.
+
+\subsubsection{Inicialización de la aplicación}
+\label{subsubsec:inicializacion}
+
+El punto de entrada de la aplicación es el script \texttt{aplicacion.py}, ubicado en \texttt{EEG\_app/src/app/}. Desde él se carga la configuración persistente, se inicializa el menú principal y se despacha cada opción al módulo correspondiente. El resto de ficheros \texttt{.py} presentes en el mismo directorio implementan las distintas funcionalidades accesibles desde el menú.
+
+Para la visualización TCP en tiempo real, una vez iniciado el servidor desde la propia aplicación, es posible ejecutar el script \texttt{main.py} ubicado en \texttt{/src/visualizer\_app/} desde la misma máquina o desde un dispositivo externo en la misma red. Introduciendo la dirección IP y el puerto configurados en el servidor, la aplicación mostrará las señales EEG en tiempo real (véase Sección~\ref{subsec:visualizacionTiempoReal}).
