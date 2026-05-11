@@ -51,7 +51,7 @@ Antes de realizar cualquier tipo de grabación o experimento en tiempo real es e
 \subsubsection{Configuración de electrodos}
 \label{subsubsec:configuracionElectrodos}
 
-Esta sección permite visualizar y editar la configuración de los canales del casco EEG. Para cada electrodo es posible especificar si está activo o inactivo, asignarle un nombre de canal y una posición estándar según el sistema internacional 10–20, así como designar qué electrodo actúa como referencia BIAS. A diferencia del sistema de configuración de la aplicación BrainAccess, el módulo desarrollado incorpora la posibilidad de guardar y gestionar múltiples configuraciones de forma persistente. Esto resulta especialmente útil cuando se trabaja con distintas disposiciones de electrodos, ya que permite alternar entre configuraciones de forma sencilla sin necesidad de reconfigurar el sistema manualmente en cada sesión. Las configuraciones se almacenan en disco y se cargan automáticamente al iniciar la aplicación (véase Figura~\ref{fig:configuracionElectrodos}).
+Esta sección permite visualizar y editar la configuración de los canales del casco EEG. Para cada electrodo es posible especificar si está activo o inactivo, asignarle un nombre de canal y una posición estándar según el sistema internacional 10–20, así como designar qué electrodo actúa como BIAS. A diferencia del sistema de configuración de la aplicación BrainAccess, el módulo desarrollado incorpora la posibilidad de guardar y gestionar múltiples configuraciones de forma persistente. Esto resulta especialmente útil cuando se trabaja con distintas disposiciones de electrodos, ya que permite alternar entre configuraciones de forma sencilla sin necesidad de reconfigurar el sistema manualmente en cada sesión. Las configuraciones se almacenan en disco y se cargan automáticamente al iniciar la aplicación (véase Figura~\ref{fig:configuracionElectrodos}).
 
 \begin{figure}[h]
     \centering
@@ -139,7 +139,7 @@ Durante el experimento, se presenta al sujeto una secuencia de estímulos visual
 \subsubsection{Protocolo}
 \label{subsubsec:protocoloExperimento}
 
-El protocolo define la estructura temporal del experimento: el número de repeticiones de imaginación motora (epochs) por clase (mano izquierda, mano derecha y pies), la duración de los periodos de imaginación motora, los intervalos de descanso entre epochs y las instrucciones presentadas al sujeto durante cada fase. Todos estos parámetros son configurables, lo que permite adaptar el experimento de forma flexible a las necesidades específicas de cada sesión o participante.
+El protocolo define la estructura temporal del experimento: el número de repeticiones de imaginación motora (epochs) por clase, y que clases aparecerán (mano izquierda, mano derecha y pies), la duración de los periodos de imaginación motora, los intervalos de descanso entre epochs y las instrucciones presentadas al sujeto durante cada fase. Todos estos parámetros son configurables, lo que permite adaptar el experimento de forma flexible a las necesidades específicas de cada sesión o participante.
 
 \subsection{Evaluación de sujetos con el modelo MiRepNet}
 \label{subsec:evaluacionMiRepNet}
@@ -182,7 +182,7 @@ El visualizador de grabaciones permite revisar los ficheros \textit{FIF} generad
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{Imagenes/Bitmap/visualizacion_fif_app.png}
-    \caption{Visualización de grabaciones en formato \textit{FIF} con la señal EEG de cada canal y los eventos marcados.}
+    \caption{Visualización de grabaciones en formato \textit{FIF} con la señal EEG de cada canal y acelerómetros y los eventos marcados.}
     \label{fig:visualizacionFIF}
 \end{figure}
 
