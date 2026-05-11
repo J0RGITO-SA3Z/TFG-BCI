@@ -75,6 +75,64 @@ Para adaptar el modelo a un sujeto concreto, es necesario realizar una fase de f
 
 En los experimentos realizados, se ha observado que congelar el Transformer conlleva una disminución significativa del rendimiento. Esto sugiere que, a pesar de haber aprendido patrones generales, resulta necesario ajustar el modelo a las características específicas de cada sujeto.
 
+
+\subsection{fine-tuning}
+\label{subsec:fineTuningModelo}
+
+El proceso de fine-tuning consiste en realizar un segundo entrenamiento sobre un modelo previamente entrenado con datos generales. Durante este proceso, pueden congelarse opcionalmente algunos de los pesos ya aprendidos, mientras que el modelo se entrena con un conjunto de datos más reducido y específico para especializarlo en una tarea concreta. En este caso, el fine-tuning se lleva a cabo de forma individual para cada sujeto, con el objetivo de que el modelo se adapte a las diferencias existentes entre sujetos.
+
+El modelo MiRepNet proporciona la posibilidad de congelar los pesos del transformer y unicamente reentrenar el tockenizador y la funcion lineal que calcula la salida. Sinembargo en el paper [paper] no se menciona en ningún momento dicha posibilidad y en el código del repositorio inicial tampoco se utiliza en los tests. Nosotros hemos probado a efectuar el fine-tuning congelando y sin congelar el transformer y tras ver los resultados mostrados en la tabla [TABLA] queda claro que el rendimiento cae considerablemente al hacer esto último. 
+
+\subsubsection{Número de trials por clase}
+\label{subsubsec:numTrialsFineTuning}
+
+Por otro lado, uno de los aspectos más importantes relacionados con el fine-tuning es determinar cuántos trials por clase son necesarios para lograr un entrenamiento adecuado del modelo. Desde el punto de vista de una aplicación en tiempo real, resulta preferible utilizar la menor cantidad posible de trials, ya que esto reduce el tiempo requerido por parte del usuario.
+
+Con este objetivo, se ha realizado un experimento fijando el número de epochs de entrenamiento en 10 , utilizando el preprocesado previamente descrito y clasificando unicamente mano derecha y mano izquierda. Para cada sujeto, se ha evaluado el rendimiento del modelo empleando diferentes cantidades de trials. Además, con el fin de reducir el impacto de la semilla aleatoria en la división de los datos entre entrenamiento y prueba, el proceso se ha repetido 10 veces para cada combinación de sujeto y número de trials, utilizando distintas semillas aleatorias.
+
+El resultado obtenido se muestra en la gráfica \ref{fig:numTrialsFinetuning}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{Imagenes/Bitmap/numTrials_finetune}
+	\caption{Accuracy en función del número de trials por clase utilizados en el fine-tuning.}
+	\label{fig:numTrialsFinetuning}
+\end{figure}
+
+Excluyendo los sujetos que no consiguen superar un 60\% de accuracy, se observa que, sin realizar fine-tuning, las predicciones no superan el 50\% de accuracy, valor equivalente a una clasificación aleatoria en un problema binario.
+
+Sin embargo, utilizando únicamente entre 1 y 5 trials por clase para el fine-tuning del modelo, los sujetos 1 y 5 ya alcanzan valores elevados de accuracy. Posteriormente, el rendimiento de dichos sujetos continúa aumentando hasta estabilizarse aproximadamente entre 20 y 30 trials.
+
+Por otro lado, los sujetos con menor rendimiento, como los sujetos 3, 7 y 8, siguen mostrando mejoras progresivas a medida que aumenta la cantidad de datos utilizados durante el fine-tuning.
+
+Además, el sujeto 5 presenta una desviación típica considerablemente superior a la del resto de sujetos. Este comportamiento podría explicarse por la presencia de trials de distinta calidad, incluyendo algunos especialmente ruidosos o defectuosos. Dependiendo de la semilla utilizada y de qué muestras concretas sean seleccionadas durante el proceso de fine-tuning, el rendimiento final del modelo puede variar significativamente.
+
+Cabe destacar que el aumento de datos destinados al fine-tuning implica una reducción proporcional del conjunto de test. Dado que el dataset dispone únicamente de 60 trials por clase, al superar aproximadamente los 40 trials por clase para entrenamiento, el conjunto de evaluación comienza a resultar demasiado reducido, pudiendo afectar a la estabilidad y representatividad de las métricas obtenidas.
+
+\subsubsection{Número de épocas de entrenamiento}
+\label{subsubsec:numEpochsFineTuning}
+
+Otra cuestión relevante es determinar la cantidad óptima de epochs de entrenamiento para evitar el sobreajuste del modelo.
+
+Con este objetivo, se realizó un experimento fijando la cantidad de datos utilizados para fine-tuning en 30 trials por clase y considerando únicamente la clasificación entre imaginación motora de mano derecha y mano izquierda.
+
+La gráfica \ref{fig:epochsEntrenamiento} muestra, para cada sujeto, la media de los accuracies obtenidos junto con su desviación típica.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{Imagenes/Bitmap/epochsEntrenamiento}
+	\caption{Accuracy en entrenamiento y validación en función del número de épocas de fine-tuning.}
+	\label{fig:epochsEntrenamiento}
+\end{figure}
+
+En dicha gráfica se observa que el sujeto 1 alcanza valores cercanos al 100\% tanto en entrenamiento como en validación, sin presentar sobreajuste.
+
+Por otro lado, los sujetos 2 y 4, cuyos resultados no superan aproximadamente el 55\% de accuracy en validación, comienzan a mostrar signos de overfitting a partir de las primeras epochs de entrenamiento. No obstante, dado el bajo rendimiento global de estos sujetos, no se han considerado determinantes para la selección final de hiperparámetros.
+
+En el resto de sujetos, el sobreajuste comienza a apreciarse aproximadamente entre las epochs 6 y 10, aunque con distinta intensidad dependiendo del sujeto. En la mayoría de los casos, este fenómeno no provoca una caída significativa del accuracy de validación, sino más bien una estabilización de este mientras el rendimiento sobre entrenamiento continúa aumentando progresivamente.
+
+Finalmente, se decidió utilizar 10 epochs durante el proceso de fine-tuning. Esta elección permite mantener un equilibrio entre el tiempo de entrenamiento y el rendimiento del modelo, evitando tanto un entrenamiento insuficiente como un sobreajuste excesivo.
+
 \subsection{Implementación}
 \label{subsec:implementacionModelo}
 
