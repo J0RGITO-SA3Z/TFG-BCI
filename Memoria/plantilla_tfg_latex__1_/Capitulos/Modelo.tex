@@ -81,7 +81,36 @@ En los experimentos realizados, se ha observado que congelar el Transformer conl
 
 El proceso de fine-tuning consiste en realizar un segundo entrenamiento sobre un modelo previamente entrenado con datos generales. Durante este proceso, pueden congelarse opcionalmente algunos de los pesos ya aprendidos, mientras que el modelo se entrena con un conjunto de datos más reducido y específico para especializarlo en una tarea concreta. En este caso, el fine-tuning se lleva a cabo de forma individual para cada sujeto, con el objetivo de que el modelo se adapte a las diferencias existentes entre sujetos.
 
-El modelo MiRepNet proporciona la posibilidad de congelar los pesos del transformer y unicamente reentrenar el tockenizador y la funcion lineal que calcula la salida. Sinembargo en el paper [paper] no se menciona en ningún momento dicha posibilidad y en el código del repositorio inicial tampoco se utiliza en los tests. Nosotros hemos probado a efectuar el fine-tuning congelando y sin congelar el transformer y tras ver los resultados mostrados en la tabla [TABLA] queda claro que el rendimiento cae considerablemente al hacer esto último. 
+\subsubsection{Congelación del transformer}
+\label{subsubsec:congelacionTransformer}
+
+El modelo MiRepNet proporciona la posibilidad de congelar los pesos del encoder y realizar fine-tuning únicamente sobre el tokenizador y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el paper original [paper], ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
+
+Con el objetivo de evaluar el impacto de esta técnica sobre el rendimiento final, se llevó a cabo un experimento comparando ambos enfoques: realizar fine-tuning completo del modelo y realizar fine-tuning únicamente sobre las capas finales manteniendo congelado el encoder.
+
+Para ello, los datos fueron divididos mediante validación cruzada k-fold, utilizando 10 epochs de entrenamiento en ambos casos. Posteriormente, se comparó el rendimiento obtenido al congelar el encoder frente al entrenamiento completo del modelo.
+
+Los resultados finales del experimento se muestran en la Tabla \ref{tab:freezeComparison}, donde se observa una pérdida clara de rendimiento cuando el fine-tuning no se realiza sobre el encoder completo. Por lo tanto se ha optado por prescindir de este método. 
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{lccc}
+		\hline
+		\textbf{Sujeto} & \textbf{No freeze} & \textbf{Freeze} & \textbf{$\Delta$ (freeze $-$ nof.)} \\
+		\hline
+		suj1 & $0.9750 \pm 0.0500$ & $0.7917 \pm 0.0697$ & $-0.1833$ \\
+		suj2 & $0.5000 \pm 0.1236$ & $0.4833 \pm 0.0204$ & $-0.0167$ \\
+		suj3 & $0.7333 \pm 0.1280$ & $0.5417 \pm 0.1467$ & $-0.1917$ \\
+		suj4 & $0.4417 \pm 0.1074$ & $0.4333 \pm 0.0565$ & $-0.0083$ \\
+		suj5 & $0.8917 \pm 0.0677$ & $0.7333 \pm 0.1161$ & $-0.1083$ \\
+		suj6 & $0.4783 \pm 0.0778$ & $0.4348 \pm 0.0912$ & $-0.0435$ \\
+		suj7 & $0.6417 \pm 0.0773$ & $0.5917 \pm 0.1034$ & $-0.0500$ \\
+		suj8 & $0.6417 \pm 0.0677$ & $0.6083 \pm 0.0816$ & $-0.0333$ \\
+		\hline
+	\end{tabular}
+	\caption{Accuracy (media $\pm$ desv. típ.) con y sin congelación del transformer durante el fine-tuning.}
+	\label{tab:freezeComparison}
+\end{table}
 
 \subsubsection{Número de trials por clase}
 \label{subsubsec:numTrialsFineTuning}
