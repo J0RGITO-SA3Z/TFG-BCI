@@ -203,15 +203,9 @@ Una vez localizada la versión compatible del SDK y la documentación correspond
 
 \item \textbf{rich:} librería para la construcción de interfaces de usuario en consola. Proporciona componentes como tablas, paneles y texto con formato que han permitido implementar los menús y la presentación de información de la aplicación de forma clara y estructurada (véase Figura~\ref{fig:menuPrincipal}).
 
-\item \textbf{NumPy:} biblioteca fundamental de Python para la computación numérica con arrays multidimensionales. Se utiliza de forma transversal en toda la aplicación para la manipulación de señales EEG, operaciones matriciales en el pipeline de preprocesado y preparación de los datos de entrada al modelo.
+\item \textbf{NumPy:} biblioteca utilizada para computación numérica y manipulación eficiente de arrays multidimensionales. Se emplea para el procesamiento y normalización de las señales EEG antes de su entrada al modelo.
 
 \item \textbf{PyTorch:} framework de aprendizaje profundo empleado para la carga, el ajuste fino (\textit{fine-tuning}) y la inferencia del modelo MiRepNet (véase Sección~\ref{subsec:evaluacionMiRepNet}). Permite aprovechar la GPU mediante CUDA cuando está disponible, lo que acelera significativamente el proceso de entrenamiento.
-
-\item \textbf{scikit-learn:} biblioteca de aprendizaje automático utilizada para el cálculo de métricas de evaluación —\textit{accuracy}, \textit{precision}, \textit{recall} y matriz de confusión— y la implementación de la validación cruzada sobre las grabaciones de los sujetos.
-
-\item \textbf{SciPy:} biblioteca de computación científica empleada en el pipeline de procesado de señal en tiempo real para la aplicación de filtros digitales y otras operaciones de tratamiento de señal.
-
-\item \textbf{Matplotlib:} biblioteca de visualización empleada para la representación gráfica de la distribución de impedancias en 2D (véase Figura~\ref{fig:visualizacionImpedancias}) y para la generación de los gráficos de evaluación del modelo (véase Figura~\ref{fig:modeloGraficoFinetune}).
 
 \item \textbf{PyQt5 / pyqtgraph:} frameworks utilizados para la implementación de la aplicación de visualización TCP en tiempo real, que permite monitorizar las señales EEG desde la misma máquina o desde un dispositivo externo durante el transcurso de una grabación o experimento (véase Sección~\ref{subsec:visualizacionTiempoReal}).
 
@@ -229,7 +223,7 @@ Durante el desarrollo surgieron incompatibilidades entre \textbf{Pygame} y el \t
 
 Con el objetivo de facilitar la puesta en marcha de la aplicación, se ha desarrollado un script de consola \texttt{.bat} que automatiza la configuración completa del entorno de ejecución. El script detecta si Conda o Miniconda están instalados en el sistema, crea un entorno virtual denominado \texttt{bci-mi-tfg}, instala el repositorio de MiRepNet, el SDK de BrainAccess en la versión compatible con el dispositivo EEG y todas las dependencias recogidas en el fichero \texttt{requirements.txt}.
 
-Los únicos requisitos previos son disponer de Conda o Miniconda instalado con su variable de entorno configurada y tener el repositorio clonado localmente. Opcionalmente, aunque muy recomendado, se aconseja tener CUDA instalado para aprovechar la aceleración por GPU durante el entrenamiento e inferencia del modelo.
+Los únicos requisitos previos son disponer de Conda o Miniconda instalado con su variable de entorno configurada y tener el repositorio clonado localmente. Es necesario tener una GPU NVIDIA con CUDA instalado para el uso del modelo. 
 
 \subsubsection{Inicialización de la aplicación}
 \label{subsubsec:inicializacion}
