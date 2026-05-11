@@ -1,6 +1,6 @@
 <mxfile host="Electron">
   <diagram name="Página-1" id="cWEotaV58rS7nrbmlQh1">
-    <mxGraphModel dx="1178" dy="701" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1174" dy="686" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -82,7 +82,7 @@
         <mxCell id="UvGbrVJossz51kGya55W-21" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontColor=#FF0000;" value="&lt;font style=&quot;&quot;&gt;Proceso 3&lt;/font&gt;" vertex="1">
           <mxGeometry height="20" width="80" x="850" y="110" as="geometry" />
         </mxCell>
-        <mxCell id="UvGbrVJossz51kGya55W-23" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontColor=#FF0000;" value="&lt;font style=&quot;&quot;&gt;Proceso 2&lt;/font&gt;" vertex="1">
+        <mxCell id="UvGbrVJossz51kGya55W-23" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontColor=#FF0000;" value="&lt;font style=&quot;&quot;&gt;Proceso 1&lt;/font&gt;" vertex="1">
           <mxGeometry height="20" width="80" x="50" y="110" as="geometry" />
         </mxCell>
         <mxCell id="UvGbrVJossz51kGya55W-33" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;" value="" vertex="1">
@@ -96,6 +96,21 @@
         </mxCell>
         <mxCell id="UvGbrVJossz51kGya55W-36" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Paso por tubería" vertex="1">
           <mxGeometry height="30" width="100" x="80" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="8gMfv6TPef9BmAsJOdPz-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;rotation=0;" value="Juego" vertex="1">
+          <mxGeometry height="90" width="90" x="1020" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="8gMfv6TPef9BmAsJOdPz-2" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000099;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="960" y="249.71" as="sourcePoint" />
+            <mxPoint x="1020" y="249.71" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="8gMfv6TPef9BmAsJOdPz-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPattern=8 8;strokeColor=#FF0000;" value="" vertex="1">
+          <mxGeometry height="260" width="130" x="1000" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="8gMfv6TPef9BmAsJOdPz-4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontColor=#FF0000;" value="&lt;font style=&quot;&quot;&gt;Proceso 4&lt;/font&gt;" vertex="1">
+          <mxGeometry height="20" width="80" x="1000" y="110" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

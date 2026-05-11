@@ -199,7 +199,7 @@ A continuación se describen las principales librerías utilizadas en el desarro
 
 Una vez localizada la versión compatible del SDK y la documentación correspondiente, fue posible hacer uso de estructuras de datos y métodos como \texttt{EEG.recorder()} para la grabación y la extracción de datos del casco. Asimismo, se revisó la implementación interna de la librería y su funcionamiento mediante multihilo en C++, lo que permitió diseñar estructuras de datos más eficientes para su integración en el pipeline del experimento en tiempo real (véase Sección~\ref{subsec:experimentoTiempoReal}).
 
-\item \textbf{MNE:} librería de referencia para el procesado de señales EEG y MEG. Ofrece herramientas para la lectura y escritura de ficheros en formato \textit{FIF}, la aplicación de filtros de frecuencia, el preprocesado de la señal y la extracción de épocas a partir de grabaciones continuas mediante la estructura \texttt{mne.Epochs}. Además, incorpora métodos de visualización de señales y representaciones en 2D del cuero cabelludo, empleados en el módulo de impedancias (véase Sección~\ref{subsubsec:testImpedancias}).
+\item \textbf{MNE:} librería de referencia para el procesado de señales EEG y MEG. Ofrece herramientas para la lectura y escritura de ficheros en formato \textit{FIF}, la aplicación de filtros de frecuencia, el preprocesado de la señal y la extracción de épocas a partir de grabaciones continuas mediante la estructura \texttt{mne.Trials}. Además, incorpora métodos de visualización de señales y representaciones en 2D del cuero cabelludo, empleados en el módulo de impedancias (véase Sección~\ref{subsubsec:testImpedancias}).
 
 \item \textbf{rich:} librería para la construcción de interfaces de usuario en consola. Proporciona componentes como tablas, paneles y texto con formato que han permitido implementar los menús y la presentación de información de la aplicación de forma clara y estructurada (véase Figura~\ref{fig:menuPrincipal}).
 
@@ -221,12 +221,13 @@ Durante el desarrollo surgieron incompatibilidades entre \textbf{Pygame} y el \t
 \subsubsection{Instalación y entorno}
 \label{subsubsec:instalacion}
 
-Con el objetivo de facilitar la puesta en marcha de la aplicación, se ha desarrollado un script de consola \texttt{.bat} que automatiza la configuración completa del entorno de ejecución. El script detecta si Conda o Miniconda están instalados en el sistema, crea un entorno virtual denominado \texttt{bci-mi-tfg}, instala el repositorio de MiRepNet, el SDK de BrainAccess en la versión compatible con el dispositivo EEG y todas las dependencias recogidas en el fichero \texttt{requirements.txt}.
+Con el objetivo de facilitar la puesta en marcha de la aplicación, se ha desarrollado un script de consola \texttt{setup.bat} que automatiza la configuración completa del entorno de ejecución. El script detecta si Conda o Miniconda están instalados en el sistema, crea un entorno virtual denominado \texttt{bci-mi-tfg}, instala el repositorio de MiRepNet, el SDK de BrainAccess en la versión compatible con el dispositivo EEG y todas las dependencias recogidas en el fichero \texttt{requirements.txt}.
 
 Los únicos requisitos previos son disponer de Conda o Miniconda instalado con su variable de entorno configurada y tener el repositorio clonado localmente. Es necesario tener una GPU NVIDIA con CUDA instalado para el uso del modelo. 
 
 \subsubsection{Inicialización de la aplicación}
 \label{subsubsec:inicializacion}
+Tanto la aplicación como el cliente TCP se pueden ejecutar mediante un fichero \texttt{run.bat} que da acceso a ambas opciones.
 
 El punto de entrada de la aplicación es el script \texttt{aplicacion.py}, ubicado en \texttt{EEG\_app/src/app/}. Desde él se carga la configuración persistente, se inicializa el menú principal y se despacha cada opción al módulo correspondiente. El resto de ficheros \texttt{.py} presentes en el mismo directorio implementan las distintas funcionalidades accesibles desde el menú.
 
