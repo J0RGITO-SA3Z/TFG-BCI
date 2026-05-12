@@ -8,6 +8,9 @@ Al igual que en el \hyperref[cap:protocoloAdquisicion]{experimento de adquisici�
 
 Entre los participantes seleccionados se encuentran personas con experiencia previa en MI (gente que formó parte de pruebas anteriores de este mismo proyecto) al igual que otras sin experiencia. Los criterios de selección seguidos resultan los mismos que en el anterior experimento.
 
+\subsection{Cuestionario de satisfacción}
+\label{subsec:rt_cuestionario_satisfacción}
+
 \section{Equipamiento y Configuración EEG}
 \label{sec:rt_equipamiento}
 
@@ -24,13 +27,27 @@ Se conservó tanto la sala como las condiciones del previo experimento.
 \subsection{Estructura del experimento}
 \label{sec:rt_estructura}
 
-El experimento sigue una organización muy concreta y ordenada, con estimaciones de duración para cada apartado:
+El experimento sigue una organización muy concreta y ordenada, con estimaciones de duración para cada apartado (resultando un total de 1h 26 min):
 
 \begin{itemize}
-    \item \textbf{Explicación al usuario}
-    \item \textbf{Grabación de \hyperref[cap:protocoloAdquisicion]{experimento visual}}
-    \item \textbf{Descanso}
-    \item \textbf{Entrenamiento \textit{Fine-tune}}
+    \item \textbf{Explicación al usuario (10 min):} Se le expone al usuario en qué consiste el experimento, se le introduce el concepto de imaginación motora y se le advierte del problema que suponen los parpadeos, movimientos y tragos de saliva, especialmente dentro de la ventana de 4 segundos de imaginación motora.
+    \item \textbf{Grabación de \hyperref[cap:protocoloAdquisicion]{experimento visual} (5 min):} Ejecución de la grabación siguiendo la misma \hyperref[subsec:estructura_grabación]{estructura} que en el experimento visual, con la diferencia de que en este caso se realizan 10 trials por clase y se incluyen solo mano izquierda (\textit{left\_hand}) y mano derecha (\textit{right\_hand}). El objetivo y utlidad de este procedimiento viene siendo que el usuario tenga un primer contacto con la dinámica del experimento (a modo de ``calentamiento'').
+    \item \textbf{Descanso (5 min):} Se le indica al usuario que se relaje y descanse \textbf{sin} el casco unos minutos.
+    \item \textbf{Entrenamiento \textit{Fine-tune} (9 min):} Realización de una segunda grabación con motivo de adaptar el modelo al usuario por medio de \textit{fine-tuning}. Esta grabación mantiene la \hyperref[subsec:estructura_grabación]{estructura} mencionada anteriormente pero realiza 30 trials por clase con mano izquierda y derecha.
+    \item \textbf{\hyperref[subsec:benchmark_visual]{\textit{Benchmark} visual (DualArrowComponent)} (7 min):} Primera prueba en tiempo real del experimento, sirve de primera toma de contacto para ver el sistema en acción, que el usuario vea claramente los resultados de sus acciones mentales (MI) y para estimar latencias. Nada más comenzar, se procede indicando que el usuario:
+    \begin{enumerate}
+        \item Realice imaginación motora de mano derecha hasta rellenar la flecha por completo.
+        \item Repita tres veces consecutivas lo siguiente: imaginación motora de mano izquierda hasta rellenar la flecha izquierda, imaginación motora de mano derecha hasta llenar la flecha derecha.
+        \item En caso de que el usuario no logre rellenar las tres iteraciones completando las flechas, este deberá descansar 5 minutos y repetir desde el paso de entrenamiento anteriormente mencionado.
+    \end{enumerate}
+    \item \textbf{Descanso (5 min):} Se le indica al usuario que se relaje y descanse \textbf{con} el casco unos minutos.
+    \item \textbf{Pruebas con juegos (45 min):} Para cada juego se realizarán tres pruebas: \texttt{SEVERIDAD\_AIMBOT=0}, \texttt{SEVERIDAD\_AIMBOT=0.7} Y \texttt{SEVERIDAD\_AIMBOT=1}. Cada prueba durará 5 minutos, seguida de 2 minutos de descanso y aproximadamente 1 minuto para que el usuario complete el \hyperref[subsec:rt_cuestionario_satisfacción]{cuestionario de satisfacción}.
+    
+    Los juegos seleccionados para el experimento son los siguientes:
+    \begin{itemize}
+        \item \textbf{\textit{\hyperref[subsubsec:endless_wave_runner]{Endless wave runner}}}
+        \item \textbf{\textit{\hyperref[subsubsec:project_arrows]{Project arrows}}}
+    \end{itemize}
 \end{itemize}
 
 \subsection{Instrucciones al participante}
