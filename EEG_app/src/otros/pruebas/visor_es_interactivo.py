@@ -190,22 +190,41 @@ def _shade_predictions_batched(ax, samples: np.ndarray, predictions: list[str]) 
         i = j
 
 
+_EVENT_HIDDEN = {"feet", "cross"}
+
+
 def _draw_event_lines(ax, ev_samples, ev_desc) -> None:
-    unique = list(dict.fromkeys(ev_desc))
+    """Oculta feet, cross y el blank inmediatamente posterior a cada feet."""
+    desc_list = list(ev_desc)
+    feet_blank_idx = {
+        i + 1
+        for i, d in enumerate(desc_list[:-1])
+        if d.lower() == "feet" and desc_list[i + 1].lower() == "blank"
+    }
+    pairs = [
+        (s, d) for i, (s, d) in enumerate(zip(ev_samples, desc_list))
+        if d.lower() not in _EVENT_HIDDEN and i not in feet_blank_idx
+    ]
+    if not pairs:
+        return
+    unique = list(dict.fromkeys(d for _, d in pairs))
     cmap   = plt.get_cmap("tab10")
     cmap_d = {d: cmap(k % cmap.N) for k, d in enumerate(unique)}
     trans  = ax.get_xaxis_transform()
-    for s, desc in zip(ev_samples, ev_desc):
+    for s, desc in pairs:
         c = cmap_d[desc]
         ax.axvline(s, color=c, alpha=0.6, linewidth=1.2)
         ax.text(s, 0.97, desc, rotation=90, va="top", ha="right",
                 fontsize=7, color=c, alpha=0.85, transform=trans)
 
 
-def _plot_with_dots(ax, x, y, color, label, linewidth=1.4, alpha=0.9, linestyle="-") -> None:
-    ax.plot(x, y, color=color, linewidth=linewidth, alpha=alpha,
-            linestyle=linestyle, label=label)
-    ax.scatter(x, y, s=DOT_SIZE, color=DOT_COLOR, zorder=5, linewidths=0)
+def _scatter_pred_dots(ax, samples: np.ndarray, values: np.ndarray, predictions: list) -> None:
+    """Scatter dots coloreados por clase de predicción."""
+    pred_arr = np.array([str(p) for p in predictions])
+    for pred in dict.fromkeys(str(p) for p in predictions):
+        mask = pred_arr == pred
+        color = PRED_COLORS.get(pred, "lightgray")
+        ax.scatter(samples[mask], values[mask], s=DOT_SIZE, color=color, zorder=5, linewidths=0)
 
 
 def _draw_panel(
@@ -213,12 +232,14 @@ def _draw_panel(
     ev_samples, ev_desc, trial_samples, threshold, color, ylabel,
 ) -> None:
     ax.cla()
-    _shade_trials(ax, ev_samples, ev_desc, trial_samples)
-    _shade_predictions_batched(ax, samples, predictions)
-    _plot_with_dots(ax, samples, raw, color, "raw",
-                    linewidth=0.8, alpha=0.4, linestyle="--")
+    ax.set_facecolor("white")
+    # Probabilidades crudas: solo puntos scatter, sin línea
+    ax.scatter(samples, raw, s=DOT_SIZE * 0.4, color="red", alpha=0.85,
+               zorder=2, label="raw", linewidths=0)
+    # Señal suavizada: línea + puntos coloreados por predicción
     ax.plot(samples, smooth, color=color, linewidth=1.4, alpha=0.9, label="smooth")
-    ax.axhline(threshold, color=color, linestyle=":", linewidth=1.4, alpha=0.8,
+    _scatter_pred_dots(ax, samples, smooth, predictions)
+    ax.axhline(threshold, color=color, linestyle="--", linewidth=2.2, alpha=1.0,
                label=f"threshold ({threshold:.2f})")
     ax.axhline(0.5, color="gray", linestyle=":", linewidth=0.8, alpha=0.4)
     _draw_event_lines(ax, ev_samples, ev_desc)
@@ -266,6 +287,7 @@ def visor_es_interactivo(csv_path: str = CSV_PATH, fif_path: str = FIF_PATH) -> 
 
     # ── Figura ─────────────────────────────────────────────────────────────
     fig, axes = plt.subplots(2, 1, figsize=(17, 9), sharex=True)
+    fig.patch.set_facecolor("white")
     plt.subplots_adjust(bottom=0.18, hspace=0.08)
 
     ax_sl_alpha = fig.add_axes([0.12, 0.08, 0.33, 0.03])
@@ -318,16 +340,15 @@ def visor_es_interactivo(csv_path: str = CSV_PATH, fif_path: str = FIF_PATH) -> 
             title += f"   ||   {orig_acc_str}"
         fig.suptitle(title, fontsize=10)
 
-        # Leyenda global (parches de fondo)
+        # Leyenda global: puntos coloreados por predicción
         pred_patches = [
-            mpatches.Patch(color=PRED_COLORS["left_hand"],  alpha=0.3, label="pred: left_hand"),
-            mpatches.Patch(color=PRED_COLORS["right_hand"], alpha=0.3, label="pred: right_hand"),
-            mpatches.Patch(color=PRED_COLORS["rest"],       alpha=0.3, label="pred: rest"),
+            mpatches.Patch(color=PRED_COLORS["left_hand"],  label="pred: left_hand"),
+            mpatches.Patch(color=PRED_COLORS["right_hand"], label="pred: right_hand"),
+            mpatches.Patch(color=PRED_COLORS["rest"],       label="pred: rest"),
         ]
-        dot_patch = mpatches.Patch(color=DOT_COLOR, label="punto de predicción")
         fig.legend(
-            handles=pred_patches + [dot_patch],
-            loc="lower center", ncol=4,
+            handles=pred_patches,
+            loc="lower center", ncol=3,
             fontsize=8, framealpha=0.8, bbox_to_anchor=(0.5, 0.0),
         )
         fig.canvas.draw_idle()
