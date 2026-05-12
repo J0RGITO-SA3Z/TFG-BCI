@@ -24,24 +24,28 @@ La motivación principal de este trabajo nace del interés por explorar hasta qu
 Debido a los avances de la IA hasta la fecha y los estudios relacionados con las BCI, se cree posible conseguir resultados prometedores con un sistema bien planteado e implementado, y un casco EEG relativamente accesible.
 
 \section{Objetivos}
-Descripción de los objetivos del trabajo.
 
+El objetivo principal de este trabajo es desarrollar un sistema de interfaz cerebro-computador (BCI) accesible, capaz de interpretar señales de imaginación motora (MI) en tiempo real y aplicarlas al control de sistemas interactivos y videojuegos.
+
+Para alcanzar este propósito principal, se plantean los siguientes objetivos generales:
+
+\begin{itemize}
+    \item \textbf{Desarrollar una aplicación integral de BCI:} Crear una herramienta que centralice la configuración del hardware EEG, la comprobación de impedancias, la adquisición de señales y la evaluación de sujetos.
+	\item \textbf{Construir una arquitectura en tiempo real:} Desarrollar un sistema concurrente que conecte de forma fluida la adquisición de datos, el preprocesado continuo, la inferencia del modelo y la toma de decisiones final con un videojuego de salida.
+	\item \textbf{Realizar experimentación con usuarios reales:} Llevar a cabo experimentos en tiempo real para validar la precisión, la latencia y la experiencia de uso del sistema completo.
+\end{itemize}
+
+Más concretamente, como medio para alcanzar estos propósitos generales, se precisan objetivos específicos:
+
+\begin{itemize}
+	\item \textbf{Realizar una grabación con el casco EEG:} Conseguir una lectura propia de EEG con marcas temporales.
+	\item \textbf{Idear un método de preprocesado y división de la señal:} Aprender a tratar la entrada cruda del casco EEG para conseguir algo manejable. Diseñar y evaluar diferentes técnicas para mejorar la calidad de las señales EEG y dividirlas.
+	\item \textbf{Elegir y adaptar un modelo de clasificación:} Investigar y comparar modelos de clasificación para seleccionar aquel con mejores resultados. Analizar el performance tanto con datasets públicos, como con nuestras propias grabaciones EEG.
+	\item \textbf{Grabar nuestro propio dataset:} Idear un protocolo y aplicarlo a distintos usuarios para conseguir un dataset estructurado y profesional.
+	\item \textbf{Recibir y clasificar concurrentemente señales EEG:} Plantear una implementación capaz de recibir señales EEG del casco e irlas procesando, de forma constante.
+	\item \textbf{Agrupar las clasificaciones en tiempo real:} Analizar métodos para trnasformar el flujo constante de predicciones en algo continuo y útil.
+	\item \textbf{Diseñar videojuegos que se puedan controlar con las predicciones conseguidas:} Pensar e implementar videojuegos cuyos controles sean compatibles con las predicciones y cuya velocidad sea adaptable o correspondiente con la latencia del sistema.
+	\item \textbf{Plantear mecanismos de ayuda para compensar los fallos de predicción:} Idear algoritmos capaces de corregir (de forma controlada) las decisiones predichas por el modelo antes de tomarlas en el videojuego.
+\end{itemize}
 
 \section{Plan de trabajo}
-Aquí se describe el plan de trabajo a seguir para la consecución de los objetivos descritos en el apartado anterior.
-
-
-
-\section{Explicaciones adicionales sobre el uso de esta plantilla}
-Si quieres cambiar el \textbf{estilo del título} de los capítulos del documento, edita el fichero \verb|TeXiS\TeXiS_pream.tex| y comenta la línea \verb|\usepackage[Lenny]{fncychap}| para dejar el estilo básico de \LaTeX.
-
-Si no te gusta que no haya \textbf{espacios entre párrafos} y quieres dejar un pequeño espacio en blanco, no metas saltos de línea (\verb|\\|) al final de los párrafos. En su lugar, busca el comando  \verb|\setlength{\parskip}{0.2ex}| en \verb|TeXiS\TeXiS_pream.tex| y aumenta el valor de $0.2ex$ a, por ejemplo, $1ex$.
-
-TFGTeXiS se ha elaborado a partir de la plantilla de TeXiS\footnote{\url{http://gaia.fdi.ucm.es/research/texis/}}, creada por Marco Antonio y Pedro Pablo Gómez Martín para escribir su tesis doctoral. Para explicaciones más extensas y detalladas sobre cómo usar esta plantilla, recomendamos la lectura del documento \texttt{TeXiS-Manual-1.0.pdf} que acompaña a esta plantilla.
-
-El siguiente texto se genera con el comando \verb|\lipsum[2-20]| que viene a continuación en el fichero .tex. El único propósito es mostrar el aspecto de las páginas usando esta plantilla. Quita este comando y, si quieres, comenta o elimina el paquete \textit{lipsum} al final de \verb|TeXiS\TeXiS_pream.tex|
-
-\subsection{Texto de prueba}
-
-
-\lipsum[2-20]
