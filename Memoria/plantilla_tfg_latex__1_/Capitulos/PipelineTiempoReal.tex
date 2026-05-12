@@ -121,7 +121,7 @@ Para no perder tiempo extra en la implementación de los juegos, se decidió dis
 
 \subsubsection{\textit{Endless Wave Runner}}
 
-Para el diseño de este juego se tomó como referencia la nave \textit{``wave''} del juego \textit{Geometry Dash}, de ahí el nombre. En la versión del \textit{Geometry Dash}, la nave avanza automáticamente de izquierda a derecha (realmente la nave permanece estática y es el escenario el que se mueve para dar la sensación de avance) y el jugador controla si se mueve en diagonal hacia arriba o hacia abajo, cambiando entre las dos opciones con una pulsación en la pantalla. El objetivo del juego es avanzar sin que la nave se choque, hasta terminar la fase. 
+Para el diseño de este juego se tomó como referencia la nave \textit{``wave''} del juego \textit{Geometry Dash}, de ahí el nombre. En la versión del \textit{Geometry Dash}, la nave avanza automáticamente de izquierda a derecha (realmente la nave permanece estática y es el escenario el que se mueve para dar la sensación de avance) y el jugador controla si se mueve en diagonal hacia arriba o hacia abajo, cambiando entre las dos opciones con una pulsación en la pantalla. El objetivo del juego es avanzar sin que la nave se choque, hasta terminar la fase (véase Figura~\ref{fig:wave_runner}). 
 
 A diferencia del original, en esta versión el jugador avanza automáticamente de abajo hacia arriba, puede controlar si moverse en diagonal hacia la izquierda o hacia la derecha y la pantalla es ``infinita'' (haciendo que el objetivo sea aguantar lo máximo posible). Se consideró apropiado este juego debido a su simplicidad de controles y jugabilidad: el usuario tiene una tarea clara y sencilla que puede controlar con lo que ofrece nuestro sistema de forma intuitiva. 
 
@@ -152,9 +152,17 @@ IMPORTANTE: siempre debe de haber un hueco lo suficientemente grande como para q
 En python con pygame. El juego debe estar contenido en una clase llamada EndlessWaveRunner, que se pueda utilizar desde fuera para llamar al juego.
 \end{lstlisting}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Imagenes/Bitmap/Wave_runner.png}
+    \caption{Visualización gráfica en ventana del juego Endless Wave Runner.}
+    \label{fig:wave_runner}
+\end{figure}
+
+
 \subsubsection{\textit{Project Arrows}}
 
-La inspiración para este juego fue \textit{``Project Rhombus''}, de \textit{Steam}. En el orignial, el jugador controla un rombo situado en mitad de la pantalla, este rombo tiene una flecha en su interior que apunta hacia arriba, abajo, izquierda o derecha de forma excluyente. Con las cuatro flechas del teclado, se controla hacia dónde apunta la flecha del rombo. A medida que avanza el juego, aparecen flechas por una de las cuatro direcciones posibles en el borde de la pantalla y avanzan hacia el centro. El objetivo de el jugador es defenderse, apuntando la flecha del rombo hacia la flecha enemiga que le vaya a alcanzar, si una flecha enemiga llega al rombo y este no está apuntando hacia ella, el jugador pierde.
+La inspiración para este juego fue \textit{``Project Rhombus''}, de \textit{Steam}. En el orignial, el jugador controla un rombo situado en mitad de la pantalla, este rombo tiene una flecha en su interior que apunta hacia arriba, abajo, izquierda o derecha de forma excluyente. Con las cuatro flechas del teclado, se controla hacia dónde apunta la flecha del rombo. A medida que avanza el juego, aparecen flechas por una de las cuatro direcciones posibles en el borde de la pantalla y avanzan hacia el centro. El objetivo de el jugador es defenderse, apuntando la flecha del rombo hacia la flecha enemiga que le vaya a alcanzar, si una flecha enemiga llega al rombo y este no está apuntando hacia ella, el jugador pierde (véase Figura~\ref{fig:project_arrows}).
 
 En \textit{``Project Arrows''} se ha adaptado a nuestro sistema quitando los controles de arriba y abajo, dejando únicamente izquierda y derecha. Se planteó este juego por los mismos motivos que el anterior.
 
@@ -183,6 +191,13 @@ Notas adicionales: importante q la estética sea agradable.
 
 En python con pygame. El juego debe estar contenido en una clase llamada ProjectArrows, que se pueda utilizar desde fuera para llamar al juego.
 \end{lstlisting}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Imagenes/Bitmap/Project_arrows.png}
+    \caption{Visualización gráfica en ventana del juego Project Arrows.}
+    \label{fig:project_arrows}
+\end{figure}
 
 \subsection{Filtros de ayuda integrados en los juegos}
 \label{subsec:filtros_ayuda}
@@ -222,7 +237,7 @@ Las estrategias resultantes fueron:
 
 Además de los juegos definidos, se diseñó un módulo de feedback visual diseñado para tener una referencia de la destreza del usuario y de la latencia del sistema. 
 
-Dicho componente, al ejecutarse muestra una ventana en negro con dos flechas, una apuntando hacia la izquierda y la otra hacia la derecha. Está diseñado de forma que se puede cambiar el comportamiento con tan solo llamar a una función o a otra. Sin embargo, las funciones que nos interesan son las que permiten la funcionalidad que se mostrará en las pruebas que realizaremos más adelante. 
+Dicho componente, al ejecutarse muestra una ventana en negro con dos flechas, una apuntando hacia la izquierda y la otra hacia la derecha. Está diseñado de forma que se puede cambiar el comportamiento con tan solo llamar a una función o a otra. Sin embargo, las funciones que nos interesan son las que permiten la funcionalidad que se mostrará en las pruebas que realizaremos más adelante (véase Figura~\ref{fig:benchmark_visual}). 
 
 Cada flecha actua como un contenedor, si llega una predicción se comprueba que el contenedor opuesto esté vacío: en caso de que lo esté, se suma un valor definido (\texttt{self.step}) al contenedor correspondiente a la predicción; en caso contrario, se le resta el doble de la cantidad que se hubiera sumado (\texttt{self.step * 2}). Por otro lado, en caso de que reciba \textit{``rest''}, se llamará a otra función que simplemente resta la misma cantidad (\texttt{self.step}) al contenedor que no esté vacío (en caso de que alguno de los dos tenga contenido). De esta forma, solo podrá rellenarse parcial o totalmente un contenedor a la vez, mientras el otro se mantiene vacío.
 
@@ -241,3 +256,10 @@ Quiero hacer un script en python que actúe de componente, se pueda importar des
 \end{lstlisting}
 
 Partiendo de la base que generó Gemini, fue necesario hacer una pequeña modificación para hacer las flechas completamente simétricas y se implementaron a mano los métodos descritos en el párrafo anterior al prompt.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Imagenes/Bitmap/Dual_arrow.png}
+    \caption{Visualización gráfica en ventana del benchmark de doble flecha.}
+    \label{fig:benchmark_visual}
+\end{figure}
