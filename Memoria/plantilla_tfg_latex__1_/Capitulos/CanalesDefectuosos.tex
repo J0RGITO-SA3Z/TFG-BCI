@@ -73,7 +73,7 @@ Un aspecto clave es que la detección no se aplica sobre la señal filtrada con 
 \subsection{Acciones a tomar sobre los canales defectuosos}
 \label{subsec:accionesCanalesDefectuosos}
 
-Una vez identificados los canales defectuosos, surgen distintas estrategias para su tratamiento. En primer lugar, puede optarse por descartar aquellos epochs (o trials) en los que el número de canales defectuosos supera un umbral predefinido, ya que se consideran segmentos de baja calidad.
+Una vez identificados los canales defectuosos, surgen distintas estrategias para su tratamiento. En primer lugar, puede optarse por descartar aquellos epochs (o \textit{trials}) en los que el número de canales defectuosos supera un umbral predefinido, ya que se consideran segmentos de baja calidad.
 
 Para aquellos epochs que no superan dicho umbral, existen dos alternativas principales. Por un lado, es posible mantener los canales defectuosos sin modificar, asumiendo el impacto que puedan tener sobre el modelo. Por otro lado, puede aplicarse una interpolación espacial de dichos canales, con el objetivo de estimar su señal a partir de los electrodos vecinos y reducir así la cantidad de información no representativa que se introduce en el sistema.
 
@@ -93,7 +93,7 @@ La clase \texttt{BadChannelInterpolator} actúa como orquestadora: recibe una li
 
 Un aspecto relevante de la implementación es el uso de un doble pipeline de preprocesado. La detección de canales defectuosos se realiza sobre la señal filtrada en una banda más amplia (1--40\,Hz), que preserva mejor los artefactos de baja y alta frecuencia. La señal que finalmente se utiliza para el entrenamiento del modelo se obtiene de un pipeline independiente con el filtro estándar de 8--30\,Hz. Esto permite que la detección sea más sensible a artefactos sin degradar la señal de entrenamiento. Este flujo se implementa mediante los métodos primero se ejecuta los detectores sobre los datos del pipeline de detección y se almacenan los resultados poseteriormente se aplica el descarte y la interpolación sobre los datos del pipeline final.
 
-\subsection{Evaluación del impacto del rechazo e interpolación de epochs en el rendimiento del modelo}
+\subsection{Evaluación del impacto del rechazo e interpolación de \textit{epochs} en el rendimiento del modelo}
 \label{subsec:evaluacion_impacto_epochs}
 
 Para cuantificar el efecto del rechazo e interpolación de epochs sobre el rendimiento del clasificador, se diseñó un experimento comparativo con tres condiciones de preprocesado, evaluadas mediante validación cruzada repetida (\textit{StratifiedShuffleSplit}, 5 repeticiones, 15\,\% de datos para entrenamiento):
@@ -104,7 +104,7 @@ Para cuantificar el efecto del rechazo e interpolación de epochs sobre el rendi
     \item \textbf{Solo rechazo}: mismo proceso de detección, pero los epochs con canales defectuosos se mantienen igual en lugar de interpolarse en el caso de que no tengan más de 3 canales defectuosos. La señal final se filtra igualmente a 8--30\,Hz.
 \end{enumerate}
 
-En las condiciones con rechazo se aplica submuestreo aleatorio estratificado para igualar el número de trials por clase antes del entrenamiento. La Tabla~\ref{tab:impacto_rechazo} recoge el accuracy medio $\pm$ desviación típica para cada sujeto y condición.
+En las condiciones con rechazo se aplica submuestreo aleatorio estratificado para igualar el número de \textit{trials} por clase antes del entrenamiento. La Tabla~\ref{tab:impacto_rechazo} recoge el accuracy medio $\pm$ desviación típica para cada sujeto y condición.
 
 \begin{table}[h]
 \centering

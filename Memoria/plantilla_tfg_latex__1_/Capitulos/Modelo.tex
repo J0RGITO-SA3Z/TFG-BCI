@@ -15,17 +15,17 @@ No obstante, estos modelos suelen entrenarse en escenarios con una cantidad limi
 
 Sin embargo, la mezcla de datos procedentes de diferentes paradigmas puede resultar problemática debido a las diferencias neurofisiológicas existentes entre ellos, lo que puede afectar negativamente a la calidad de las representaciones aprendidas. En este contexto, MiRepNet se plantea como un modelo fundacional especializado en imaginación motora, entrenado exclusivamente con datasets de este paradigma. De este modo, busca aprender patrones generales específicos de la imaginación motora que permitan, mediante \textit{FineTuning} con una cantidad reducida de datos, adaptarse eficazmente a nuevos sujetos.
 
-MiRepNet es un modelo de aprendizaje profundo basado en la arquitectura transformer y especializado en EEG que proporciona pesos preentrenados sobre 50.355 \textit{trials} y clasifica 4 clases de imaginación motora siendo estas: mano izquierda, mano derecha, pies y lengua.
+MiRepNet es un modelo de aprendizaje profundo basado en la arquitectura \textit{transformer} y especializado en EEG que proporciona pesos preentrenados sobre 50.355 \textit{trials} y clasifica 4 clases de imaginación motora siendo estas: mano izquierda, mano derecha, pies y lengua.
 
 \subsection{Arquitectura basada en transformer}
 \label{subsec:arquitecturaModelo}
 
-MiRepNet se compone de tres bloques principales que actúan de forma secuencial: un tokenizador que convierte la señal EEG en una secuencia de representaciones vectoriales, un encoder transformer que modela las relaciones entre dichas representaciones, y una cabeza de clasificación que produce la predicción final. A continuación se describe cada uno de estos componentes.
+MiRepNet se compone de tres bloques principales que actúan de forma secuencial: un tokenizador que convierte la señal EEG en una secuencia de representaciones vectoriales, un encoder \textit{transformer} que modela las relaciones entre dichas representaciones, y una cabeza de clasificación que produce la predicción final. A continuación se describe cada uno de estos componentes.
 
 \subsubsection{Estructura tokenizador}
 \label{subsubsec:arquitecturaTockenizador}
 
-La arquitectura de MiRepNet está basada en la arquitectura transformer. Primero los datos son transformados en tockens que posteriormente son procesados por un transformer. 
+La arquitectura de MiRepNet está basada en la arquitectura \textit{transformer}. Primero los datos son transformados en tockens que posteriormente son procesados por un \textit{transformer}. 
 
 El proceso del tokenizer comienza con la señal de entrada representada como una matriz de dimensiones $C \times T$, donde $C$ corresponde al número de canales (electrodos) y $T$ al número de muestras temporales.
 
@@ -53,9 +53,9 @@ Finalmente, los tokens se construyen tomando, para cada instante temporal, los v
 
 Durante la fase de pretraining, el modelo combina aprendizaje supervisado y no supervisado con el objetivo de mejorar la calidad de las representaciones aprendidas. Para ello, en primer lugar se oculta una parte de los tokens de entrada, generando así una tarea de reconstrucción.
 
-Los datos son procesados inicialmente por un bloque Transformer compuesto por un módulo de multi-head attention, encargado de modelar las relaciones entre los tokens, y una red feedforward. Ambos subbloques están precedidos por una operación de normalización y emplean conexiones residuales, de modo que la salida de cada subbloque se suma a su entrada. Este primer Transformer tiene como objetivo aprender representaciones generales de las señales EEG en tareas de imaginación motora.
+Los datos son procesados inicialmente por un bloque \textit{transformer} compuesto por un módulo de multi-head attention, encargado de modelar las relaciones entre los tokens, y una red feedforward. Ambos subbloques están precedidos por una operación de normalización y emplean conexiones residuales, de modo que la salida de cada subbloque se suma a su entrada. Este primer \textit{transformer} tiene como objetivo aprender representaciones generales de las señales EEG en tareas de imaginación motora.
 
-La salida de este bloque se bifurca en dos ramas. Por un lado, se aplica una transformación lineal para realizar la predicción de la tarea supervisada (clasificación). Por otro lado, las representaciones se introducen en un segundo bloque Transformer, con la misma estructura que el anterior, cuyo objetivo es reconstruir los tokens previamente ocultos. Esta segunda rama constituye la parte no supervisada del entrenamiento.
+La salida de este bloque se bifurca en dos ramas. Por un lado, se aplica una transformación lineal para realizar la predicción de la tarea supervisada (clasificación). Por otro lado, las representaciones se introducen en un segundo bloque \textit{transformer}, con la misma estructura que el anterior, cuyo objetivo es reconstruir los tokens previamente ocultos. Esta segunda rama constituye la parte no supervisada del entrenamiento.
 
 Finalmente, el modelo se entrena mediante la optimización conjunta de ambas tareas, combinando las pérdidas asociadas a la clasificación y a la reconstrucción.
 
@@ -69,11 +69,11 @@ Finalmente, el modelo se entrena mediante la optimización conjunta de ambas tar
 	\label{fig:esquemaModelo}
 \end{figure}
 
-Tras la fase de pretraining, se deja de aplicar el enmascaramiento de tokens y se elimina el segundo bloque Transformer encargado de la reconstrucción, manteniéndose únicamente el Transformer principal junto con la capa lineal de clasificación. Este Transformer ha aprendido representaciones generales de las señales EEG, que pueden ser reutilizadas en tareas específicas.
+Tras la fase de pretraining, se deja de aplicar el enmascaramiento de tokens y se elimina el segundo bloque \textit{transformer} encargado de la reconstrucción, manteniéndose únicamente el \textit{transformer} principal junto con la capa lineal de clasificación. Este \textit{transformer} ha aprendido representaciones generales de las señales EEG, que pueden ser reutilizadas en tareas específicas.
 
-Para adaptar el modelo a un sujeto concreto, es necesario realizar una fase de \textit{fine-tuning}, en la que el modelo se entrena utilizando datos del propio usuario. Durante esta fase, es posible optar por congelar los pesos del Transformer, manteniendo así las representaciones generales aprendidas durante el preentrenamiento, o bien permitir su actualización.
+Para adaptar el modelo a un sujeto concreto, es necesario realizar una fase de \textit{fine-tuning}, en la que el modelo se entrena utilizando datos del propio usuario. Durante esta fase, es posible optar por congelar los pesos del \textit{transformer}, manteniendo así las representaciones generales aprendidas durante el preentrenamiento, o bien permitir su actualización.
 
-En los experimentos realizados, se ha observado que congelar el Transformer conlleva una disminución significativa del rendimiento. Esto sugiere que, a pesar de haber aprendido patrones generales, resulta necesario ajustar el modelo a las características específicas de cada sujeto.
+En los experimentos realizados, se ha observado que congelar el \textit{transformer} conlleva una disminución significativa del rendimiento. Esto sugiere que, a pesar de haber aprendido patrones generales, resulta necesario ajustar el modelo a las características específicas de cada sujeto.
 
 
 \subsection{\textit{Fine-tuning}}
@@ -81,7 +81,7 @@ En los experimentos realizados, se ha observado que congelar el Transformer conl
 
 El proceso de \textit{fine-tuning} consiste en realizar un segundo entrenamiento sobre un modelo previamente entrenado con datos generales. Durante este proceso, pueden congelarse opcionalmente algunos de los pesos ya aprendidos, mientras que el modelo se entrena con un conjunto de datos más reducido y específico para especializarlo en una tarea concreta. En este caso, el \textit{fine-tuning} se lleva a cabo de forma individual para cada sujeto, con el objetivo de que el modelo se adapte a las diferencias existentes entre sujetos.
 
-\subsubsection{Congelación del transformer}
+\subsubsection{Congelación del \textit{transformer}}
 \label{subsubsec:congelacionTransformer}
 
 El modelo MiRepNet proporciona la posibilidad de congelar los pesos del encoder y realizar \textit{fine-tuning} únicamente sobre el tokenizador y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el paper original [paper], ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
@@ -108,7 +108,7 @@ Los resultados finales del experimento se muestran en la Tabla \ref{tab:freezeCo
 		suj8 & $0.6417 \pm 0.0677$ & $0.6083 \pm 0.0816$ & $-0.0333$ \\
 		\hline
 	\end{tabular}
-	\caption{\textit{Accuracy} (media $\pm$ desv. típ.) con y sin congelación del transformer durante el \textit{fine-tuning}.}
+	\caption{\textit{Accuracy} (media $\pm$ desv. típ.) con y sin congelación del \textit{transformer} durante el \textit{fine-tuning}.}
 	\label{tab:freezeComparison}
 \end{table}
 

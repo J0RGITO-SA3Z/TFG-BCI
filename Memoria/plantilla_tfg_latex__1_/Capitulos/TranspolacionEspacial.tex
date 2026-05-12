@@ -31,7 +31,7 @@ Finalmente se obtiene el trial interpolado:
 
 Este método tiene varias variantes según la función utilizada para proyectar los canales en 2D. Se han probado tanto la función proporcionada por MNE como la usada en el código original de MiRepNet. Como se puede observar en la figura [figura], la función de MNE respeta más las posiciones reales de los electrodos en el cuero cabelludo, mientras que la función de MiRepNet únicamente representa la posición relativa entre ellos.
 
-\subsection{Interpolación mediante splines esféricos}
+\subsection{Interpolación mediante \textit{splines} esféricos}
 \label{subsec:interp_splines}
 
 Este es el método por defecto utilizado en la mayoría de librerías de procesamiento de EEG como MNE o EEGLab. Interpreta el cuero cabelludo como una superficie esférica y aprovecha esa geometría para crear una interpolación más fiel que la generada por los métodos anteriores.
@@ -54,7 +54,7 @@ Al final por su rendimiento, simplicidad de implementación y la poca carga comp
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lcccc}
         \hline
-        & \textbf{IDW MiRepNet} & \textbf{IDW MNE} & \textbf{Spline esférico MNE} & \textbf{Ceros} \\
+        & \textbf{IDW MiRepNet} & \textbf{IDW MNE} & \textbf{\textit{Spline} esférico MNE} & \textbf{Ceros} \\
         \hline
         \textbf{suj1} & $0.880 \pm 0.024$ & $0.884 \pm 0.019$ & $0.810 \pm 0.020$ & $0.875 \pm 0.014$ \\
         \textbf{suj2} & $0.514 \pm 0.030$ & $0.512 \pm 0.032$ & $0.496 \pm 0.025$ & $0.490 \pm 0.009$ \\
