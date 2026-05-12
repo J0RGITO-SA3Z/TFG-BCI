@@ -1,3 +1,122 @@
 \chapter{Experimento piloto de adquisición de grabaciones con trials}
+
+Este capítulo describe el procedimiento seguido para las primeras sesiones de recolección de datos EEG bajo el paradigma de imaginación motora. Se detallan los participantes piloto, el equipamiento empleado y su configuración, el diseño del experimento visual, la estructura temporal de los ensayos y los aprendizajes obtenidos de cara a una mejora iterativa del protocolo basada en la experiencia de los sujetos piloto.
+
+Con el fin de estandarizar y agilizar el proceso de adquisición, se utilizó la aplicación desarrollada, que centraliza y automatiza todas las etapas del protocolo: configuración y conexión del dispositivo EEG, verificación de impedancias, presentación de estímulos visuales y auditivos, anotación sincronizada de eventos en la señal y almacenamiento de los datos en formato \textit{FIF}. Este enfoque reduce los errores operativos asociados a la grabación manual y garantiza la reproducibilidad de las condiciones de adquisición entre sesiones y sujetos.
+
+% ---------------------------------------------------------------
+\section{Participantes}
+\label{sec:participantes}
+
+Los datos fueron recolectados de personas del entorno cercano sin experiencia previa en sistemas BCI. La muestra estuvo compuesta por cuatro participantes de sexo masculino con edades comprendidas entre los 18 y 25 años. Tres de ellos presentaban escaso vello capilar y baja densidad de cabello, lo que resultaba de especial interés para determinar la calidad de grabación y analizar el comportamiento de las impedancias en sujetos con estas características, dado que la reducida cantidad de cabello favorece el contacto directo entre los electrodos y el cuero cabelludo. Uno de estos tres participantes presentaba además diagnóstico de trastorno por déficit de atención e hiperactividad (TDAH). El cuarto participante carecía completamente de cabello, lo que facilitó especialmente el contacto entre los electrodos y el cuero cabelludo. 
+
+% ---------------------------------------------------------------
+\section{Equipamiento y Configuración EEG}
+\label{sec:equipamiento}
+
+\subsection{Dispositivo EEG}
+
+El registro de la actividad cerebral se realizó con el dispositivo \textbf{BrainAccessMidi}, un sistema EEG portátil y no invasivo de 16 canales, con una frecuencia de muestreo de 250 Hz. Dicho dispositivo cuenta con 18 electrodos secos, de los cuales 2 son planos y corresponden al electrodo de referencia y al \textit{bias}. No obstante, uno de los electrodos de adquisición no funcionaba correctamente, por lo que no pudo utilizarse durante las sesiones de registro y se acabaron contando con 15 canales.
+
+El EEG se colocó sobre el cuero cabelludo del participante siguiendo una disposición compatible con el sistema internacional 10-20.
+
+Se emplearon 15 electrodos activos distribuidos simétricamente sobre las regiones frontal, fronto-central, central, centro-parietal y parietal (Tabla~\ref{tab:canales}). Esta configuración se seleccionó con el objetivo de maximizar la cobertura de las áreas del cerebro relacionadas con la imaginación motora. La elección final de los canales se realizó tomando como referencia la literatura previa y, en particular, el trabajo de  \cite{configElectrodosMI}, en el que se analizan configuraciones óptimas de electrodos para tareas de imaginación motora.
+
+El electrodo de \textbf{referencia} se situó en \textbf{Fp2} y el electrodo (\textit{bias}) en \textbf{Fp1}. Estas posiciones se eligieron por facilitar un mejor contacto mediante electrodos planos y por corresponder a zonas con menor relevancia para la tarea, minimizando así la pérdida de información útil.
+
+El electrodo \textbf{Pz} se configuró como referencia para el sistema \textit{bias}. La señal captada en este canal se interpreta como ruido común; posteriormente se invierte y se reinyecta a través del electrodo \textit{bias}, con el fin de mejorar la relación señal-ruido y reducir interferencias externas.
+
+
+\figura{Bitmap/electrodos_layout}{width=0.8\textwidth}{fig:electrodos}{Disposición de electrodos del casco BrainAccess MIDI.}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{l|l}
+        \textbf{Región} & \textbf{Electrodos} \\
+        \hline\hline
+        Frontal           & F3, Fz, F4 \\
+        Fronto-central    & FC1, FC2 \\
+        Central           & C3, Cz, C4 \\
+        Centro-parietal   & CP1, CP2, CP5, CP6 \\
+        Parietal          & P3, P4 \\
+        \hline
+        Referencia (hardware)     & Fp2 \\
+        Bias/DRL (hardware)       & Fp1 \\
+        Referencia de bias (DRL)  & Pz \\
+    \end{tabular}
+    \caption{Configuración de electrodos empleada en el experimento.}
+    \label{tab:canales}
+\end{table}
+
+\subsection{Software de adquisición}
+
+Para la realización del experimento se utilizo un solo programa.
+orientado a la adquisición de datos.
+
+\section{Entorno experimental}
+\label{sec:Entorno}
+
+Las condiciones del entorno experimental fueron ajustándose progresivamente a lo largo de las sesiones, incorporando en cada una de ellas las mejoras derivadas de la experiencia acumulada. Así, el primer sujeto realizó la prueba en un entorno público, amplio y con elevada iluminación ambiental, mientras que las sesiones posteriores se llevaron a cabo en espacios más controlados, con menor contaminación lumínica y acústica, lo que favoreció la concentración del participante y redujo la influencia de estímulos externos sobre la señal adquirida.
+
+\section{Paradigma Experimental}
+\label{sec:paradigma}
+
+\subsection{Diseño General}
+Durante las sesiones de adquisición se registraron eventos de imaginación motora (MI) correspondientes a tres clases: \textbf{pie}, \textbf{mano izquierda} y \textbf{mano derecha}, además de una clase extra \textbf{Nada} que se decidió registrar como datos extra para análisis futuro.
+
+Previamente al inicio de cada sesión se realizó una medición de las impedancias de todos los electrodos activos, lo que permitió al supervisor verificar que el contacto entre los electrodos y el cuero cabelludo era adecuado antes de iniciar la adquisición. En caso necesario, los electrodos fueron recolocados y la medición repetida hasta alcanzar valores aceptables en todos los canales.
+
+El desarrollo de las sesiones estuvo condicionado por la fatiga y comodidad de cada participante. Para los participantes piloto se estableció una estructura temporal de descansos flexible, adaptada al momento en que cada sujeto se encontraba preparado para continuar. En la práctica, tras una grabación prolongada o dos grabaciones consecutivas, los participantes solicitaban habitualmente la retirada del casco y un período de descanso, lo que impidió mantener una estructura homogénea de bloques consecutivos sin interrupción entre sesiones. Del mismo modo, el número de ensayos por clase varió entre grabaciones en función de la fatiga del sujeto y del tiempo disponible en cada sesión.
+
+Estas limitaciones ponen de manifiesto la necesidad de definir un protocolo estricto y bien estructurado que establezca un número fijo de ensayos por clase, bloques de grabación consecutivos de duración predefinida y períodos de descanso suficientes y regulares, garantizando así la homogeneidad de las condiciones de adquisición entre sesiones y facilitando tanto la labor del investigador como la experiencia del participante.
+
+% ---------------------------------------------------------------
+\subsection{Estructura de cada grabación}
+\label{sec:estructuraGrabacion}
+Cada sesión de adquisición comenzó con un periodo inicial de \textit{baseline} de 20 segundos, utilizado como referencia de la actividad cerebral en reposo. Durante este intervalo, el participante permanecía relajado y con los ojos cerrados. A los 10 segundos se emitía un pitido indicando que debía abrir los ojos y dirigir la atención a la pantalla hasta el comienzo de los ensayos.
+
+Tras el \textit{baseline}, comenzaba la secuencia experimental formada por ensayos consecutivos. Cada ensayo tuvo una duración total de 8 segundos y se dividió en las siguientes fases:
+
+\begin{itemize}
+    \item \textbf{Cruz de fijación (2 s):} se mostraba una cruz en el centro de la pantalla para centrar la atención visual del participante. Durante los últimos 0.5 segundos se emitía un pitido como aviso previo al inicio de la tarea.
+    
+    \item \textbf{Presentación del estímulo:} a continuación aparecía un símbolo indicando la clase correspondiente. Se emplearon tres estímulos posibles: flecha hacia la izquierda para imaginación motora de la mano izquierda, flecha hacia la derecha para imaginación motora de la mano derecha y flecha hacia abajo para imaginación motora de ambos pies. Durante esta fase, el participante debía imaginar el movimiento indicado sin realizar ninguna acción real.
+    
+    \item \textbf{Descanso (2 s):} al finalizar la tarea, la pantalla quedaba vacía durante 2 segundos, permitiendo al participante relajarse antes del siguiente ensayo.
+\end{itemize}
+
+\figura{Vectorial/estructuraEpoch}{width=0.9\textwidth}{fig:estructura-epoch}{Estructura temporal de un epoch del experimento.}
+
+% ---------------------------------------------------------------
+\subsection{Instrucciones al participante}
+
+Antes de comenzar cada sesión, se informó al participante sobre la finalidad del experimento y se le introdujo el concepto de imaginación motora. Asimismo, se le explicó el procedimiento de grabación y se le describieron los estímulos visuales asociados a cada acción de imaginación motora que encontraría durante el experimento visual, con el fin de que el sujeto pudiera familiarizarse con el protocolo antes de iniciar la adquisición. Se le informó también de que el uso del dispositivo EEG no conllevaba ningún riesgo para su salud y de que los datos recogidos serían publicados y utilizados con fines académicos de forma anonimizada, sin posibilidad de relacionar las grabaciones con su identidad. Finalmente, todos los participantes firmaron un consentimiento informado previo a la realización del experimento.
+
+% ---------------------------------------------------------------
+\subsection{Conclusiones y propuestas de mejora}
+
+En base a la experiencia obtenida durante las sesiones piloto, se identificaron varias áreas de mejora para optimizar el flujo de las sesiones y la experiencia del participante:
+
+\begin{itemize}
+    \item \textbf{Estructura de bloques y descansos:} se propone definir una estructura fija de bloques de grabación consecutivos, con un número predefinido de ensayos por clase en cada bloque, seguido de períodos de descanso regulares. Esto garantizará la homogeneidad de las condiciones de adquisición entre sesiones y facilitará la planificación del experimento.
+    
+    \item \textbf{Número de ensayos:} se recomienda establecer un número fijo de \textit{trials} por clase para cada sesión de grabación y garantizar así la homogeneidad de los datos entre sesiones y facilitar el análisis posterior.
+
+    \item \textbf{Instrucciones más detalladas:} se recomienda proporcionar instrucciones más detalladas y específicas al participante sobre cómo realizar la imaginación motora, incluyendo la importancia de evitar movimientos, distracciones, parpadeos y tragar, mas estrictamente durante los 4 segundos de duración del \textit{trial} de imaginación motora.
+    
+    \item \textbf{Control del entorno:} se sugiere realizar las sesiones en un entorno más controlado desde el inicio, minimizando la contaminación lumínica y acústica para favorecer la concentración del participante y mejorar la calidad de los registros EEG.
+
+    \item \textbf{Feedback al participante:} Los participantes propusieron incorporar algún tipo de indicador visual de progreso, como una barra de progreso o un contador de ensayos completados, con el fin de informar al participante sobre el avance de la sesión. Esto contribuiría a mantener su motivación y favorecer la concentración a lo largo de toda la grabación, especialmente en sesiones de larga duración.
+
+    \item \textbf{Monitoreo en tiempo real:} se propone implementar un sistema de monitoreo en tiempo real de la calidad de la señal EEG durante las sesiones, lo que permitiría detectar y corregir posibles problemas durante la grabación y registrar la aparición de artefactos. Este sistema se implementó en fases posteriores del proyecto.
+
+\end{itemize}
+
+% ---------------------------------------------------------------
+\section{Formato de los datos}
+\label{sec:formato}
+
+Las grabaciones obtenidos se almacenan en archivos individuales en formato \texttt{FIF}, formato nativo de la librería \textit{MNE}. Cada archivo contiene la señal cruda junto con la información temporal y las anotaciones de eventos asociadas a la sesión. La convención de nombres seguida es \texttt{sujX\_Y\_raw.fif}, donde \texttt{X} identifica al sujeto y \texttt{Y} el número de grabación; por ejemplo, \texttt{suj3\_4\_raw.fif} corresponde a la cuarta sesión del sujeto 3. Los eventos experimentales se almacenan mediante etiquetas textuales, empleándose las marcas \texttt{CROSS}, \texttt{BLANK}, \texttt{INICIO\_BASELINE}, \texttt{IZQUIERDA}, \texttt{DERECHA} y \texttt{ABAJO}.
+
 \label{cap:experimentoPiloto}
 
