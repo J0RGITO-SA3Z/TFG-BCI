@@ -16,7 +16,7 @@ El objetivo de esta aplicación es llevar a cabo tres tipos de experimento:
 \subsection{Funciones principales}
 \label{subsec:funcionesPrincipales}
 
-El menú principal de la aplicación agrupa las funcionalidades en torno a tres grandes bloques: configuración del hardware, adquisición de señal y análisis. Al arrancar, la aplicación carga automáticamente la configuración de electrodos y acciones almacenada en disco en formato .json; si no existe ninguna configuración previa, se inicializa con valores por defecto.
+El menú principal de la aplicación agrupa las funcionalidades en torno a tres grandes bloques: configuración del hardware, adquisición de señal y análisis. Al arrancar, la aplicación carga automáticamente la configuración de electrodos y acciones almacenada en disco en formato \texttt{.json}; si no existe ninguna configuración previa, se inicializa con valores por defecto.
 
 La interfaz de la aplicación se ejecuta en consola (véase Figura~\ref{fig:menuPrincipal}) haciendo uso de las librerías console y rich de Python.
 
@@ -227,7 +227,7 @@ Los únicos requisitos previos son disponer de Conda o Miniconda instalado con s
 
 \subsubsection{Inicialización de la aplicación}
 \label{subsubsec:inicializacion}
-Para mayor facilidad de uso, tanto la aplicación principal como el cliente TCP se pueden ejecutar mediante un fichero \texttt{run.bat} que da acceso a ambas opciones sin necesidad de utilizar comandos adicionales.
+Para mayor facilidad de uso, tanto la aplicación principal como el cliente TCP se pueden ejecutar mediante un fichero \texttt{run.bat}, que da acceso a ambas opciones sin necesidad de utilizar comandos adicionales.
 
 El punto de entrada de la aplicación es el script \texttt{aplicacion.py}, ubicado en \texttt{EEG\_app/src/app/}. Desde él se carga la configuración persistente, se inicializa el menú principal y se despacha cada opción al módulo correspondiente. El resto de ficheros \texttt{.py} presentes en el mismo directorio implementan las distintas funcionalidades accesibles desde el menú.
 
