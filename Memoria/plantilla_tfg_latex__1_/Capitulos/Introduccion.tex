@@ -1,21 +1,27 @@
 \chapter{Introducción}
 \label{cap:introduccion}
 
-\chapterquote{Yoshiii}{Rocío}
+En los últimos años, se han presentado casos de personas que afirmaban poder jugar a un juego con tan solo un casco y su mente, sin pulsar botones. No obstante, estos artículos proporcionan escasa información al respecto, resultando poco fiables. En caso de que jugar a un juego ``con la mente'' sea posible, supondría un gran avance en los sistemas de accesibilidad, además de un enfoque novedoso y atractivo para el entorno de los videojuegos. 
 
-En los últimos años, se han presentado casos de personas que afirmaban poder jugar a un juego con tan solo un casco y su mente, sin pulsar botones. No obstante, estos artículos proporcionan escasa información al respecto, resultando poco fiables. En caso de que jugar a un juego ``con la mente'' sea posible, supondría un gran avance en los sistemas de accesibilidad, además de un enfoque novedoso y atractivo para el \textit{gaming}. 
+A pesar de la existencia de dichos ejemplos, las interfaces cerebro-computador (\textit{Brain-Computer Interfaces}, BCI) han experimentado un crecimiento significativo comprobable. Se ha avanzado tanto en investigación, consiguiendo modelos de inteligencia artificial (IA) con resultados muy prometedores, como en aplicaciones relacionadas con la accesibilidad y la interacción humano-computador. El progreso visible es alentador, sin embargo existe un problema: todos estos avances suelen necesitar de un gran presupuesto o cascos de lectura EEG poco manejables.
 
-A pesar de la existencia de dichos ejemplos, las interfaces cerebro-computador (\textit{Brain-Computer Interfaces}, BCI) han experimentado un crecimiento significativo real. Se ha avanzado tanto en investigación, consiguiendo modelos de inteligencia artificial (IA) con resultados muy prometedores, como en aplicaciones relacionadas con la accesibilidad y la interacción humano-computador. El progreso visible es alentador, sin embargo existe un problema: todos estos avances suelen necesitar de un gran presupuesto o cascos de lectura EEG poco manejables.
+El presente trabajo de fin de grado se centra en el diseño e implementación de un sistema capaz de interpretar señales EEG en tiempo real y traducirlas en acciones utilizables dentro de distintos videojuegos. Para ello, se propone desarrollar una arquitectura modular orientada a la adquisición continua de señales, al procesamiento de las mismas, la clasificación de la entrada y la traducción de la clasificación a una acción en tiempo real en un videojuego.
 
-El presente trabajo de fin de grado se centra en el diseño e implementación de un sistema capaz de interpretar señales EEG en tiempo real y traducirlas en acciones utilizables dentro de distintos videojuegos. Para ello, se plantea desarrollar una arquitectura modular orientada a la adquisición continua de señales, al procesamiento de las mismas, la clasificación de la entrada y la traducción de la clasificación a una acción en tiempo real en un videojuego.
-
-La propuesta plantea distintos retos debido a la naturaleza de las señales EEG: la presencia de ruido en las ondas, la variabilidad de las mismas y la dificultad de obtener predicciones estables en tiempo real, entre otros.
+La propuesta supone distintos retos debido a la naturaleza de las señales EEG: la presencia de ruido en las ondas, la variabilidad de las mismas y la dificultad de obtener predicciones estables en tiempo real, entre otros.
 
 Además del propio \textit{pipeline} de procesamiento, se plantea diseñar diferentes juegos específicamente adaptados a las limitaciones y características del sistema BCI propuesto. Estos entornos permitirán evaluar el comportamiento del sistema en situaciones dinámicas e interactivas, facilitando tanto el análisis del rendimiento técnico como la experiencia de uso del usuario.
 
 \section{Motivación}
-Introducción al tema del TFG.
 
+Las interfaces cerebro-computador son una de las líneas de investigación más interesantes dentro del ámbito de la interacción humano-computador, debido a las posibilidades que ofrecen tanto en accesibilidad como en nuevas formas de interacción digital. La posibilidad de controlar un sistema por medio de actividad cerebral abre la puerta a aplicaciones orientadas a personas con movilidad reducida, sistemas de asistencia y nuevas experiencias interactivas.
+
+Sin embargo, gran parte de los desarrollos existentes se consiguen en entornos de laboratorio muy controlados o en soluciones con un elevado coste económico, utilizando dispositivos poco accesibles para el usuario promedio. Además, muchos sistemas no consiguen trasladar los resultados obtenidos en pruebas controladas a aplicaciones interactivas en tiempo real, especialmente en contextos dinámicos como los videojuegos.
+
+A esto se le suma la propia complejidad de las señales EEG. Estas resultan excesivamente variables, son muy sensibles al ruido y generan predicciones que pueden fluctuar considerablemente en intervalos de tiempo muy pequeños. Como consecuencia, construir un sistema estable y funcional supone un reto tanto desde el punto de vista técnico como desde el diseño de interacción.
+
+La motivación principal de este trabajo nace del interés por explorar hasta qué punto es posible desarrollar un sistema BCI que funcione utilizando hardware relativamente accesible dentro de lo que cabe y aplicarlo a videojuegos. 
+
+Debido a los avances de la IA hasta la fecha y los estudios relacionados con las BCI, se cree posible conseguir resultados prometedores con un sistema bien planteado e implementado, y un casco EEG relativamente accesible.
 
 \section{Objetivos}
 Descripción de los objetivos del trabajo.
