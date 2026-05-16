@@ -9,7 +9,7 @@ Se decidió usar un sistema modular con una arquitectura definida específicamen
 
 Con objetivo de analizar las salidas del modelo en un entorno de tiempo real, se planteó un sistema ``juguete'' que recogía las predicciones de una grabación \textit{offline} y las enviaba al sistema, emulando ser lecturas en tiempo real. Analizando los resultados de este experimento, se llegó a la siguiente conclusión: era necesario aplicar, tanto un ``filtro de decisión'' como un ``filtro de ayuda'' (similar a un \textit{aimbot}) para poner orden en el caos que suponían las predicciones crudas del modelo.
 
-Además, se diseñaron y desarrollaron varios juegos experimentales que sirvieron para comprobar la capacidad de integración de nuestro sistema en un entorno de tiempo real. Estos juegos incorporan mecanismos de asistencia adicional, orientados a reducir los errores derivados del propio ruido de las señales EEG, de las fluctuaciones del modelo de clasificación y de la experiencia del usuario con \textit{motor imagery}.
+Además, se diseñaron y desarrollaron varios juegos experimentales que sirvieron para comprobar la capacidad de integración del sistema en un entorno de tiempo real. Estos juegos incorporan mecanismos de asistencia adicional, orientados a reducir los errores derivados del propio ruido de las señales EEG, de las fluctuaciones del modelo de clasificación y de la experiencia del usuario con \textit{motor imagery}.
 
 \subsection{Arquitectura del \textit{pipeline}}
 \label{subsec:arquitectura}
@@ -124,9 +124,9 @@ Para no perder tiempo extra en la implementación de los juegos, se decidió dis
 
 Para el diseño de este juego se tomó como referencia la nave \textit{``wave''} del juego \textit{Geometry Dash}, de ahí el nombre. En la versión del \textit{Geometry Dash}, la nave avanza automáticamente de izquierda a derecha (realmente la nave permanece estática y es el escenario el que se mueve para dar la sensación de avance) y el jugador controla si se mueve en diagonal hacia arriba o hacia abajo, cambiando entre las dos opciones con una pulsación en la pantalla. El objetivo del juego es avanzar sin que la nave se choque, hasta terminar la fase (véase Figura~\ref{fig:wave_runner}). 
 
-A diferencia del original, en esta versión el jugador avanza automáticamente de abajo hacia arriba, puede controlar si moverse en diagonal hacia la izquierda o hacia la derecha y la pantalla es ``infinita'' (haciendo que el objetivo sea aguantar lo máximo posible). Se consideró apropiado este juego debido a su simplicidad de controles y jugabilidad: el usuario tiene una tarea clara y sencilla que puede controlar con lo que ofrece nuestro sistema de forma intuitiva. 
+A diferencia del original, en esta versión el jugador avanza automáticamente de abajo hacia arriba, puede controlar si moverse en diagonal hacia la izquierda o hacia la derecha y la pantalla es ``infinita'' (haciendo que el objetivo sea aguantar lo máximo posible). Se consideró apropiado este juego debido a su simplicidad de controles y jugabilidad: el usuario tiene una tarea clara y sencilla que puede controlar con lo que ofrece el sistema de forma intuitiva. 
 
-A la hora de diseñar el juego se tuvo en cuenta que este fuera configurable, para adaptar las velocidades y la dificultad a las limitaciones del casco EEG y de nuestro propio sistema. Se puede adaptar fácilmente, con tan solo cambiar los atributos de la clase: la velocidad en ambos ejes, la generación de obstáculos, el ancho inicial entre obstáculos, la distancia mínima entre obstáculos, el aumento de velocidad con el tiempo, la disminución del ancho del ``túnel'' (ancho entre obstáculos) y el \textit{respawn} automático, entre otros.
+A la hora de diseñar el juego se tuvo en cuenta que este fuera configurable, para adaptar las velocidades y la dificultad a las limitaciones del casco EEG y del propio sistema. Se puede adaptar fácilmente, con tan solo cambiar los atributos de la clase: la velocidad en ambos ejes, la generación de obstáculos, el ancho inicial entre obstáculos, la distancia mínima entre obstáculos, el aumento de velocidad con el tiempo, la disminución del ancho del ``túnel'' (ancho entre obstáculos) y el \textit{respawn} automático, entre otros.
 
 Como se ha mencionado anteriormente, se hizo uso de un LLM para la implementación, concretamente Gemini. El prompt utilizado para la generación fue el siguiente:
 
@@ -166,9 +166,9 @@ En python con pygame. El juego debe estar contenido en una clase llamada Endless
 
 La inspiración para este juego fue \textit{``Project Rhombus''}, de \textit{Steam}. En el orignial, el jugador controla un rombo situado en mitad de la pantalla, este rombo tiene una flecha en su interior que apunta hacia arriba, abajo, izquierda o derecha de forma excluyente. Con las cuatro flechas del teclado, se controla hacia dónde apunta la flecha del rombo. A medida que avanza el juego, aparecen flechas por una de las cuatro direcciones posibles en el borde de la pantalla y avanzan hacia el centro. El objetivo de el jugador es defenderse, apuntando la flecha del rombo hacia la flecha enemiga que le vaya a alcanzar, si una flecha enemiga llega al rombo y este no está apuntando hacia ella, el jugador pierde (véase Figura~\ref{fig:project_arrows}).
 
-En \textit{``Project Arrows''} se ha adaptado a nuestro sistema quitando los controles de arriba y abajo, dejando únicamente izquierda y derecha. Se planteó este juego por los mismos motivos que el anterior.
+En \textit{``Project Arrows''} se ha adaptado al sistema desarrollado quitando los controles de arriba y abajo, dejando únicamente izquierda y derecha. Se planteó este juego por los mismos motivos que el anterior.
 
-Al igual que el anterior juego, se contempló que este fuera configurable y adaptable a nuestro sistema. Pudiendo modificar atributos como: la velocidad de las flechas enemigas, el tiempo de aparición de las mismas, el aumento de velocidad de estas, la posibilidad de reiniciar el juego automáticamente al morir\dots
+Al igual que el anterior juego, se contempló que este fuera configurable y adaptable al sistema. Pudiendo modificar atributos como: la velocidad de las flechas enemigas, el tiempo de aparición de las mismas, el aumento de velocidad de estas, la posibilidad de reiniciar el juego automáticamente al morir\dots
 
 Se contempló la posibilidad de añadir un tipo de flecha especial que cambia de lado a mitad de camino, se llegó a implementar pero finalmente se descartó por resultar demasiado complicado.
 

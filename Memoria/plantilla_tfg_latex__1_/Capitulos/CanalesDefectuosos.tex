@@ -67,7 +67,7 @@ Un aspecto clave es que la detección no se aplica sobre la señal filtrada con 
 
     \item \textbf{Detector de varianza:} evalúa la dispersión estadística de la señal dentro de cada epoch. Un canal con varianza excesivamente alta puede indicar la presencia de ruido de alta frecuencia o artefactos de amplitud variable, mientras que una varianza excesivamente baja puede ser indicativa de un electrodo desconectado o saturado que produce una señal plana. 
 
-    Este detector permite dos paramétros siendo estos el minimo y el máximo de varianza permitida. Para calibrar este parámetro usamos una de las grabaciones que claramente tenía un electrodo desconectado y fuimos ajustando el parámetro de forma empírica hasta que el detector detectaba ese canal pero los demás no. Por otro lado ya que nuestra intención era la detección de canales desconectados no hemos configurado el maximo de varianza.
+    Este detector permite dos paramétros siendo estos el minimo y el máximo de varianza permitida. Para calibrar este parámetro usamos una de las grabaciones que claramente tenía un electrodo desconectado y fuimos ajustando el parámetro de forma empírica hasta que el detector detectaba ese canal pero los demás no. Por otro lado, ya que lo que se pretendía era la detección de canales desconectados, no hemos configurado el maximo de varianza.
 \end{itemize}
 
 \subsection{Acciones a tomar sobre los canales defectuosos}
