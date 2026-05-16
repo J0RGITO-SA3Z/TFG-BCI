@@ -1,0 +1,129 @@
+\section{Detección e interpolación de canales defectuosos}
+\label{sec:canales_defectuosos}
+
+En el preprocesado se han intentado eliminar el ruido con la intención de hacer que la parte de la señal relevante y que realmente procede de la actividad cerebral sea mas facilmente identificable y esté lo menos mezclada posible con otras señales externas a la actividad cerebral. No obstante en ocasiones es imposible recuperar dicha señal cerebral si los electrodos no han sido capaces de capturarla. Esto puede deberse principalmente a la saturación de un electrodo por un artefacto de amplitud demasiado grande, por la mala conexión de un electrodo, fallos del hardware, etc. 
+
+El objetivo de este apartado es identificar electrodos defectuosos y utilizar esta información para aplicar estrategias que mejoren la calidad de los datos y, en consecuencia, el rendimiento del modelo.
+
+\subsection{Motivación}
+\label{subsec:motivacion}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{Imagenes/Bitmap/electrodos_defectuosos.png}
+    \caption{Ejemplo de electrodos defectuosos en una grabación EEG.}
+    \label{fig:electrodos_defectuosos}
+\end{figure}
+
+Como se puede observar en la Figura~\ref{fig:electrodos_defectuosos}, la presencia de electrodos defectuosos se manifiesta de forma clara en la señal EEG.
+
+Tras adquirir múltiples grabaciones de distintos sujetos y evaluar el rendimiento del modelo. En dicho análisis se observó la presencia de artefactos asociados a acciones como la deglución, el cierre forzado de los ojos o la hiperventilación. Estos artefactos, caracterizados por presentar amplitudes elevadas, afectaban de forma significativa a la calidad de la señal.
+
+Dado que se disponía de varias grabaciones por sujeto, se optó por emplear algunas de ellas para el entrenamiento del modelo y otras para la evaluación de su rendimiento. En este contexto, se comprobó que seleccionar aquellas grabaciones con menor presencia de artefactos de gran amplitud permitía mejorar notablemente los resultados obtenidos, lo que puso de manifiesto la utilidad de descartar datos de baja calidad.
+
+Por el contrario, cuando las grabaciones de entrenamiento contenían una alta proporción de estos artefactos, el modelo tendía a degradar su capacidad de predicción, llegando en muchos casos a predecir de forma sistemática una única clase.
+
+A partir de estas observaciones, surgió la necesidad de automatizar el proceso de detección de datos defectuosos. Además, se planteó refinar la estrategia de descarte, pasando de eliminar grabaciones completas a aplicar un enfoque más granular basado en la identificación y eliminación de epochs contaminados. En este contexto, se introducen los métodos descritos en el presente apartado.
+
+\subsection{Métodos de detección de canales defectuosos}
+\label{subsec:metodos_deteccion_canales}
+
+Los principales artefactos a detectar son parpadeos, deglución e hiperventilación que se manifiestan como un pico en la mayoría de canales y por otro lado los electrodos mal conectados o defectuosos. Estos últimos aumentan en personas con más cantidad de pelo que complican la colocación de dispositivo EEG. 
+
+Se exploraron alternativas sofisticadas existentes para la detección de artefactos, identificación de canales malos e interpolación automática. Para su evaluación se tuvieron en cuenta tres criterios fundamentales: facilidad de implementación, orden de complejidad en tiempo de ejecución y grado de automatización.
+
+Las alternativas evaluadas y sus características fueron las siguientes:
+
+\begin{itemize}
+    \item \textbf{Fully Automated Statistical Thresholding for EEG Artifact Rejection (FASTER):}
+
+        Metodología adaptada para su integración con MNE que propone un método de rechazo de artefactos basado en análisis estadístico mediante z-score, aplicando diversas métricas para cuantificar la calidad de la señal, tales como la varianza, la desviación típica y el exponente de Hurst. Opera en cinco etapas secuenciales en las que detecta canales malos globales, epochs contaminados y componentes ICA asociados a artefactos. Su implementación viene dada por la librería mne\_faster y únicamente requiere un parámetro, el umbral z-score adimensional, cuyo valor óptimo debe determinarse mediante pruebas experimentales~\cite{nolan2010faster}.
+    
+    \item \textbf{Patata de Riemann:}
+
+        Metodología con un enfoque distinto al resto, basado en geometría, concretamente en la distancia Riemanniana. El método consiste en representar cada epoch como una matriz de covarianza y proyectarla en el espacio de Riemann, de forma que epochs similares entre sí queden próximos en dicho espacio. Al conjunto de matrices correspondientes a epochs limpios se le denomina nube o patata de Riemann. La clave del método reside en que, dado un conjunto suficientemente grande de epochs limpios, es posible construir dicha nube y descartar automáticamente aquellos epochs cuya matriz de covarianza se aleje significativamente de ella, superando un umbral z-score adimensional, al igual que en FASTER. Su uso en EEG requiere una implementación específica apoyada en la librería pyriemann~\cite{hajhassani2026improved}.
+
+    \item \textbf{Autoreject:}
+
+        Metodología basada en análisis estadístico y búsqueda automática de umbral óptimo. Utiliza un procedimiento secuencial en el que, mediante validación cruzada sobre una rejilla de umbrales candidatos, evalúa la amplitud pico a pico de cada canal dentro de cada epoch, marcando como malos aquellos que la superen. Para cada canal marcado como malo, este se interpola a partir de sus canales vecinos, generando un canal reconstruido que se compara con el original mediante el denominado error de reconstrucción. La intuición es que, si el umbral es correcto, el canal interpolado se aproximará a la señal neurológica subyacente del canal original, puesto que el artefacto no puede ser reproducido por interpolación espacial. El umbral que minimiza dicho error es el seleccionado. Su implementación viene dada por la librería autoreject, compatible con MNE, aunque requiere un volumen mínimo de datos para la búsqueda del umbral y es sensible a movimientos bruscos de los electrodos~\cite{jas2017autoreject}.
+
+\end{itemize}
+
+
+Como veredicto final, la metodología más prometedora resultó ser Autoreject, por su facilidad de uso y configuración automática. No obstante, presenta dos problemáticas clave para su integración en un flujo en tiempo real: en primer lugar, la complejidad añadida en la fase de entrenamiento derivada del cálculo de umbrales mediante validación cruzada; en segundo lugar, su integración con MNE introduce una penalización en tiempo de ejecución, añadiendo una latencia considerable en la fase de preprocesamiento.
+
+Por todas estas razones, se ha optado por inspirarse en estas metodologías para desarrollar un proceso de detección y rechazo de epochs más simple, eficiente, fácil de integrar y fácil de calibrar en función de los casos de uso específicos del proyecto.
+
+Un aspecto clave es que la detección no se aplica sobre la señal filtrada con el filtro estándar de 8--30\,Hz utilizado para el entrenamiento del modelo, sino sobre una versión de la señal filtrada en una banda más amplia de 1--40\,Hz. Esto se debe a que el filtro de 8--30\,Hz atenúa significativamente los picos de baja frecuencia asociados a los artefactos, reduciendo su amplitud y dificultando su detección. Al aplicar los detectores sobre la señal de banda ancha, los artefactos se preservan con mayor fidelidad y los umbrales resultan más efectivos.
+
+\begin{itemize}
+    \item \textbf{Detector peak-to-peak:} Evalúa la amplitud de la señal en cada epoch calculando la diferencia entre el valor máximo y el valor mínimo de cada canal. Esta métrica es especialmente sensible a artefactos de alta amplitud como los producidos por movimientos oculares, deglución o hiperventilación. Si la amplitud pico a pico de un canal supera un umbral predefinido, el canal se considera defectuoso. 
+    
+    Este detector tiene como único parametro la diferencia máxima permitida entre el minimo y el máximo. Ajustando dicho parámetro se puede obtener un detector más escricto o más permisivo. En la literatura y por defecto en casi todas las librerías que implementan este método la diferencia máxima permitida suele ser de 100\,\textmu V y por tanto es el valor que hemos utilizado. 
+
+    \item \textbf{Detector de gradiente:} analiza la variación brusca entre muestras consecutivas de la señal. Se calcula la diferencia absoluta entre cada par de muestras adyacentes y se toma el valor máximo de dichas diferencias a lo largo del epoch. Este detector es particularmente eficaz para identificar transiciones abruptas en la señal que no corresponden a actividad cerebral, como los producidos por la saturación del amplificador o por artefactos musculares de corta duración.
+    
+    Este detector unicamente cuenta con un parámetro que es el la diferencia maxima de lectura entre una muestra y otra para el cual hemos utilizado 50\,\textmu V
+
+    \item \textbf{Detector de varianza:} evalúa la dispersión estadística de la señal dentro de cada epoch. Un canal con varianza excesivamente alta puede indicar la presencia de ruido de alta frecuencia o artefactos de amplitud variable, mientras que una varianza excesivamente baja puede ser indicativa de un electrodo desconectado o saturado que produce una señal plana. 
+
+    Este detector permite dos paramétros siendo estos el minimo y el máximo de varianza permitida. Para calibrar este parámetro usamos una de las grabaciones que claramente tenía un electrodo desconectado y fuimos ajustando el parámetro de forma empírica hasta que el detector detectaba ese canal pero los demás no. Por otro lado, ya que lo que se pretendía era la detección de canales desconectados, no hemos configurado el maximo de varianza.
+\end{itemize}
+
+\subsection{Acciones a tomar sobre los canales defectuosos}
+\label{subsec:accionesCanalesDefectuosos}
+
+Una vez identificados los canales defectuosos, surgen distintas estrategias para su tratamiento. En primer lugar, puede optarse por descartar aquellos epochs (o \textit{trials}) en los que el número de canales defectuosos supera un umbral predefinido, ya que se consideran segmentos de baja calidad.
+
+Para aquellos epochs que no superan dicho umbral, existen dos alternativas principales. Por un lado, es posible mantener los canales defectuosos sin modificar, asumiendo el impacto que puedan tener sobre el modelo. Por otro lado, puede aplicarse una interpolación espacial de dichos canales, con el objetivo de estimar su señal a partir de los electrodos vecinos y reducir así la cantidad de información no representativa que se introduce en el sistema.
+
+\subsection{Implementación}
+\label{subsec:implementacion_canales}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{Imagenes/Bitmap/Bad_channel_detector}
+    \caption{Diagrama de la deteccion de canales defectuosos.}
+    \label{fig:bad_channel_detector}
+\end{figure}
+
+Los detectores descritos se han implementado siguiendo una jerarquía de clases basada en una clase abstracta \texttt{BadChannelDetector}. Esta clase define el método \texttt{process(X)} que recibe las lecturas de un epoch, itera sobre cada canal y delega la decisión de si un canal es defectuoso al método abstracto \texttt{is\_bad\_channel}, que cada subclase implementa de forma específica. El resultado es una lista de índices de canales considerados malos.
+
+La clase \texttt{BadChannelInterpolator} actúa como orquestadora: recibe una lista de detectores y aplica todos ellos sobre cada epoch, acumulando la unión de los canales defectuosos detectados. Si el número de canales malos en un epoch supera el parámetro \texttt{channels\_max}, el epoch se descarta por completo. Para los epochs que no superan dicho umbral, los canales defectuosos se reconstruyen mediante interpolación espacial a partir de los electrodos vecinos.
+
+Un aspecto relevante de la implementación es el uso de un doble pipeline de preprocesado. La detección de canales defectuosos se realiza sobre la señal filtrada en una banda más amplia (1--40\,Hz), que preserva mejor los artefactos de baja y alta frecuencia. La señal que finalmente se utiliza para el entrenamiento del modelo se obtiene de un pipeline independiente con el filtro estándar de 8--30\,Hz. Esto permite que la detección sea más sensible a artefactos sin degradar la señal de entrenamiento. Este flujo se implementa mediante los métodos primero se ejecuta los detectores sobre los datos del pipeline de detección y se almacenan los resultados poseteriormente se aplica el descarte y la interpolación sobre los datos del pipeline final.
+
+\subsection{Evaluación del impacto del rechazo e interpolación de \textit{epochs} en el rendimiento del modelo}
+\label{subsec:evaluacion_impacto_epochs}
+
+Para cuantificar el efecto del rechazo e interpolación de epochs sobre el rendimiento del clasificador, se diseñó un experimento comparativo con tres condiciones de preprocesado, evaluadas mediante validación cruzada repetida (\textit{StratifiedShuffleSplit}, 5 repeticiones, 15\,\% de datos para entrenamiento):
+
+\begin{enumerate}
+    \item \textbf{Sin rechazo}: filtro paso banda 8--30\,Hz, sin detección ni eliminación de epochs.
+    \item \textbf{Rechazo + interpolación}: detección con filtro 1--40\,Hz; los epochs con hasta 3 canales defectuosos se interpolan espacialmente y los que superan ese umbral se descartan. La señal final se filtra a 8--30\,Hz.
+    \item \textbf{Solo rechazo}: mismo proceso de detección, pero los epochs con canales defectuosos se mantienen igual en lugar de interpolarse en el caso de que no tengan más de 3 canales defectuosos. La señal final se filtra igualmente a 8--30\,Hz.
+\end{enumerate}
+
+En las condiciones con rechazo se aplica submuestreo aleatorio estratificado para igualar el número de \textit{trials} por clase antes del entrenamiento. La Tabla~\ref{tab:impacto_rechazo} recoge el accuracy medio $\pm$ desviación típica para cada sujeto y condición.
+
+\begin{table}[h]
+\centering
+\caption{Accuracy medio $\pm$ desviación típica obtenido con validación cruzada para cada condición de preprocesado y sujeto. Se marca con \textbf{*} la mejor condición por sujeto.}
+\label{tab:impacto_rechazo}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\hline
+\textbf{Condición} & \textbf{suj1} & \textbf{suj2} & \textbf{suj3} & \textbf{suj4} & \textbf{suj5} & \textbf{suj6} & \textbf{suj7} & \textbf{suj8} \\
+\hline
+Sin rechazo        & \textbf{0.975 $\pm$ 0.050}* & 0.525 $\pm$ 0.107 & 0.742 $\pm$ 0.072 & 0.433 $\pm$ 0.043 & 0.900 $\pm$ 0.068 & 0.478 $\pm$ 0.078 & \textbf{0.692 $\pm$ 0.068}* & 0.625 $\pm$ 0.129 \\
+Rechazo + interp.  & 0.960 $\pm$ 0.037 & 0.534 $\pm$ 0.090 & \textbf{0.792 $\pm$ 0.088}* & \textbf{0.500 $\pm$ 0.082}* & 0.907 $\pm$ 0.058 & 0.479 $\pm$ 0.059 & 0.500 $\pm$ 0.148 & 0.614 $\pm$ 0.111 \\
+Solo rechazo       & 0.970 $\pm$ 0.025 & 0.440 $\pm$ 0.034 & 0.739 $\pm$ 0.116 & 0.418 $\pm$ 0.055 & 0.888 $\pm$ 0.056 & 0.468 $\pm$ 0.103 & 0.575 $\pm$ 0.073 & 0.639 $\pm$ 0.082 \\
+\hline
+Eliminados (1-40)  & 15 & 3  & 23 & 19 & 11 & 18 & 36 & 3  \\
+Total epochs       & 120 & 120 & 120 & 120 & 120 & 115 & 120 & 120 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+Los resultados muestran que el impacto del rechazo de epochs varía considerablemente entre sujetos. Para sujetos con señal de buena calidad (suj1, suj5), la condición sin rechazo ya obtiene un rendimiento elevado y el rechazo no aporta mejora significativa. En cambio, para sujetos con mayor presencia de artefactos (suj3, suj4), la interpolación de canales defectuosos produce la mejor accuracy. La condición de solo rechazo rara vez supera a las otras dos, lo que sugiere que la interpolación espacial es preferible al descarte cuando el número de canales afectados es bajo.

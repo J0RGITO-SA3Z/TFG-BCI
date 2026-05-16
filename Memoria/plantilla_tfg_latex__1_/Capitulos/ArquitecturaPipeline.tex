@@ -1,0 +1,55 @@
+\chapter{Arquitectura del \textit{pipeline}}
+\label{cap:arquitecturaPipeline}
+
+La implementación del pipeline en tiempo real se divide en dos partes. Siendo la primera el entrenamiento del modelo y la obtención de la matriz de alineamiento euclideo. Y siendo la segunda el funcionamiento en tiempo real del sistema. 
+
+En cuanto a la obtención de datos para el entrenamiento del modelo, se desarrollaron dos procesos independientes: uno encargado de visualizar la interfaz gráfica del experimento, indicando de forma visual al usuario la acción de imaginación motora que debía realizar en cada instante, y otro encargado de recibir los datos procedentes del dispositivo EEG y coordinar la ejecución completa del experimento.
+
+Ambos procesos se comunican mediante una tubería unidireccional, a través de la cual el proceso coordinador envía instrucciones al proceso encargado de la interfaz gráfica indicando qué símbolos deben mostrarse al usuario en cada momento.
+
+El proceso coordinador actúa como proceso principal del sistema. Este proceso se encarga de crear el segundo proceso, gestionar la adquisición de datos EEG, realizar las anotaciones correspondientes sobre la grabación e indicar dinámicamente las señales visuales que deben presentarse durante el experimento.
+
+Esta separación en procesos independientes resultó necesaria debido a limitaciones de concurrencia entre las librerías utilizadas. La librería del dispositivo BrainAccess inicia internamente hilos de ejecución para la adquisición de datos EEG, mientras que la librería empleada para mostrar la interfaz gráfica también gestiona su propia concurrencia de forma interna. Al intentar ejecutar ambas funcionalidades dentro de un único hilo de ejecución, se producían bloqueos y fallos de funcionamiento, por lo que fue necesario desacoplar ambas tareas mediante multiprocessing.
+
+Al acabar la recolección de datos el proceso de visualización se preprocesaban los datos en el primer proceso y se calculaban la matriz del alineamiento euclideo y se hace fine-tuning al modelo.Y tras ello se inicia el pipeline el tiempo real. 
+
+Para el pipeline en tiempo real se decidió emplear 3 procesos representado en el diagrama \ref{fig:pipelineTR}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{Imagenes/Bitmap/Pipeline_TR}
+	\caption{Diagrama de la arquitectura del pipeline en tiempo real.}
+	\label{fig:pipelineTR}
+\end{figure}
+
+El primer proceso se encarga de crear los demás procesos y de recoger los datos del dispositivo EEG y retransmitirlos al segundo.
+
+El segundo proceso del sistema es el encargado de realizar el preprocesado de los datos EEG y ejecutar las predicciones del modelo en tiempo real.
+
+Para ello, este proceso dispone de un buffer circular de 15 segundos de duración que almacena continuamente los últimos datos retransmitidos por el dispositivo EEG. Aunque las predicciones posteriores se realizan utilizando únicamente ventanas temporales de 4 segundos, el uso de un buffer más amplio permite mejorar la aplicación de filtros de bajas frecuencias.
+
+Cuando se invoca la función getData del buffer circular, los filtros frecuenciales se aplican sobre la ventana completa de 15 segundos. Posteriormente, se extraen únicamente los últimos 4 segundos filtrados, que constituyen el trial utilizado para la predicción.
+
+Una vez obtenido el trial, se aplica en primer lugar el alineamiento euclídeo utilizando la matriz calculada previamente durante la fase de entrenamiento. A continuación, se realiza una interpolación espacial con el objetivo de adaptar el número y disposición de canales EEG a la configuración esperada por el modelo.
+
+Finalmente, el trial procesado es clasificado por el modelo dentro del propio proceso, enviándose posteriormente el resultado de la predicción al tercer proceso del sistema.
+
+Internamente, este segundo proceso utiliza dos hilos de ejecución diferenciados. El primero de ellos se encarga de recibir los datos procedentes de la tubería de comunicación y almacenarlos en el buffer circular, evitando así posibles desbordamientos del pipe debido a la alta frecuencia de adquisición de datos.
+
+El segundo hilo es responsable de generar predicciones periódicas a partir de los datos almacenados en el buffer, alcanzando una frecuencia aproximada de 6,6 predicciones por segundo.
+
+Esta frecuencia de clasificación no puede incrementarse significativamente debido a las limitaciones impuestas por el propio dispositivo EEG. El dispositivo opera a una frecuencia de muestreo de 250 Hz y transmite los datos en bloques de muestras. Como consecuencia, aumentar la frecuencia de predicción podría provocar que múltiples predicciones se realizasen sobre el mismo trial.
+
+El tercer proceso del sistema es el encargado de interpretar las predicciones recibidas desde el segundo proceso a través de una tubería de comunicación.
+
+Este proceso constituye la penúltima capa del sistema BCI, pudiendo recibir e interpretar las predicciones en crudo generadas por el modelo, y enviar mediante otra tubería las predicciones procesadas mediante filtros de decisión al proceso 4.
+
+Las distintas implementaciones desarrolladas para este tercer proceso se describen en apartados posteriores.
+
+El cuarto y último proceso del sistema se encarga de llevar toda la lógica del juego/benchmark que se quiera ejecutar, recibiendo las predicciones del tercer proceso a través de una tubería de comunicación. Este proceso se diseñó para ser completamente independiente, permitiendo así modularidad y mayor facilidad de integración en el pipeline con diferentes juegos, además de ser una alternativa mas estable y compartimentada evitando delegar demasiada carga al proceso 3.
+
+La separación de esta funcionalidad en un proceso independiente resulta especialmente importante para evitar que elementos externos al pipeline BCI, como una interfaz gráfica o la lógica de un videojuego, compitan por recursos computacionales con el sistema de adquisición y clasificación EEG, pudiendo introducir latencias adicionales o fallos inesperados. 
+
+Finalmente, la arquitectura multiproceso basada en comunicación mediante pipes proporciona varias ventajas relevantes. Por un lado, permite aprovechar la concurrencia para reducir la latencia global del sistema y desacoplar las distintas etapas del pipeline BCI. Por otro lado, esta arquitectura deja abierta la posibilidad de distribuir los diferentes procesos en máquinas independientes sustituyendo las tuberías locales por sockets TCP.
+
+Aunque esta funcionalidad distribuida no ha sido implementada en el presente trabajo, permitiría ejecutar el pipeline de inferencia en servidores externos con capacidad GPU, facilitando así el uso del dispositivo desde equipos con recursos computacionales limitados.

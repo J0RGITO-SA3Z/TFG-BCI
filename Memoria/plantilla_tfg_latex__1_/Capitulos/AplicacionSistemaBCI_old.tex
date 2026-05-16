@@ -1,5 +1,5 @@
-\chapter{Aplicación del sistema \textit{BCI}}
-\label{cap:aplicacionBCI}
+\section{Aplicación del sistema BCI}
+\label{sec:aplicacionBCI}
 
 Con el objetivo de facilitar el uso del EEG e integrar todas las utilidades del sistema BCI, se ha desarrollado una aplicación que constituye el punto de entrada a todas las funcionalidades del sistema: desde la configuración del hardware del EEG, la evaluación de calidad de señal y la visualización de grabaciones, hasta la ejecución de experimentos y la evaluación de los sujetos. Funciona mediante una interfaz de línea de comandos y su diseño modular permite ejecutar de forma independiente cada uno de los módulos que componen el sistema.
 
@@ -13,9 +13,8 @@ El objetivo de esta aplicación es llevar a cabo tres tipos de experimento:
 \item \textbf{Experimento visual:} modalidad automatizada que sigue un protocolo predefinido de estimulación visual y auditiva, garantizando grabaciones limpias y estructuradas. Constituye la principal vía de adquisición de datos para el modelo predictor.
 
 \item \textbf{Experimento en tiempo real:} modalidad BCI completa que integra adquisición, preprocesado e inferencia del modelo predictor para traducir la imaginación motora del sujeto en acciones sobre un entorno interactivo.\end{itemize}
-
-\section{Funciones principales}
-\label{sec:funcionesPrincipales}
+\subsection{Funciones principales}
+\label{subsec:funcionesPrincipales}
 
 El menú principal de la aplicación agrupa las funcionalidades en torno a tres grandes bloques: configuración del hardware, adquisición de señal y análisis. Al arrancar, la aplicación carga automáticamente la configuración de electrodos y acciones almacenada en disco en formato \texttt{.json}; si no existe ninguna configuración previa, se inicializa con valores por defecto.
 
@@ -44,13 +43,13 @@ Las opciones que se visualizan en el menú son las siguientes:
     \item Visualizar grabaciones (\textit{FIF}).
 \end{enumerate}
 
-\section{Configuración del dispositivo EEG}
-\label{sec:configuracionCasco}
+\subsection{Configuración del dispositivo EEG}
+\label{subsec:configuracionCasco}
 
 Antes de realizar cualquier tipo de grabación o experimento en tiempo real es estrictamente necesario configurar correctamente el dispositivo EEG.Esta sección agrupa las herramientas destinadas a verificar y ajustar el estado de los electrodos y la batería del dispositivo así como también la lista de acciones para la grabación manual.
 
-\subsection{Configuración de electrodos}
-\label{subsec:configuracionElectrodos}
+\subsubsection{Configuración de electrodos}
+\label{subsubsec:configuracionElectrodos}
 
 Esta sección permite visualizar y editar la configuración de los canales del casco EEG. Para cada electrodo es posible especificar si está activo o inactivo, asignarle un nombre de canal y una posición estándar según el sistema internacional 10–20, así como designar qué electrodo actúa como BIAS. A diferencia del sistema de configuración de la aplicación BrainAccess, el módulo desarrollado incorpora la posibilidad de guardar y gestionar múltiples configuraciones de forma persistente. Esto resulta especialmente útil cuando se trabaja con distintas disposiciones de electrodos, ya que permite alternar entre configuraciones de forma sencilla sin necesidad de reconfigurar el sistema manualmente en cada sesión. Las configuraciones se almacenan en disco y se cargan automáticamente al iniciar la aplicación (véase Figura~\ref{fig:configuracionElectrodos}).
 
@@ -61,8 +60,8 @@ Esta sección permite visualizar y editar la configuración de los canales del c
     \label{fig:configuracionElectrodos}
 \end{figure}
 
-\subsection{Configuración de acciones}
-\label{subsec:configuracionAcciones}
+\subsubsection{Configuración de acciones}
+\label{subsubsec:configuracionAcciones}
 
 Permite definir las acciones de imaginación motora que se utilizarán durante los experimentos. Cada acción se asocia a una etiqueta y un identificador numérico que actúan como marcadores en los ficheros de grabación. La lista de acciones estará disponible durante las grabaciones manuales, siendo el usuario quien indica mediante comandos el inicio de una determinada acción o la ocurrencia de un evento concreto (véase Figura~\ref{fig:configuracionAcciones}).
 
@@ -73,8 +72,8 @@ Permite definir las acciones de imaginación motora que se utilizarán durante l
     \label{fig:configuracionAcciones}
 \end{figure}
 
-\subsection{Ver batería del EEG}
-\label{subsec:verBateria}
+\subsubsection{Ver batería del EEG}
+\label{subsubsec:verBateria}
 
 Muestra el nivel de batería actual del dispositivo EEG. Resulta útil comprobar este valor antes de iniciar sesiones largas de grabación para evitar interrupciones (véase Figura~\ref{fig:visualizacionBateria}).
 
@@ -85,8 +84,8 @@ Muestra el nivel de batería actual del dispositivo EEG. Resulta útil comprobar
     \label{fig:visualizacionBateria}
 \end{figure}
 
-\subsection{Test de impedancias}
-\label{subsec:testImpedancias}
+\subsubsection{Test de impedancias}
+\label{subsubsec:testImpedancias}
 
 Permite realizar una medición interactiva de la impedancia de los electrodos. Una impedancia elevada refleja un contacto deficiente entre el electrodo y el cuero cabelludo, lo que degrada la calidad de la señal adquirida y puede introducir ruido de baja frecuencia, artefactos o distorsiones en determinadas bandas de frecuencia. Este módulo guía al usuario a través de la comprobación de cada canal activo, permitiendo verificar que todos los electrodos estén correctamente posicionados y que sus valores de impedancia se encuentren dentro del rango aceptable antes de iniciar una grabación o experimento (véase Figura~\ref{fig:medicionImpedancias}). Además, se incluye una representación gráfica en 2D del cuero cabelludo con la disposición de los electrodos activos, en la que cada canal se colorea en función de su nivel de impedancia, facilitando la identificación visual e inmediata de los electrodos problemáticos sin necesidad de consultar un dibujo de posiciones y nombres (véase Figura~\ref{fig:visualizacionImpedancias}).
 
@@ -104,13 +103,13 @@ Permite realizar una medición interactiva de la impedancia de los electrodos. U
     \label{fig:visualizacionImpedancias}
 \end{figure}
 
-\section{Grabación Manual}
-\label{sec:grabacionManual}
+\subsection{Grabación Manual}
+\label{subsec:grabacionManual}
 
 La grabación manual permite iniciar y detener la adquisición de señales EEG de forma libre, sin seguir un protocolo de estimulación predefinido. El usuario controla en todo momento qué acción se está etiquetando mediante los comandos de teclado disponibles.
 
-\subsection{Control de acciones}
-\label{subsec:controlAcciones}
+\subsubsection{Control de acciones}
+\label{subsubsec:controlAcciones}
 
 \begin{figure}[h]
     \centering
@@ -121,28 +120,28 @@ La grabación manual permite iniciar y detener la adquisición de señales EEG d
 
 Durante la grabación (véase Figura~\ref{fig:menuGrabacionManual}), el usuario puede seleccionar la acción activa en cada instante pulsando la tecla correspondiente. El sistema inserta el marcador de evento apropiado en la señal, de modo que cada segmento queda correctamente etiquetado para su posterior análisis.
 
-\section{Visualización en tiempo real}
-\label{sec:visualizacionTiempoReal}
+\subsection{Visualización en tiempo real}
+\label{subsec:visualizacionTiempoReal}
 
 Este módulo se encarga de la adquisición y visualización en tiempo real de la señal EEG. Aunque se trata de una funcionalidad de carácter básico, ha resultado de gran utilidad para inspeccionar visualmente la señal del sujeto y observar el efecto de artefactos frecuentes como los producidos por parpadeos, habla o ruido muscular, permitiendo valorar la calidad de la adquisición antes de iniciar cualquier experimento.
 
-\section{Experimento Visual}
-\label{sec:experimentoVisual}
+\subsection{Experimento Visual}
+\label{subsec:experimentoVisual}
 
 El Experimento Visual es el módulo encargado de la adquisición guiada de señales EEG mediante un protocolo estructurado de estimulación visual y auditiva. Su objetivo es obtener grabaciones con una estructura temporal bien definida y de mayor calidad que la grabación manual, eliminando fuentes de contaminación como el ruido asociado a la comunicación oral o la presencia de estímulos impredecibles. Adicionalmente, el módulo incorpora una opción de servidor TCP que permite visualizar en tiempo real las lecturas EEG durante el transcurso de la grabación, facilitando que un supervisor pueda monitorizar la calidad de la señal y verificar que la adquisición se está realizando correctamente. Esta modalidad constituye la principal vía de adquisición de datos de sujetos para el entrenamiento y evaluación del sistema.
 
-\subsection{Funcionamiento de grabaciones}
-\label{subsec:funcionamientoGrabaciones}
+\subsubsection{Funcionamiento de grabaciones}
+\label{subsubsec:funcionamientoGrabaciones}
 
 Durante el experimento, se presenta al sujeto una secuencia de estímulos visuales y sonoros que indican los sucesivos pasos que componen el protocolo: qué acción de imaginación motora debe realizar, cuándo el sujeto puede descansar y cuándo debe centrar la atención. Las señales EEG se registran de forma continua y los eventos quedan marcados como eventos correspondientes a cada acción en la grabación resultante. Al finalizar, la grabación se almacena en formato \textit{FIF}, compatible con la librería MNE para su posterior utilización.
 
-\subsection{Protocolo}
-\label{subsec:protocoloExperimento}
+\subsubsection{Protocolo}
+\label{subsubsec:protocoloExperimento}
 
 El protocolo define la estructura temporal del experimento: el número de repeticiones de imaginación motora (épocas) por clase,que clases aparecerán (mano izquierda, mano derecha y pies), la duración de los periodos de imaginación motora, los intervalos de descanso entre épocas y las instrucciones presentadas al sujeto durante cada fase. Todos estos parámetros son configurables, lo que permite adaptar el experimento de forma flexible a las necesidades específicas de cada sesión o participante.
 
-\section{Evaluación de sujetos con el modelo MiRepNet}
-\label{sec:evaluacionMiRepNet}
+\subsection{Evaluación de sujetos con el modelo MiRepNet}
+\label{subsec:evaluacionMiRepNet}
 
 Este módulo automatiza la evaluación del rendimiento del sistema sobre las grabaciones de un sujeto. El usuario puede seleccionar, para un sujeto determinado, las grabaciones concretas que desea incluir en la evaluación, lo que permite analizar el rendimiento y la precisión (\textit{accuracy}) obtenidos en cada conjunto e identificar qué condiciones o sesiones arrojan mejores resultados. Para ello, se aplica el pipeline completo de preprocesado, que incorpora una etapa de detección y descarte de épocas ruidosas, se realiza el ajuste fino (\textit{fine-tuning}) del modelo predictor MiRepNet sobre los datos del sujeto y se calculan métricas de clasificación mediante validación cruzada, lo que facilita la comparación del desempeño entre distintos sujetos y sesiones. Una vez finalizada la evaluación, los resultados se presentan de forma visual mediante un conjunto de gráficas que incluyen la evolución de la precisión y del \textit{learning rate} a lo largo del entrenamiento, la matriz de confusión, un diagrama de cajas y bigotes y un diagrama de barras con la \textit{precision}, \textit{recall} y \textit{accuracy} desglosados por clase, proporcionando una visión completa del comportamiento del modelo (véase Figura~\ref{fig:modeloGraficoFinetune} y Figura~\ref{fig:modeloGraficoMatriz}).
 \begin{figure}[h]
@@ -159,23 +158,23 @@ Este módulo automatiza la evaluación del rendimiento del sistema sobre las gra
     \label{fig:modeloGraficoMatriz}
 \end{figure}
 
-\section{Experimento en Tiempo Real}
-\label{sec:experimentoTiempoReal}
+\subsection{Experimento en Tiempo Real}
+\label{subsec:experimentoTiempoReal}
 
 El módulo de Experimento en Tiempo Real constituye la implementación completa del pipeline de interfaz cerebro-computador, integrando de las etapas de adquisición de señal EEG, filtrado, normalización e inferencia del modelo predictor. El resultado es un sistema capaz de traducir la imaginación motora del sujeto en acciones concretas sobre un entorno de benchmarking o videojuego. Para garantizar un rendimiento adecuado, el módulo incorpora una fase previa de entrenamiento idéntica a la del Experimento Visual, que permite ajustar el modelo predictor a las características individuales del sujeto antes de iniciar la sesión en tiempo real.
 
-\subsection{Training}
-\label{subsec:training}
+\subsubsection{Training}
+\label{subsubsec:training}
 
 Antes de iniciar la fase en tiempo real, el módulo lleva a cabo una fase previa de entrenamiento, imprescindible para adaptar el modelo predictor a las características individuales del sujeto. Durante esta fase, se realiza una grabación siguiendo el mismo protocolo parametrizable del Experimento Visual, adquiriendo así los datos necesarios para realizar el ajuste fino \textit{fine-tuning} del modelo antes de lanzar la sesión en tiempo real.
 
-\subsection{Juegos y benchmarks BCI}
-\label{subsec:juegosBCI}
+\subsubsection{Juegos y benchmarks BCI}
+\label{subsubsec:juegosBCI}
 
 Una vez finalizada la fase de entrenamiento, el sujeto puede interactuar con los entornos BCI desarrollados, que pueden tomar la forma de aplicaciones de benchmarking, orientadas a la evaluación objetiva del rendimiento del sistema, o de entornos de juego, orientados a una experiencia más inmersiva e intuitiva para el usuario. Durante la sesión, el modelo genera de forma continua un elevado número de predicciones que son procesadas y convertidas en acciones mediante filtros de decisión. Adicionalmente, los entornos de juego incorporan mecanismos de asistencia que facilitan la interacción del usuario con el entorno, compensando la variabilidad inherente a la señal EEG y mejorando la experiencia de uso.
 
-\section{Visualizador de grabaciones}
-\label{sec:visualizadorGrabaciones}
+\subsection{Visualizador de grabaciones}
+\label{subsec:visualizadorGrabaciones}
 
 El visualizador de grabaciones permite revisar los ficheros \textit{FIF} generados durante los experimentos. Muestra las señales EEG de cada canal en el dominio temporal junto con los marcadores de eventos asociados, facilitando la inspección visual de la calidad de las grabaciones y la detección de artefactos (véase Figura~\ref{fig:visualizacionFIF}).
 
@@ -186,11 +185,11 @@ El visualizador de grabaciones permite revisar los ficheros \textit{FIF} generad
     \label{fig:visualizacionFIF}
 \end{figure}
 
-\section{Implementación}
-\label{sec:implementacion}
+\subsection{Implementación}
+\label{subsec:implementacion}
 
-\subsection{Librerías y dependencias}
-\label{subsec:libreriasApp}
+\subsubsection{Librerías y dependencias}
+\label{subsubsec:libreriasApp}
 
 A continuación se describen las principales librerías utilizadas en el desarrollo de la aplicación:
 
@@ -214,20 +213,20 @@ Una vez localizada la versión compatible del SDK y la documentación correspond
 
 \end{itemize}
 
-\subsection{Resolución de conflictos con multihilo}
-\label{subsec:multithread}
+\subsubsection{Resolución de conflictos con multihilo}
+\label{subsubsec:multithread}
 
 Durante el desarrollo surgieron incompatibilidades entre \textbf{Pygame} y el \textbf{BrainAccess SDK} al ejecutarse de forma simultánea. Pygame gestiona su bucle de visualización haciendo uso de hilos internos de Python, mientras que el SDK de BrainAccess implementa su lógica de adquisición en C++ con multihilo nativo. Ambos compiten por el GIL (\textit{Global Interpreter Lock}) de Python, lo que provocaba bloqueos e inestabilidad al intentar ejecutarlos en paralelo dentro del mismo proceso. La solución adoptada consistió en separar ambos componentes en procesos independientes mediante el módulo \texttt{multiprocessing} de Python, desacoplando así la lógica de visualización de la adquisición de señal y eliminando la contención sobre el GIL.
 
-\subsection{Instalación y entorno}
-\label{subsec:instalacion}
+\subsubsection{Instalación y entorno}
+\label{subsubsec:instalacion}
 
 Con el objetivo de facilitar la puesta en marcha de la aplicación, se ha desarrollado un script de consola \texttt{setup.bat} que automatiza la configuración completa del entorno de ejecución. El script detecta si Conda o Miniconda están instalados en el sistema, crea un entorno virtual denominado \texttt{bci-mi-tfg}, instala el repositorio de MiRepNet, el SDK de BrainAccess en la versión compatible con el dispositivo EEG y todas las dependencias recogidas en el fichero \texttt{requirements.txt}.
 
 Los únicos requisitos previos son disponer de Conda o Miniconda instalado con su variable de entorno configurada y tener el repositorio clonado localmente. Es necesario tener una GPU NVIDIA con CUDA instalado para el uso del modelo. 
 
-\subsection{Inicialización de la aplicación}
-\label{subsec:inicializacion}
+\subsubsection{Inicialización de la aplicación}
+\label{subsubsec:inicializacion}
 Para mayor facilidad de uso, tanto la aplicación principal como el cliente TCP se pueden ejecutar mediante un fichero \texttt{run.bat}, que da acceso a ambas opciones sin necesidad de utilizar comandos adicionales.
 
 El punto de entrada de la aplicación es el script \texttt{aplicacion.py}, ubicado en \texttt{EEG\_app/src/app/}. Desde él se carga la configuración persistente, se inicializa el menú principal y se despacha cada opción al módulo correspondiente. El resto de ficheros \texttt{.py} presentes en el mismo directorio implementan las distintas funcionalidades accesibles desde el menú.

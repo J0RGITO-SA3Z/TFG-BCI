@@ -1,0 +1,150 @@
+\section{Preprocesado de la señal}
+\label{sec:preprocesado}
+
+Los sistemas EEG se caracterizan por presentar una baja relación señal-ruido (SNR) debido a su naturaleza no invasiva. Esta limitación se ve agravada por el uso de electrodos secos y por las características del dispositivo empleado.
+
+El objetivo del preprocesado es mejorar dicha relación señal-ruido. Las señales crudas registradas por los electrodos se encuentran contaminadas por múltiples fuentes de interferencia, tanto externas (como la red eléctrica o interferencias electromagnéticas) como fisiológicas (por ejemplo, parpadeos o actividad muscular). Las etapas descritas a continuación se aplican de forma secuencial con el fin de atenuar estas interferencias, preservando en la medida de lo posible la información neural relevante y facilitando su posterior análisis por el modelo.
+
+\subsection{Filtrado de frecuencia}
+\label{subsec:FiltradoFrecuencia}
+La actividad cerebral registrada mediante EEG se manifiesta principalmente en determinados rangos de frecuencia. Sin embargo, la señal adquirida también incluye componentes en otras frecuencias que no están relacionadas con la actividad de interés, como interferencias externas o artefactos fisiológicos.
+
+Por este motivo, resulta útil aplicar filtrado en frecuencia para centrarse en las bandas donde se concentra la información relevante y atenuar el resto de componentes no deseadas. 
+
+\subsubsection{Filtro notch}
+
+El filtro notch es un tipo de filtro diseñado para atenuar de forma selectiva una frecuencia concreta o un rango muy estrecho del espectro, sin afectar significativamente al resto de la señal. Este tipo de filtrado resulta especialmente útil cuando se desea eliminar interferencias bien localizadas en frecuencia.
+
+En nuesto caso hemos utilizado un filtro notch centrado en 50 Hz para suprimir la interferencia introducida por la red eléctrica que aparece en dicha frecuencia.
+
+\subsubsection{Filtro paso de banda}
+
+El filtro paso banda permite conservar las componentes de la señal dentro de un rango de frecuencias determinado, atenuando el resto. Equivale a aplicar un filtro de paso bajo y un filtro de paso alto. 
+
+Eliminando las frecuencias bajas conseguimos eliminar el ruido de la corriente continua que se cuela en la señal, drift causado por sudoración o cambios en las impedancias de los electrodos, artefactos asociados a la respiración y otros. Normalmente el valor de lectura del EEG tiene que estar en el rango de 200~$\mu$V, clasificando como saturada la entrada de un canal que supere ese valor. Sin embargo, estos ruidos de mucha más potencia hacen que las lecturas se disparen. Se puede apreciar la efectividad de la eliminación de estas frecuencias en la Figura~\ref{fig:filtradoPasoBajo}.
+
+Por otro lado eliminando las frecuencias altas eliminamos ruidos como el ruido muscular de alta frecuencia, ruido electromagnético y ruido electrónico con poca amplitud pero mucha frecuencia.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Imagenes/Bitmap/FiltradoPasoBajo}
+    \caption{Señal EEG de un canal antes y después de aplicar un filtro paso alto de 5~Hz.}
+    \label{fig:filtradoPasoBajo}
+\end{figure}
+
+En cuanto a los rangos de frecuencia a seleccionar hemos valorado dos opciones implementado ambas con un filtro de banda FIR ofrecido por la librería MNE.
+
+\begin{itemize}
+    \item \textbf{1--40~Hz}: Este rango abarca prácticamente toda la actividad EEG relevante, incluyendo las bandas delta, theta, alfa y beta. Permite conservar una visión general de la señal cerebral, al tiempo que atenúa tanto las componentes de muy baja frecuencia como el ruido de alta frecuencia. Se trata de una banda amplia y de uso general cuando no se busca un fenómeno específico.
+
+    \item \textbf{8--30~Hz}: Este rango está más focalizado en tareas de imaginación motora, ya que cubre directamente las bandas mu (8--12~Hz) y beta (13--30~Hz), donde se producen los patrones más característicos de este tipo de actividad. Al restringir el espectro a este intervalo, se reduce la influencia de artefactos de baja frecuencia y de actividad de alta frecuencia no relevante, lo que puede mejorar la relación señal-ruido en las bandas de interés.
+\end{itemize}
+
+\subsection{Rereferencia CAR}
+\label{subsec:car}
+
+La señal registrada en cada electrodo es siempre relativa a un electrodo de referencia. Si esa referencia está contaminada, el ruido se propaga a todos los canales. La rereferencia por promedio común (\textit{Common Average Reference}, CAR) recalcula la señal de cada electrodo restándole la media instantánea de todos los canales:
+
+\begin{equation}
+    x_i^{\text{CAR}}(t) = x_i(t) - \frac{1}{N}\sum_{j=1}^{N} x_j(t)
+\end{equation}
+
+donde $N$ es el número de electrodos. Esta operación cancela el ruido que es común a todos los canales (p.\,ej., interferencias electromagnéticas ambientales o artefactos de movimiento global), ya que esa componente queda recogida en el término de la media y se elimina. Desde el punto de vista espacial, la CAR actúa como un filtro que enfatiza la actividad local de cada electrodo frente a la actividad difusa y compartida, mejorando la resolución espacial de la señal. 
+
+\subsection{Análisis de Componentes Independientes (ICA)}
+\label{subsec:ica}
+
+El Análisis de Componentes Independientes (ICA) es una técnica que descompone la señal multicanal en un conjunto de componentes estadísticamente independientes, partiendo de la hipótesis de que las fuentes que generan dichos componentes (actividad neuronal, parpadeos o actividad muscular) son mutuamente independientes.
+
+Una vez realizada esta descomposición, es posible aplicar algoritmos automáticos que identifican aquellas componentes asociadas a artefactos, como ruido muscular o actividad ocular. Tras su identificación, la señal se reconstruye excluyendo dichas componentes, obteniendo así una versión más limpia.
+
+Este algoritmo está implementado en la librería MNE y puede emplearse para eliminar artefactos debidos a parpadeos, movimientos oculares y actividad cardíaca.
+
+No obstante, para facilitar la detección automática de estos artefactos es habitual disponer de electrodos auxiliares específicos. En particular, los electrodos EOG situados cerca de los ojos permiten detectar parpadeos y movimientos oculares, los electrodos ECG colocados en el pecho registran la actividad cardíaca, y los electrodos EMG ubicados en distintas zonas musculares permiten identificar actividad muscular.
+
+Sin embargo, el dispositivo con el que se trabaja no dispone de estos electrodos auxiliares y presenta una baja densidad de canales (15 electrodos frente a configuraciones más habituales de 64). Esta limitación dificulta la identificación automática de componentes asociadas a artefactos mediante ICA. En la práctica, únicamente fue posible detectar de forma fiable componentes relacionadas con actividad muscular, mientras que la detección automática de artefactos EOG y ECG acabó siendo imposible.
+
+\subsection{Implementación}
+\label{subsec:preprocesado_implementacion}
+
+El preprocesado se ha implementado mediante un sistema modular compuesto por dos elementos principales: una clase base abstracta \texttt{RawProcessor} y un contenedor denominado \texttt{RawProcessorPipeline}.
+
+\texttt{RawProcessor} define la interfaz común que debe satisfacer cualquier etapa de procesado: un único método \texttt{process(raw)} que recibe un objeto \texttt{mne.io.Raw}, aplica la transformación correspondiente y devuelve la señal modificada. Cada técnica descrita en las secciones anteriores se ha encapsulado en su propia subclase independiente: \texttt{NotchFilter} para el filtro notch, \texttt{BandpassFilter} para el filtro paso de banda, \texttt{CARReference} para la rereferencia por promedio común, e \texttt{ICAProcessor} para el análisis de componentes independientes.
+
+\texttt{RawProcessorPipeline} actúa como orquestador de estas etapas. Mantiene internamente una lista ordenada de instancias de \texttt{RawProcessor} que se van registrando mediante su método \texttt{add()}. Al invocar \texttt{process(raw)}, el pipeline aplica cada procesador de forma secuencial: la salida de uno se convierte en la entrada del siguiente, encadenando así todas las transformaciones de manera transparente. Este diseño permite configurar el preprocesado completo de forma declarativa, combinando y reordenando las etapas según las necesidades de cada experimento sin modificar el código de los procesadores individuales.
+
+\subsection{Comparación de combinaciones de preprocesado}
+\label{subsec:comparacion_filtros}
+
+Con el fin de determinar qué combinación de etapas de preprocesado produce los mejores resultados para el clasificador se ha llevado a cabo una evaluación de todas las posibles combinaciones de los preprocesados mencionados anteriormente. Además se han probado los dos filtros de paso de banda así como no aplicar ninguno. 
+
+En esta prueba solo se han intentado clasificar 2 clases por simplicidad: mano derecha y mano izquierda. Para cada sujeto se ha aplicado la eliminación de trials con demasiados canales saturados o mal conectados como se explica en el apartado [mencionar apartado], tras ello se han balanceado los trials por clase para que haya el mismo número de trials de cada clase. Y se ha usado validación cruzada de 5 particiones usando un 80\% de los datos para entrenar el modelo y 20\% para validar. 
+
+En cuanto a la normalización se ha utilizado alineamiento euclideo y transpolacion de los electrodos. El modelo utilizado ha sido MiRepNet.
+
+
+\subsubsection{Resultados}
+
+La Tabla~\ref{tab:accuracy_filtros} recoge el accuracy obtenido por cada combinación de preprocesado para los ocho sujetos. En negrita se indica el mejor valor de cada sujeto (columna) y el nombre de la combinación con mejor media global.
+
+\begin{table}[p]
+\centering
+\caption{Accuracy por combinación de preprocesado y sujeto (5-fold CV). En negrita el mejor valor por columna y la combinación con mayor media.}
+\label{tab:accuracy_filtros}
+\resizebox{\textwidth}{!}{%
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lrrrrrrrr r}
+\hline
+\textbf{Combinación} & \textbf{S1} & \textbf{S2} & \textbf{S3} & \textbf{S4} & \textbf{S5} & \textbf{S6} & \textbf{S7} & \textbf{S8} & \textbf{Media} \\
+\hline
+\multicolumn{10}{l}{\textit{Sin filtro de banda}} \\[2pt]
+CAR + Notch + ICA & 0.4500 & 0.3533 & 0.5111 & 0.5011 & 0.4714 & 0.4678 & 0.4250 & 0.4833 & 0.4579 \\
+CAR + Notch       & 0.4300 & 0.3533 & 0.4795 & \textbf{0.5816} & 0.5087 & 0.4889 & 0.4750 & 0.4833 & 0.4750 \\
+CAR + ICA         & 0.4500 & 0.3533 & 0.5105 & 0.5021 & 0.4810 & 0.4684 & 0.4125 & 0.4663 & 0.4555 \\
+Notch + ICA       & 0.3800 & 0.3536 & 0.4489 & 0.5095 & 0.5377 & 0.4678 & 0.5000 & 0.4830 & 0.4601 \\
+CAR               & 0.4500 & 0.3533 & 0.5105 & 0.5616 & 0.4814 & 0.4778 & 0.4750 & 0.4663 & 0.4720 \\
+Notch             & 0.3900 & 0.3536 & 0.4795 & 0.5716 & 0.4909 & 0.4678 & 0.5000 & 0.4830 & 0.4670 \\
+ICA               & 0.3800 & 0.3449 & 0.5316 & 0.5200 & 0.5472 & 0.4895 & 0.4875 & 0.4569 & 0.4697 \\
+Sin preprocesado  & 0.4200 & 0.3449 & 0.5411 & 0.5616 & 0.4619 & 0.4462 & 0.5000 & 0.4569 & 0.4666 \\
+\hline
+\multicolumn{10}{l}{\textit{Paso de banda 1--40~Hz}} \\[2pt]
+CAR + Notch + 1-40 + ICA & 0.4400 & 0.4909 & 0.5205 & 0.4900 & 0.4628 & 0.3936 & 0.5000 & 0.4659 & 0.4705 \\
+CAR + Notch + 1-40       & 0.4400 & 0.4909 & 0.5526 & 0.4889 & 0.5390 & 0.3936 & 0.5000 & 0.4659 & 0.4839 \\
+CAR + 1-40 + ICA         & 0.4400 & 0.4909 & 0.5205 & 0.4900 & 0.4628 & 0.3936 & 0.5000 & 0.4659 & 0.4705 \\
+Notch + 1-40 + ICA       & 0.4600 & 0.4388 & 0.5200 & 0.4689 & 0.4368 & \textbf{0.5333} & 0.4500 & 0.4913 & 0.4749 \\
+CAR + 1-40               & 0.4400 & 0.4909 & 0.5526 & 0.4889 & 0.5390 & 0.3936 & 0.5000 & 0.4659 & 0.4839 \\
+Notch + 1-40             & 0.4900 & 0.4388 & 0.5405 & 0.4689 & 0.5195 & 0.5000 & \textbf{0.5250} & 0.4656 & 0.4935 \\
+1-40 + ICA               & 0.4600 & 0.4388 & 0.5200 & 0.4689 & 0.4459 & \textbf{0.5333} & 0.4500 & 0.4913 & 0.4760 \\
+1-40                     & 0.4900 & 0.4388 & 0.5405 & 0.4689 & 0.5195 & 0.5000 & \textbf{0.5250} & 0.4656 & 0.4935 \\
+\hline
+\multicolumn{10}{l}{\textit{Paso de banda 8--30~Hz}} \\[2pt]
+CAR + Notch + 8-30 + ICA & \textbf{0.9600} & 0.4656 & 0.7500 & 0.4389 & 0.8883 & 0.4895 & 0.4875 & 0.5786 & 0.6323 \\
+CAR + Notch + 8-30       & \textbf{0.9600} & 0.4656 & 0.7500 & 0.4389 & 0.8883 & 0.4895 & 0.4875 & 0.5786 & 0.6323 \\
+CAR + 8-30 + ICA         & \textbf{0.9600} & 0.4656 & 0.7500 & 0.4389 & 0.8883 & 0.4895 & 0.4875 & 0.5786 & 0.6323 \\
+Notch + 8-30 + ICA       & \textbf{0.9600} & \textbf{0.5341} & \textbf{0.7916} & 0.4995 & \textbf{0.9074} & 0.4684 & 0.5000 & \textbf{0.6138} & 0.6593 \\
+CAR + 8-30               & \textbf{0.9600} & 0.4656 & 0.7500 & 0.4389 & 0.8883 & 0.4895 & 0.4875 & 0.5786 & 0.6323 \\
+Notch + 8-30             & \textbf{0.9600} & \textbf{0.5341} & \textbf{0.7916} & 0.4995 & \textbf{0.9074} & 0.4684 & 0.5000 & \textbf{0.6138} & 0.6593 \\
+\textbf{8-30 + ICA}      & \textbf{0.9600} & \textbf{0.5341} & \textbf{0.7916} & 0.4995 & \textbf{0.9074} & 0.4789 & 0.5000 & \textbf{0.6138} & \textbf{0.6606} \\
+\textbf{8-30}            & \textbf{0.9600} & \textbf{0.5341} & \textbf{0.7916} & 0.4995 & \textbf{0.9074} & 0.4789 & 0.5000 & \textbf{0.6138} & \textbf{0.6606} \\
+\hline
+\textbf{Máximo}          & \textbf{0.9600} & \textbf{0.5341} & \textbf{0.7916} & \textbf{0.5816} & \textbf{0.9074} & \textbf{0.5333} & \textbf{0.5250} & \textbf{0.6138} & \textbf{0.6606} \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Análisis del impacto del preprocesado}
+
+A partir de los resultados mostrados en la tabla, se pueden extraer las siguientes conclusiones sobre la influencia de las distintas técnicas de preprocesado:
+
+\begin{itemize}
+
+\item \textbf{Filtro de paso de banda:} Se observa claramente la eficacia del filtro de paso de banda en el rango de 8--30 Hz, que presenta un rendimiento significativamente superior. Por otro lado, el bajo \textit{accuracy} obtenido con el filtro de 1--40 Hz resulta llamativo. Una posible explicación es que el modelo utilizado ha sido entrenado previamente con datos filtrados en un rango más específico, por lo que los pesos aprendidos no están optimizados para un espectro más amplio. Por ello hemos decidido usar el filtro de 8--30 HZ.
+
+\item \textbf{Filtro notch:} La aplicación del filtro notch no muestra variaciones apreciables en el rendimiento del modelo, manteniéndose valores de \textit{accuracy} similares a los obtenidos sin su uso. No obstante, la literatura reporta de forma consistente que, incluso en presencia de un filtrado de paso de banda, el uso de un filtro notch resulta útil para atenuar de manera más precisa interferencias en frecuencias específicas, como el ruido de la red eléctrica (50 Hz). En este caso, aunque su impacto no se refleja directamente en las métricas de rendimiento, debido a la simplicidad de implementarlo en tiempo real se ha decidido mantenerlo en el pipeline de preprocesado como medida de robustez frente a este tipo de artefactos.
+
+\item \textbf{Referencia común promedio (CAR):} La aplicación de CAR produce una degradación del rendimiento del modelo. Este comportamiento puede deberse, por un lado, a la presencia de ruido de baja frecuencia o componentes de corriente continua, como se muestra en la Figura~\ref{fig:filtradoPasoBajo}. Por otro lado, dado que el dispositivo EEG empleado presenta una baja densidad de electrodos y estos se encuentran concentrados en áreas relacionadas con la imaginación motora, es posible que CAR esté eliminando información relevante. Por estas razones se ha dedidico prescindir de el. 
+
+\item \textbf{Análisis de Componentes Independientes (ICA):} El uso de ICA no muestra mejoras apreciables en el rendimiento del modelo. Esto puede explicarse por la ausencia de canales específicos para registrar actividad muscular (EMG), lo que limita su capacidad para aislar este tipo de artefactos. Además, el filtrado previo en el rango de 8--30 Hz ya atenúa significativamente el ruido muscular, que suele encontrarse en frecuencias más altas. Por tanto, ICA no aporta un beneficio adicional en este caso. Dado su elevado coste computacional y la complejidad de su implementación en tiempo real, se ha optado por prescindir de esta técnica en el sistema final.
+
+\end{itemize}
