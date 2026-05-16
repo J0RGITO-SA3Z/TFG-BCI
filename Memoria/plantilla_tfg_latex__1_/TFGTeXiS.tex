@@ -102,8 +102,16 @@ constantes,guionado,Cascaras/bibliografia,config%
 }
 
 %esto hace q el texto sea justificado y no ponga guiones de salto de línea
-\usepackage[none]{hyphenat}
-\emergencystretch=3em
+%\usepackage[none]{hyphenat}
+%\emergencystretch=10em
+
+\tolerance=9999        % Permite a LaTeX ser más permisivo con los espacios
+\hbadness=9999         % Oculta los avisos de "Underfull \hbox" molestos
+\hyphenpenalty=10000   % Penaliza enormemente partir palabras...
+\exhyphenpenalty=10000 % ...incluso las que ya tienen guion
+\emergencystretch=3em  % Un margen de estiramiento razonable, no extremo
+
+
 
 % Sacamos en el log de la compilación el copyright
 %\typeout{Copyright Marco Antonio and Pedro Pablo Gomez Martin}

@@ -130,6 +130,15 @@ A la hora de diseñar el juego se tuvo en cuenta que este fuera configurable, pa
 
 Como se ha mencionado anteriormente, se hizo uso de un LLM para la implementación, concretamente Gemini. El prompt utilizado para la generación fue el siguiente:
 
+\begingroup % 1. Abrimos el grupo local
+
+% 2. Restauramos los valores estándar de LaTeX solo para esta zona
+\tolerance=200
+\hbadness=1000
+\hyphenpenalty=50
+\exhyphenpenalty=50
+\emergencystretch=0pt
+
 \begin{lstlisting}[
     breaklines=true,
     breakatwhitespace=true,
@@ -153,6 +162,8 @@ IMPORTANTE: siempre debe de haber un hueco lo suficientemente grande como para q
 En python con pygame. El juego debe estar contenido en una clase llamada EndlessWaveRunner, que se pueda utilizar desde fuera para llamar al juego.
 \end{lstlisting}
 
+\endgroup
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\textwidth]{Imagenes/Bitmap/Wave_runner.png}
@@ -174,6 +185,15 @@ Se contempló la posibilidad de añadir un tipo de flecha especial que cambia de
 
 El prompt utilizado para la generación mediante el LLM Gemini fue:
 
+\begingroup % 1. Abrimos el grupo local
+
+% 2. Restauramos los valores estándar de LaTeX solo para esta zona
+\tolerance=200
+\hbadness=1000
+\hyphenpenalty=50
+\exhyphenpenalty=50
+\emergencystretch=0pt
+
 \begin{lstlisting}[
     breaklines=true,
     breakatwhitespace=true,
@@ -193,6 +213,8 @@ Notas adicionales: importante q la estética sea agradable.
 
 En python con pygame. El juego debe estar contenido en una clase llamada ProjectArrows, que se pueda utilizar desde fuera para llamar al juego.
 \end{lstlisting}
+
+\endgroup
 
 \begin{figure}[h]
     \centering
@@ -245,6 +267,15 @@ Cada flecha actua como un contenedor, si llega una predicción se comprueba que 
 
 La implementación, de la misma forma que con los juegos, se realizó utilizando un LLM (Gemini). Se le proporcionó el siguiente prompt:
 
+\begingroup % 1. Abrimos el grupo local
+
+% 2. Restauramos los valores estándar de LaTeX solo para esta zona
+\tolerance=200
+\hbadness=1000
+\hyphenpenalty=50
+\exhyphenpenalty=50
+\emergencystretch=0pt
+
 \begin{lstlisting}[
     breaklines=true,
     breakatwhitespace=true,
@@ -254,8 +285,12 @@ La implementación, de la misma forma que con los juegos, se realizó utilizando
     keepspaces=true,
     breakindent=0pt
 ]
-Quiero hacer un script en python que actúe de componente, se pueda importar desde otros scripts e interactuar con este. La funcionalidad del script debe ser la siguiente: cuando se ejecute debe de abrirse una ventana con pygame que muestre con fondo negro, dos flechas de color azul oscuro (agradable a la vista) vacías, es decir solo debe de mostrar el contorno. las flechas deben de estar dispuestas una al lado de la otra, centradas de altura, la de la izquierda debe de apuntar hacia la izquierda, dejar un hueco no muy grande pero estético y debe de disponerse la otra flecha apuntando a la derecha. Ahora bien, eso nada más iniciarlo, pero el "relleno" de las flechas debe de ser en base a un porcentaje que el script debe de tener dentro del objeto como atributo de inicialización, la flecha izquierda tendrá un porcentaje y la derecha otro, así que dos variables. si el porcentaje de la izquierda es 0, la flecha izquierda debe de estar vacía excepto el contorno, si el porcentaje es un 50% debe de estar llena hasta la mitad, si es 100% debe de estar llena por completo, si es un porcentaje más raro y preciso como 64% la flecha deberá de estar rellena un 64%; lo mismo para la flecha derecha pero rellenándose en el sentido contrario. Las flechas se rellenarán desde el centro hacia fuera, es decir si ambas tienen un 1%, será la parte más cercana al centro la que se verá un poco rellena, si están al 70% será la parte más cercana al centro (el 70% de la flecha) la que se rellenará, y el otro 30% más lejano se quedará vacío excepto por el borde. El relleno debe de ser color azul también pero algo más claro y brillante (igualmente que sea agradable a la vista). y el objeto dentro del script debe de tener funciones para poder cambiar el valor de ambos porcentajes de forma independiente o a la vez, al igual que debe de tener una forma de resetear el objeto (poniendo ambos porcentajes a 0) y de consultar los porcentajes de las flechas. El color quiero poder cambiarlo yo manualmente en el código así que ponme claro dónde se define, y el tamaño de ventana debe de ser no muy grande, y modificable, de forma que si se ajusta el tamaño de la ventana las flechas ajusten su tamaño en proporción de forma acorde y sigan centradas de altura y bien dispuestas (dejando un hueco entre ellas en el medio) de forma correcta.
+Quiero hacer un script en python que actúe de componente, se pueda importar desde otros scripts e interactuar con este. La funcionalidad del script debe ser la siguiente: cuando se ejecute debe de abrirse una ventana con pygame que muestre con fondo negro, dos flechas de color azul oscuro (agradable a la vista) vacías, es decir solo debe de mostrar el contorno. las flechas deben de estar dispuestas una al lado de la otra, centradas de altura, la de la izquierda debe de apuntar hacia la izquierda, dejar un hueco no muy grande pero estético y debe de disponerse la otra flecha apuntando a la derecha. Ahora bien, eso nada más iniciarlo, pero el ``relleno'' de las flechas debe de ser en base a un porcentaje que el script debe de tener dentro del objeto como atributo de inicialización, la flecha izquierda tendrá un porcentaje y la derecha otro, así que dos variables. si el porcentaje de la izquierda es 0, la flecha izquierda debe de estar vacía excepto el contorno, si el porcentaje es un 50% debe de estar llena hasta la mitad, si es 100% debe de estar llena por completo, si es un porcentaje más raro y preciso como 64% la flecha deberá de estar rellena un 64%; lo mismo para la flecha derecha pero rellenándose en el sentido contrario. Las flechas se rellenarán desde el centro hacia fuera, es decir si ambas tienen un 1%, será la parte más cercana al centro la que se verá un poco rellena, si están al 70% será la parte más cercana al centro (el 70% de la flecha) la que se rellenará, y el otro 30% más lejano se quedará vacío excepto por el borde. El relleno debe de ser color azul también pero algo más claro y brillante (igualmente que sea agradable a la vista). y el objeto dentro del script debe de tener funciones para poder cambiar el valor de ambos porcentajes de forma independiente o a la vez, al igual que debe de tener una forma de resetear el objeto (poniendo ambos porcentajes a 0) y de consultar los porcentajes de las flechas. El color quiero poder cambiarlo yo manualmente en el código así que ponme claro dónde se define, y el tamaño de ventana debe de ser no muy grande, y modificable, de forma que si se ajusta el tamaño de la ventana las flechas ajusten su tamaño en proporción de forma acorde y sigan centradas de altura y bien dispuestas (dejando un hueco entre ellas en el medio) de forma correcta.
 \end{lstlisting}
+
+\endgroup % 4. Cerramos el grupo. A partir de aquí, vuelve tu justificado sin guiones.
+
+
 
 Partiendo de la base que generó Gemini, fue necesario hacer una pequeña modificación para hacer las flechas completamente simétricas y se implementaron a mano los métodos descritos en el párrafo anterior al prompt.
 
