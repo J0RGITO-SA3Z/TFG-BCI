@@ -39,7 +39,7 @@ Para alcanzar este propósito principal, se plantean los siguientes objetivos ge
 
 Más concretamente, como medio para alcanzar estos propósitos generales, se precisan objetivos específicos:
 
-\begin{itemize}
+\begin{enumerate}[label=\Alph*.]
 	\item \textbf{Realizar una captura de datos con el casco EEG:} Conseguir una lectura propia de EEG con marcas temporales.
 	\item \textbf{Idear un método de preprocesado y división de la señal:} Aprender a tratar la entrada cruda del casco EEG para conseguir algo manejable. Diseñar y evaluar diferentes técnicas para mejorar la calidad de las señales EEG y dividirlas.
 	\item \textbf{Elegir y adaptar un modelo de clasificación:} Investigar y comparar modelos de clasificación para seleccionar aquel con mejores resultados. Analizar el performance tanto con datasets públicos, como con las grabaciones EEG realizadas en este proyecto.
@@ -51,7 +51,43 @@ Más concretamente, como medio para alcanzar estos propósitos generales, se pre
 	\item \textbf{Organizar una estructura clara para los experimentos:} Decidir una estructura a seguir para los experimentos con videojuegos en tiempo real.
 	\item \textbf{Escribir el cuestionario que completarán los usuarios:} El cuestionario servirá para medir los niveles de satisfacción, la sensación de control sobre el sistema y la experiencia general.
 	\item \textbf{Encontrar usuarios para el experimento:} Llamar a personas dispuestas a probar el sistema desarrollado para obtener y analizar los resultados en usuarios reales.
+\end{enumerate}
+
+\section{Herramientas utilizadas}
+Durante el desarrollo del proyecto se han utilizado distintas herramientas, cada una orientada a un propósito específico dentro de las diferentes fases del proyecto
+.
+
+\begin{itemize}
+    \item \textbf{Electroencefalógrafo BrainAccess MIDI de 16 canales:} 
+    dispositivo de adquisición de señal EEG utilizado para la recolección de 
+    datos de los participantes.
+    
+    \item \textbf{Visual Studio Code:} entorno de desarrollo integrado (IDE) 
+    empleado tanto para la implementación del software en Python como para la 
+    elaboración de este documento en \LaTeX.
+    
+    \item \textbf{GitHub:} plataforma de control de versiones que ha permitido 
+    trabajar en paralelo y mantener un historial de cambios del proyecto.
+    
+    \item \textbf{OneDrive:} utilizado para la compartición y almacenamiento de 
+    documentación, grabaciones de vídeo y otros archivos relevantes del proyecto.
+    
+    \item \textbf{Google Forms:} empleado para la elaboración y distribución de 
+    un cuestionario destinado a los participantes de los experimentos con juegos.
+    
+    \item \textbf{Anaconda:} plataforma de gestión de entornos Python utilizada 
+    para el control de dependencias y la resolución de conflictos entre paquetes.
+    
+    \item \textbf{Videocámara:} dispositivo de grabación de alta resolución 
+    empleado para registrar a los participantes durante las sesiones de juego.
 \end{itemize}
 
 \section{Plan de trabajo}
+Se ha seguido un plan de trabajo orientado a la consecución de los objetivos definidos, buscando maximizar la eficiencia durante todo el desarrollo del proyecto. Se han tomado decisiones estratégicas para paralelizar tareas independientes siempre que ha sido posible, de forma que ningún integrante del equipo quedara sin tarea asignada y se minimizara el tiempo improductivo. La planificación temporal se recoge en el diagrama de Gantt (véase Figura~\ref{fig:diagrama_gant}) adjunto, donde se puede visualizar la distribución de los distintos objetivos a lo largo del tiempo.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{Imagenes/Bitmap/Diagrama_Gantt.png}
+    \caption{Diagrama de Gantt del plan de trabajo del proyecto. Se puede observar que las tareas que mayor tiempo requirieron fueron las relacionadas con la adquisición de datos del dispositivo, llevadas a cabo en paralelo con la investigación y el desarrollo del preprocesamiento de la señal y la búsqueda de modelos predictivos, al igual que se ve posteriormente con el desarrollo de los videojuegos y desarrollo de la arquitectura del tiempo real. El desarrollo se fue acelerando a medida que se empezó a conocer mas a fondo el SDK del dispositivo y se resolvieron los conflictos que fueron surgiendo con ciertas librerías de Python.}
+    \label{fig:diagrama_gant}
+\end{figure}
