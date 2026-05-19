@@ -1,7 +1,7 @@
 \chapter{Introducción}
 \label{cap:introduccion}
 
-En los últimos años, se han presentado casos de personas que afirmaban poder jugar a un juego con tan solo un casco y el pensamiento, sin pulsar botones. No obstante, estos artículos proporcionan escasa información al respecto, resultando poco fiables. En caso de que jugar a un juego ``con la mente'' sea posible, supondría un gran avance en los sistemas de accesibilidad, además de un enfoque novedoso y atractivo para el entorno de los videojuegos. 
+En los últimos años, se han presentado casos de personas que afirmaban poder jugar a un juego con tan solo un casco y el pensamiento, sin pulsar botones. No obstante, estos artículos proporcionan escasa información al respecto, resultando poco fiables. En caso de que jugar a un juego ``con el pensamiento'' sea posible, supondría un gran avance en los sistemas de accesibilidad, además de un enfoque novedoso y atractivo para el entorno de los videojuegos. 
 
 A pesar de la existencia de dichos ejemplos, las interfaces cerebro-computador (\textit{Brain-Computer Interfaces}, BCI) han experimentado un crecimiento significativo comprobable. Se ha avanzado tanto en investigación, consiguiendo modelos de inteligencia artificial (IA) con resultados muy prometedores, como en aplicaciones relacionadas con la accesibilidad y la interacción humano-computador. El progreso visible es alentador, sin embargo existe un problema: todos estos avances suelen necesitar de un gran presupuesto o cascos de lectura EEG poco manejables.
 
@@ -13,7 +13,7 @@ Además del propio \textit{pipeline} de procesamiento, se plantea diseñar difer
 
 \section{Motivación}
 
-Si se pudiera controlar un videojuego con la mente, no solo resultaría de gran ayuda para las personas con movilidad reducida, permitiéndoles jugar cómodamente, también resultaría de gran interés para el resto del mundo. Controlar un juego con el pensamiento es un concepto casi inimaginable, demostrar que es posible sería algo revolucionario. Abriría las puertas a un nuevo nivel de jugabilidad y de interfaz entre humanos y máquinas.
+Si se pudiera controlar un videojuego con el pensamiento, no solo resultaría de gran ayuda para las personas con movilidad reducida, permitiéndoles jugar cómodamente, también sería de gran interés para el resto del mundo por ser un concepto de juego más inmersivo y novedoso, además de ser atractiva la idea de controlar algo sin moverse ni dar comandos de voz. Controlar un juego con el pensamiento abriría las puertas a un nuevo nivel de jugabilidad y de interfaz entre humanos y máquinas.
 
 Las interfaces cerebro-computador son una de las líneas de investigación más interesantes dentro del ámbito de la interacción humano-computador, debido a las posibilidades que ofrecen tanto en accesibilidad como en nuevas formas de interacción digital. La posibilidad de controlar un sistema por medio de actividad cerebral abre la puerta a aplicaciones orientadas a personas con movilidad reducida, sistemas de asistencia y nuevas experiencias interactivas.
 
@@ -32,10 +32,18 @@ El objetivo principal de este trabajo es desarrollar un sistema de interfaz cere
 Para alcanzar este propósito principal, se plantean los siguientes objetivos generales:
 
 \begin{itemize}
-    \item \textbf{Desarrollar una aplicación integral de BCI:} Crear una herramienta que centralice la configuración del hardware EEG, la comprobación de impedancias, la adquisición de señales y la evaluación de sujetos.
-	\item \textbf{Construir una arquitectura en tiempo real:} Desarrollar un sistema concurrente que conecte de forma fluida la adquisición de datos, el preprocesado continuo, la inferencia del modelo, el tratamiento del flujo de predicciones, la toma de decisiones final mediante un sistema de \textit{aimbot} y la aplicación de esas decisiones al control de un videojuego.
-	\item \textbf{Realizar experimentación con usuarios reales:} Llevar a cabo experimentos en tiempo real para validar la precisión, la latencia y la experiencia de uso del sistema completo.
+
+    \item \textbf{Transformar señales EEG basadas en MI en comandos aplicables a un videojuego:}  
+    Adquirir, procesar e interpretar señales EEG mediante técnicas de inteligencia artificial para generar acciones aplicables a un entorno interactivo.
+
+    \item \textbf{Diseñar una experiencia de juego adaptada a las limitaciones de los sistemas BCI:}  
+    Desarrollar mecanismos de filtrado de decisión y ayuda que permitan compensar la inestabilidad inherente de las señales EEG y ofrecer una experiencia de juego fluida y agradable para el usuario.
+
+    \item \textbf{Evaluar la viabilidad y jugabilidad en usuarios reales:}  
+    Llevar a cabo experimentos en tiempo real para validar la precisión, la latencia y la experiencia de uso del sistema completo.
+    
 \end{itemize}
+
 
 Más concretamente, como medio para alcanzar estos propósitos generales, se precisan objetivos específicos:
 
@@ -49,9 +57,11 @@ Más concretamente, como medio para alcanzar estos propósitos generales, se pre
 	\item \textbf{Diseñar videojuegos que se puedan controlar con las predicciones conseguidas:} Pensar e implementar videojuegos cuyos controles sean compatibles con las predicciones y cuya velocidad sea adaptable o correspondiente con la latencia del sistema.
 	\item \textbf{Plantear mecanismos de ayuda para compensar los fallos de predicción:} Idear algoritmos capaces de corregir (de forma controlada) las decisiones predichas por el modelo antes de tomarlas en el videojuego.
 	\item \textbf{Organizar una estructura clara para los experimentos:} Decidir una estructura a seguir para los experimentos con videojuegos en tiempo real.
-	\item \textbf{Escribir el cuestionario que completarán los usuarios:} El cuestionario servirá para medir los niveles de satisfacción, la sensación de control sobre el sistema y la experiencia general.
-	\item \textbf{Encontrar usuarios para el experimento:} Llamar a personas dispuestas a probar el sistema desarrollado para obtener y analizar los resultados en usuarios reales.
+	\item \textbf{Elaborar el cuestionario que completarán los usuarios:} El cuestionario servirá para medir los niveles de satisfacción, la sensación de control sobre el sistema y la experiencia general.
+	\item \textbf{Reunir gente para el experimento:} Llamar a personas dispuestas a probar el sistema desarrollado para obtener resultados en usuarios reales.
+	\item \textbf{Estudiar los resultados obtenidos en el experimento:} Analizar los datos recopilados con los experimentos en tiempo real.
 \end{enumerate}
+
 
 \section{Herramientas utilizadas}
 Durante el desarrollo del proyecto se han utilizado distintas herramientas, cada una orientada a un propósito específico dentro de las diferentes fases del proyecto
