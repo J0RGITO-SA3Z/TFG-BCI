@@ -1,5 +1,5 @@
-\chapter{Modelo}
-\label{cap:modelo}
+\section{Modelo de clasificación escogido}
+\label{sec:modelo}
 
 Un modelo de aprendizaje automático de clasificación es un sistema computacional diseñado para aprender patrones en los datos y realizar predicciones en base a esos patrones sin tentar que ser programado explícitamente para cada tarea. 
 
@@ -17,13 +17,13 @@ Sin embargo, la mezcla de datos procedentes de diferentes paradigmas puede resul
 
 MiRepNet es un modelo de aprendizaje profundo basado en la arquitectura \textit{transformer} y especializado en EEG que proporciona pesos preentrenados sobre 50.355 \textit{trials} y clasifica 4 clases de imaginación motora siendo estas: mano izquierda, mano derecha, pies y lengua.
 
-\section{Arquitectura basada en transformer}
-\label{sec:arquitecturaModelo}
+\subsection{Arquitectura basada en transformer}
+\label{subsec:arquitecturaModelo}
 
 MiRepNet se compone de tres bloques principales que actúan de forma secuencial: un tokenizador que convierte la señal EEG en una secuencia de representaciones vectoriales, un encoder \textit{transformer} que modela las relaciones entre dichas representaciones, y una cabeza de clasificación que produce la predicción final. A continuación se describe cada uno de estos componentes.
 
-\subsection{Estructura tokenizador}
-\label{subsec:arquitecturaTockenizador}
+\subsubsection{Estructura tokenizador}
+\label{subsubsec:arquitecturaTockenizador}
 
 La arquitectura de MiRepNet está basada en la arquitectura \textit{transformer}. Primero los datos son transformados en tockens que posteriormente son procesados por un \textit{transformer}. 
 
@@ -41,8 +41,8 @@ Tras esta etapa, se obtienen un conjunto de vectores que contienen información 
 
 Finalmente, los tokens se construyen tomando, para cada instante temporal, los valores de todos los filtros, de modo que cada token la información espacio-temporal completa obtenida mediante las convoluciones para un instante. 
 
-\subsection{Estructura pretraining}
-\label{subsec:arquitecturaEntrenamiento}
+\subsubsection{Estructura pretraining}
+\label{subsubsec:arquitecturaEntrenamiento}
 
 \begin{figure}[h]
 	\centering
@@ -59,8 +59,8 @@ La salida de este bloque se bifurca en dos ramas. Por un lado, se aplica una tra
 
 Finalmente, el modelo se entrena mediante la optimización conjunta de ambas tareas, combinando las pérdidas asociadas a la clasificación y a la reconstrucción.
 
-\subsection{Estructura Downstream}
-\label{subsec:arquitecturaDownstream}
+\subsubsection{Estructura Downstream}
+\label{subsubsec:arquitecturaDownstream}
 
 \begin{figure}[h]
 	\centering
@@ -76,13 +76,13 @@ Para adaptar el modelo a un sujeto concreto, es necesario realizar una fase de \
 En los experimentos realizados, se ha observado que congelar el \textit{transformer} conlleva una disminución significativa del rendimiento. Esto sugiere que, a pesar de haber aprendido patrones generales, resulta necesario ajustar el modelo a las características específicas de cada sujeto.
 
 
-\section{\textit{Fine-tuning}}
-\label{sec:fineTuningModelo}
+\subsection{\textit{Fine-tuning}}
+\label{subsec:fineTuningModelo}
 
 El proceso de \textit{fine-tuning} consiste en realizar un segundo entrenamiento sobre un modelo previamente entrenado con datos generales. Durante este proceso, pueden congelarse opcionalmente algunos de los pesos ya aprendidos, mientras que el modelo se entrena con un conjunto de datos más reducido y específico para especializarlo en una tarea concreta. En este caso, el \textit{fine-tuning} se lleva a cabo de forma individual para cada sujeto, con el objetivo de que el modelo se adapte a las diferencias existentes entre sujetos.
 
-\subsection{Congelación del \textit{transformer}}
-\label{subsec:congelacionTransformer}
+\subsubsection{Congelación del \textit{transformer}}
+\label{subsubsec:congelacionTransformer}
 
 El modelo MiRepNet proporciona la posibilidad de congelar los pesos del encoder y realizar \textit{fine-tuning} únicamente sobre el tokenizador y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el paper original [paper], ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
 
@@ -112,8 +112,8 @@ Los resultados finales del experimento se muestran en la Tabla \ref{tab:freezeCo
 	\label{tab:freezeComparison}
 \end{table}
 
-\subsection{Número de \textit{trials} por clase}
-\label{subsec:numTrialsFineTuning}
+\subsubsection{Número de \textit{trials} por clase}
+\label{subsubsec:numTrialsFineTuning}
 
 Por otro lado, uno de los aspectos más importantes relacionados con el \textit{fine-tuning} es determinar cuántos \textit{trials} por clase son necesarios para lograr un entrenamiento adecuado del modelo. Desde el punto de vista de una aplicación en tiempo real, resulta preferible utilizar la menor cantidad posible de \textit{trials}, ya que esto reduce el tiempo requerido por parte del usuario.
 
@@ -136,8 +136,8 @@ Además, el sujeto 5 presenta una desviación típica considerablemente superior
 
 Cabe destacar que el aumento de datos destinados al \textit{fine-tuning} implica una reducción proporcional del conjunto de test. Dado que el dataset dispone únicamente de 60 \textit{trials} por clase, al superar aproximadamente los 40 \textit{trials} por clase para entrenamiento, el conjunto de evaluación comienza a resultar demasiado reducido, pudiendo afectar a la estabilidad y representatividad de las métricas obtenidas.
 
-\subsection{Número de épocas de entrenamiento}
-\label{subsec:numEpochsFineTuning}
+\subsubsection{Número de épocas de entrenamiento}
+\label{subsubsec:numEpochsFineTuning}
 
 Otra cuestión relevante es determinar la cantidad óptima de epocas de entrenamiento para evitar el sobreajuste del modelo.
 
@@ -160,8 +160,8 @@ En el resto de sujetos, el sobreajuste comienza a apreciarse aproximadamente ent
 
 Finalmente, se decidió utilizar 10 epocas durante el proceso de \textit{fine-tuning}. Esta elección permite mantener un equilibrio entre el tiempo de entrenamiento y el rendimiento del modelo, evitando tanto un entrenamiento insuficiente como un sobreajuste excesivo.
 
-\section{Implementación}
-\label{sec:implementacionModelo}
+\subsection{Implementación}
+\label{subsec:implementacionModelo}
 
 Tanto la arquitectura del modelo como sus pesos iniciales fueron obtenidos a partir del repositorio oficial de MiRepNet. Con el objetivo de facilitar la extensibilidad del sistema y permitir la sustitución del modelo por alternativas en el futuro, se diseñó una interfaz denominada ModelInterface, encargada de encapsular la funcionalidad principal del modelo.
 
