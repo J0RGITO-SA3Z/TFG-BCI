@@ -26,19 +26,19 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Datos crudos" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Raw Data" vertex="1">
           <mxGeometry height="60" width="120" x="380" y="30" as="geometry" />
         </mxCell>
         <mxCell id="hR_jieYLLFER109bgvJc-20" edge="1" parent="1" source="hR_jieYLLFER109bgvJc-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="hR_jieYLLFER109bgvJc-6">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="8-30&lt;br&gt;Filtro paso de banda" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="8-30&lt;br&gt;Bandpass filter" vertex="1">
           <mxGeometry height="60" width="120" x="550" y="135" as="geometry" />
         </mxCell>
         <mxCell id="hR_jieYLLFER109bgvJc-19" edge="1" parent="1" source="hR_jieYLLFER109bgvJc-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="hR_jieYLLFER109bgvJc-5">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="1-40&lt;br&gt;Filtro paso de banda" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="1-40&lt;br&gt;Bandpass filter" vertex="1">
           <mxGeometry height="60" width="120" x="210" y="135" as="geometry" />
         </mxCell>
         <mxCell id="hR_jieYLLFER109bgvJc-25" edge="1" parent="1" source="hR_jieYLLFER109bgvJc-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="hR_jieYLLFER109bgvJc-9">
@@ -57,19 +57,19 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Segmentación en&amp;nbsp;&lt;br&gt;Trials" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Epoching" vertex="1">
           <mxGeometry height="60" width="120" x="210" y="220" as="geometry" />
         </mxCell>
         <mxCell id="hR_jieYLLFER109bgvJc-27" edge="1" parent="1" source="hR_jieYLLFER109bgvJc-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontColor=#66FF66;strokeColor=#3333FF;" target="hR_jieYLLFER109bgvJc-13">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Segementación en trials" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Epoching" vertex="1">
           <mxGeometry height="60" width="120" x="550" y="220" as="geometry" />
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Detector min-max" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Peak-to-Peak&lt;br&gt;Detector" vertex="1">
           <mxGeometry height="60" width="100" x="110" y="365" as="geometry" />
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Detectro por&lt;br&gt;gradiente" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Gradient &lt;br&gt;Detector" vertex="1">
           <mxGeometry height="60" width="100" x="220" y="365" as="geometry" />
         </mxCell>
         <mxCell id="hR_jieYLLFER109bgvJc-32" edge="1" parent="1" source="hR_jieYLLFER109bgvJc-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=-0.019;entryY=0.922;entryDx=0;entryDy=0;entryPerimeter=0;" target="hR_jieYLLFER109bgvJc-13">
@@ -81,31 +81,31 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Detector por&lt;br&gt;varianza" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Variance &lt;br&gt;Detector" vertex="1">
           <mxGeometry height="60" width="80" x="330" y="365" as="geometry" />
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontColor=#808080;" value="Detector de canales defectuosos" vertex="1">
-          <mxGeometry height="30" width="180" x="90" y="320" as="geometry" />
+        <mxCell id="hR_jieYLLFER109bgvJc-12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontColor=#808080;" value="Bad channel Detector" vertex="1">
+          <mxGeometry height="30" width="120" x="90" y="320" as="geometry" />
         </mxCell>
         <mxCell id="hR_jieYLLFER109bgvJc-28" edge="1" parent="1" source="hR_jieYLLFER109bgvJc-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3333FF;" target="hR_jieYLLFER109bgvJc-14">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Interpolador de&lt;br&gt;canales malos" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Bad Channel&lt;br&gt;Interpolator" vertex="1">
           <mxGeometry height="60" width="120" x="550" y="415" as="geometry" />
         </mxCell>
         <mxCell id="hR_jieYLLFER109bgvJc-34" edge="1" parent="1" source="hR_jieYLLFER109bgvJc-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#3333FF;" target="hR_jieYLLFER109bgvJc-29">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Eliminador de trials&lt;br&gt;defectuosos" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Bad tryal&lt;br&gt;Remover" vertex="1">
           <mxGeometry height="60" width="120" x="550" y="495" as="geometry" />
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-16" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;fontColor=#808080;" value="Correccion/Descarte&lt;br&gt;De artefactos" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-16" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;fontColor=#808080;" value="Artifact &lt;br&gt;correction/rejection" vertex="1">
           <mxGeometry height="40" width="120" x="474" y="355" as="geometry" />
         </mxCell>
         <mxCell id="hR_jieYLLFER109bgvJc-24" edge="1" parent="1" source="hR_jieYLLFER109bgvJc-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0.083;entryDx=0;entryDy=0;entryPerimeter=0;" target="hR_jieYLLFER109bgvJc-8">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-29" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="salida" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-29" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Output" vertex="1">
           <mxGeometry height="60" width="120" x="550" y="610" as="geometry" />
         </mxCell>
         <mxCell id="hR_jieYLLFER109bgvJc-30" edge="1" parent="1" source="hR_jieYLLFER109bgvJc-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=-0.013;entryY=0.934;entryDx=0;entryDy=0;entryPerimeter=0;" target="hR_jieYLLFER109bgvJc-13">
@@ -126,9 +126,9 @@
             <mxPoint x="550" y="472" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-36" connectable="0" parent="hR_jieYLLFER109bgvJc-31" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Lista de canales defectuosos" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-36" connectable="0" parent="hR_jieYLLFER109bgvJc-31" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Bad Channels List" vertex="1">
           <mxGeometry relative="1" x="0.1305" y="3" as="geometry">
-            <mxPoint x="-18" y="1" as="offset" />
+            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="hR_jieYLLFER109bgvJc-33" edge="1" parent="1" source="hR_jieYLLFER109bgvJc-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.007;entryY=0.61;entryDx=0;entryDy=0;entryPerimeter=0;" target="hR_jieYLLFER109bgvJc-14">
@@ -138,9 +138,9 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="hR_jieYLLFER109bgvJc-35" connectable="0" parent="hR_jieYLLFER109bgvJc-33" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Lista de canales defectuosos" vertex="1">
+        <mxCell id="hR_jieYLLFER109bgvJc-35" connectable="0" parent="hR_jieYLLFER109bgvJc-33" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Bad Channels List" vertex="1">
           <mxGeometry relative="1" x="0.1929" y="-1" as="geometry">
-            <mxPoint x="-4" as="offset" />
+            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
       </root>
