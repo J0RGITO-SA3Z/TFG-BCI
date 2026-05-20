@@ -1,100 +1,170 @@
 \chapter{Introducción}
 \label{cap:introduccion}
 
-En los últimos años, se han presentado casos de personas que afirmaban poder jugar a un juego con tan solo un casco y el pensamiento, sin pulsar botones. No obstante, estos artículos proporcionan escasa información al respecto, resultando poco fiables. En caso de que jugar a un juego ``con el pensamiento'' sea posible, supondría un gran avance en los sistemas de accesibilidad, además de un enfoque novedoso y atractivo para el entorno de los videojuegos. 
+En los últimos años, se han presentado casos de personas que afirmaban poder
+jugar a un juego con tan solo un casco y el pensamiento, sin pulsar botones. No
+obstante, estos artículos proporcionan escasa información al respecto,
+resultando poco fiables. En caso de que jugar a un juego ``con el pensamiento''
+sea posible, supondría un gran avance en los sistemas de accesibilidad, además
+de un enfoque novedoso y atractivo para el entorno de los videojuegos.
 
-A pesar de la existencia de dichos ejemplos, las interfaces cerebro-computador (\textit{Brain-Computer Interfaces}, BCI) han experimentado un crecimiento significativo comprobable. Se ha avanzado tanto en investigación, consiguiendo modelos de inteligencia artificial (IA) con resultados muy prometedores, como en aplicaciones relacionadas con la accesibilidad y la interacción humano-computador. El progreso visible es alentador, sin embargo existe un problema: todos estos avances suelen necesitar de un gran presupuesto o cascos de lectura EEG poco manejables.
+A pesar de la existencia de dichos ejemplos, las interfaces cerebro-computador
+(\textit{Brain-Computer Interfaces}, BCI) han experimentado un crecimiento
+significativo comprobable. Se ha avanzado tanto en investigación, consiguiendo
+modelos de inteligencia artificial (IA) con resultados muy prometedores, como
+en aplicaciones relacionadas con la accesibilidad y la interacción
+humano-computador. El progreso visible es alentador, sin embargo existe un
+problema: todos estos avances suelen necesitar de un gran presupuesto o cascos
+de lectura de señales EEG\footnote{EEG (Electroencefalografía): técnica de
+    registro no invasiva que permite medir la actividad eléctrica del cerebro
+    mediante electrodos colocados sobre el cuero cabelludo.} poco manejables.
 
-El presente trabajo se centra en el diseño e implementación de un sistema capaz de interpretar señales EEG en tiempo real y traducirlas en acciones utilizables dentro de distintos videojuegos. Para ello, se propone desarrollar una arquitectura modular orientada a la adquisición continua de señales, al procesamiento de las mismas, la clasificación de la entrada y la traducción de la clasificación a una acción en tiempo real en un videojuego.
+El presente trabajo se centra en el diseño e implementación de un sistema capaz
+de interpretar señales EEG en tiempo real y traducirlas en acciones utilizables
+dentro de distintos videojuegos. Para ello, se propone desarrollar una
+arquitectura modular orientada a la adquisición continua de señales, al
+procesamiento de las mismas, la clasificación de la entrada y la traducción de
+la clasificación a una acción en tiempo real en un videojuego.
 
-La propuesta supone distintos retos debido a la naturaleza de las señales EEG: la presencia de ruido en las ondas, la variabilidad de las mismas y la dificultad de obtener predicciones estables en tiempo real, entre otros.
+La propuesta supone distintos retos debido a la naturaleza de las señales EEG:
+la presencia de ruido en las ondas, la variabilidad de las mismas y la
+dificultad de obtener predicciones estables en tiempo real, entre otros.
 
-Además del propio \textit{pipeline} de procesamiento, se plantea diseñar diferentes juegos específicamente adaptados a las limitaciones y características del sistema BCI propuesto. Estos entornos permitirán evaluar el comportamiento del sistema en situaciones dinámicas e interactivas, facilitando tanto el análisis del rendimiento técnico como la experiencia de uso del usuario.
+Además del propio \textit{pipeline} de procesamiento, se plantea diseñar
+diferentes juegos específicamente adaptados a las limitaciones y
+características del sistema BCI propuesto. Estos entornos permitirán evaluar el
+comportamiento del sistema en situaciones dinámicas e interactivas, facilitando
+tanto el análisis del rendimiento técnico como la experiencia de uso del
+usuario.
 
 \section{Motivación}
 
-Si se pudiera controlar un videojuego con el pensamiento, no solo resultaría de gran ayuda para las personas con movilidad reducida, permitiéndoles jugar cómodamente, también sería de gran interés para el resto del mundo por ser un concepto de juego más inmersivo y novedoso, además de ser atractiva la idea de controlar algo sin moverse ni dar comandos de voz. Controlar un juego con el pensamiento abriría las puertas a un nuevo nivel de jugabilidad y de interfaz entre humanos y máquinas.
+Si se pudiera controlar un videojuego con el pensamiento, no solo resultaría de
+gran ayuda para las personas con movilidad reducida, permitiéndoles jugar
+cómodamente, también sería de gran interés para el resto del mundo por ser un
+concepto de juego más inmersivo y novedoso, además de ser atractiva la idea de
+controlar algo sin moverse ni dar comandos de voz. Controlar un juego con el
+pensamiento abriría las puertas a un nuevo nivel de jugabilidad y de interfaz
+entre humanos y máquinas.
 
-Las interfaces cerebro-computador son una de las líneas de investigación más interesantes dentro del ámbito de la interacción humano-computador, debido a las posibilidades que ofrecen tanto en accesibilidad como en nuevas formas de interacción digital. La posibilidad de controlar un sistema por medio de actividad cerebral abre la puerta a aplicaciones orientadas a personas con movilidad reducida, sistemas de asistencia y nuevas experiencias interactivas.
+Las interfaces cerebro-computador son una de las líneas de investigación más
+interesantes dentro del ámbito de la interacción humano-computador, debido a
+las posibilidades que ofrecen tanto en accesibilidad como en nuevas formas de
+interacción digital. La posibilidad de controlar un sistema por medio de
+actividad cerebral abre la puerta a aplicaciones orientadas a personas con
+movilidad reducida, sistemas de asistencia y nuevas experiencias interactivas.
 
-Sin embargo, gran parte de los desarrollos existentes se consiguen en entornos de laboratorio muy controlados o en soluciones con un elevado coste económico, utilizando dispositivos poco accesibles para el usuario promedio. Además, muchos sistemas no consiguen trasladar los resultados obtenidos en pruebas controladas a aplicaciones interactivas en tiempo real, especialmente en contextos dinámicos como los videojuegos.
+Sin embargo, gran parte de los desarrollos existentes se consiguen en entornos
+de laboratorio muy controlados o en soluciones con un elevado coste económico,
+utilizando dispositivos poco accesibles para el usuario promedio. Además,
+muchos sistemas no consiguen trasladar los resultados obtenidos en pruebas
+controladas a aplicaciones interactivas en tiempo real, especialmente en
+contextos dinámicos como los videojuegos.
 
-A esto se le suma la propia complejidad de las señales EEG. Estas resultan excesivamente variables, son muy sensibles al ruido y generan predicciones que pueden fluctuar considerablemente en intervalos de tiempo muy pequeños. Como consecuencia, construir un sistema estable y funcional supone un reto tanto desde el punto de vista técnico como desde el diseño de interacción. Incluso haciendo uso de un modelo de predicción casi infalible, hacen falta mecanismos de ayuda que permitan ajustar de forma controlada la toma de deicisiones.
+A esto se le suma la propia complejidad de las señales EEG. Estas resultan
+excesivamente variables, son muy sensibles al ruido y generan predicciones que
+pueden fluctuar considerablemente en intervalos de tiempo muy pequeños. Como
+consecuencia, construir un sistema estable y funcional supone un reto tanto
+desde el punto de vista técnico como desde el diseño de interacción. Incluso
+haciendo uso de un modelo de predicción casi infalible, hacen falta mecanismos
+de ayuda que permitan ajustar de forma controlada la toma de deicisiones.
 
-La motivación principal de este trabajo nace del interés por explorar hasta qué punto es posible desarrollar un sistema BCI que permita controlar un videojuego y funcione utilizando hardware relativamente accesible dentro de lo que cabe. 
+La motivación principal de este trabajo nace del interés por explorar hasta qué
+punto es posible desarrollar un sistema BCI que permita controlar un videojuego
+y funcione utilizando hardware relativamente accesible dentro de lo que cabe.
 
-Debido a los avances de la IA hasta la fecha y los estudios relacionados con las BCI, se cree posible conseguir resultados prometedores con un sistema bien planteado e implementado, y un casco EEG relativamente accesible.
+Debido a los avances de la IA hasta la fecha y los estudios relacionados con
+las BCI, se cree posible conseguir resultados prometedores con un sistema bien
+planteado e implementado, y un casco EEG relativamente accesible.
 
 \section{Objetivos}
 
-El objetivo principal de este trabajo es desarrollar un sistema de interfaz cerebro-computador (BCI) accesible, capaz de interpretar señales de imaginación motora (MI) en tiempo real y aplicarlas al control de sistemas interactivos y videojuegos.
+El objetivo principal de este trabajo es desarrollar un sistema de interfaz
+cerebro-computador (BCI) accesible, capaz de interpretar señales de imaginación
+motora (MI) en tiempo real y aplicarlas al control de sistemas interactivos y
+videojuegos.
 
-Para alcanzar este propósito principal, se plantean los siguientes objetivos generales:
+Para alcanzar este propósito principal, se plantean los siguientes objetivos
+generales:
 
 \begin{itemize}
 
-    \item \textbf{Transformar señales EEG basadas en MI en comandos aplicables a un videojuego:}  
-    Adquirir, procesar e interpretar señales EEG mediante técnicas de inteligencia artificial para generar acciones aplicables a un entorno interactivo.
+    \item \textbf{Transformar señales EEG basadas en MI en comandos aplicables a un videojuego:}
+          Adquirir, procesar e interpretar señales EEG mediante técnicas de inteligencia artificial para generar acciones aplicables a un entorno interactivo.
 
-    \item \textbf{Diseñar una experiencia de juego adaptada a las limitaciones de los sistemas BCI:}  
-    Desarrollar mecanismos de filtrado de decisión y ayuda que permitan compensar la inestabilidad inherente de las señales EEG y ofrecer una experiencia de juego fluida y agradable para el usuario.
+    \item \textbf{Diseñar una experiencia de juego adaptada a las limitaciones de los sistemas BCI:}
+          Desarrollar mecanismos de filtrado de decisión y ayuda que permitan compensar la inestabilidad inherente de las señales EEG y ofrecer una experiencia de juego fluida y agradable para el usuario.
 
-    \item \textbf{Evaluar la viabilidad y jugabilidad en usuarios reales:}  
-    Llevar a cabo experimentos en tiempo real para validar la precisión, la latencia y la experiencia de uso del sistema completo.
-    
+    \item \textbf{Evaluar la viabilidad y jugabilidad en usuarios reales:}
+          Llevar a cabo experimentos en tiempo real para validar la precisión, la latencia y la experiencia de uso del sistema completo.
+
 \end{itemize}
 
-
-Más concretamente, como medio para alcanzar estos propósitos generales, se precisan objetivos específicos:
+Más concretamente, como medio para alcanzar estos propósitos generales, se
+precisan objetivos específicos:
 
 \begin{enumerate}[label=\Alph*.]
-	\item \textbf{Realizar una captura de datos con el casco EEG:} Conseguir una lectura propia de EEG con marcas temporales.
-	\item \textbf{Idear un método de preprocesado y división de la señal:} Aprender a tratar la entrada cruda del casco EEG para conseguir algo manejable. Diseñar y evaluar diferentes técnicas para mejorar la calidad de las señales EEG y dividirlas.
-	\item \textbf{Elegir y adaptar un modelo de clasificación:} Investigar y comparar modelos de clasificación para seleccionar aquel con mejores resultados. Analizar el performance tanto con datasets públicos, como con las grabaciones EEG realizadas en este proyecto.
-	\item \textbf{Crear un dataset específico para el modelo:} Idear un protocolo y aplicarlo a distintos usuarios para conseguir un dataset estructurado y profesional. Este servirá para realizar pruebas y evaluar el modelo.
-	\item \textbf{Recibir y clasificar concurrentemente señales EEG:} Plantear una implementación capaz de recibir señales EEG del casco e irlas procesando, de forma constante.
-	\item \textbf{Agrupar las clasificaciones en tiempo real:} Analizar métodos para trnasformar el flujo constante de predicciones en algo continuo y útil.
-	\item \textbf{Diseñar videojuegos que se puedan controlar con las predicciones conseguidas:} Pensar e implementar videojuegos cuyos controles sean compatibles con las predicciones y cuya velocidad sea adaptable o correspondiente con la latencia del sistema.
-	\item \textbf{Plantear mecanismos de ayuda para compensar los fallos de predicción:} Idear algoritmos capaces de corregir (de forma controlada) las decisiones predichas por el modelo antes de tomarlas en el videojuego.
-	\item \textbf{Organizar una estructura clara para los experimentos:} Decidir una estructura a seguir para los experimentos con videojuegos en tiempo real.
-	\item \textbf{Elaborar el cuestionario que completarán los usuarios:} El cuestionario servirá para medir los niveles de satisfacción, la sensación de control sobre el sistema y la experiencia general.
-	\item \textbf{Reunir gente para el experimento:} Llamar a personas dispuestas a probar el sistema desarrollado para obtener resultados en usuarios reales.
-	\item \textbf{Estudiar los resultados obtenidos en el experimento:} Analizar los datos recopilados con los experimentos en tiempo real.
+    \item \textbf{Realizar una captura de datos con el casco EEG:} Conseguir una lectura propia de EEG con marcas temporales.
+    \item \textbf{Idear un método de preprocesado y división de la señal:} Aprender a tratar la entrada cruda del casco EEG para conseguir algo manejable. Diseñar y evaluar diferentes técnicas para mejorar la calidad de las señales EEG y dividirlas.
+    \item \textbf{Elegir y adaptar un modelo de clasificación:} Investigar y comparar modelos de clasificación para seleccionar aquel con mejores resultados. Analizar el performance tanto con datasets públicos, como con las grabaciones EEG realizadas en este proyecto.
+    \item \textbf{Crear un dataset específico para el modelo:} Idear un protocolo y aplicarlo a distintos usuarios para conseguir un dataset estructurado y profesional. Este servirá para realizar pruebas y evaluar el modelo.
+    \item \textbf{Recibir y clasificar concurrentemente señales EEG:} Plantear una implementación capaz de recibir señales EEG del casco e irlas procesando, de forma constante.
+    \item \textbf{Agrupar las clasificaciones en tiempo real:} Analizar métodos para trnasformar el flujo constante de predicciones en algo continuo y útil.
+    \item \textbf{Diseñar videojuegos que se puedan controlar con las predicciones conseguidas:} Pensar e implementar videojuegos cuyos controles sean compatibles con las predicciones y cuya velocidad sea adaptable o correspondiente con la latencia del sistema.
+    \item \textbf{Plantear mecanismos de ayuda para compensar los fallos de predicción:} Idear algoritmos capaces de corregir (de forma controlada) las decisiones predichas por el modelo antes de tomarlas en el videojuego.
+    \item \textbf{Organizar una estructura clara para los experimentos:} Decidir una estructura a seguir para los experimentos con videojuegos en tiempo real.
+    \item \textbf{Elaborar el cuestionario que completarán los usuarios:} El cuestionario servirá para medir los niveles de satisfacción, la sensación de control sobre el sistema y la experiencia general.
+    \item \textbf{Reunir gente para el experimento:} Llamar a personas dispuestas a probar el sistema desarrollado para obtener resultados en usuarios reales.
+    \item \textbf{Estudiar los resultados obtenidos en el experimento:} Analizar los datos recopilados con los experimentos en tiempo real.
 \end{enumerate}
 
-
 \section{Herramientas utilizadas}
-Durante el desarrollo del proyecto se han utilizado distintas herramientas, cada una orientada a un propósito específico dentro de las diferentes fases del proyecto
-.
+Durante el desarrollo del proyecto se han utilizado distintas herramientas,
+cada una orientada a un propósito específico dentro de las diferentes fases del
+proyecto .
 
 \begin{itemize}
-    \item \textbf{Electroencefalógrafo BrainAccess MIDI de 16 canales:} 
-    dispositivo de adquisición de señal EEG utilizado para la recolección de 
-    datos de los participantes.
-    
-    \item \textbf{Visual Studio Code:} entorno de desarrollo integrado (IDE) 
-    empleado tanto para la implementación del software en Python como para la 
-    elaboración de este documento en \LaTeX.
-    
-    \item \textbf{GitHub:} plataforma de control de versiones que ha permitido 
-    trabajar en paralelo y mantener un historial de cambios del proyecto.
-    
-    \item \textbf{OneDrive:} utilizado para la compartición y almacenamiento de 
-    documentación, grabaciones de vídeo y otros archivos relevantes del proyecto.
-    
-    \item \textbf{Google Forms:} empleado para la elaboración y distribución de 
-    un cuestionario destinado a los participantes de los experimentos con juegos.
-    
-    \item \textbf{Anaconda:} plataforma de gestión de entornos Python utilizada 
-    para el control de dependencias y la resolución de conflictos entre paquetes.
-    
-    \item \textbf{Videocámara:} dispositivo de grabación de alta resolución 
-    empleado para registrar a los participantes durante las sesiones de juego.
+    \item \textbf{Electroencefalógrafo BrainAccess\footnote{\url{https://ejemplo.com}} MIDI de 16 canales:}
+          dispositivo de adquisición de señal EEG utilizado para la recolección de
+          datos de los participantes.
+
+    \item \textbf{Visual Studio Code:} entorno de desarrollo integrado (IDE)
+          empleado tanto para la implementación del software en Python como para la
+          elaboración de este documento en \LaTeX.
+
+    \item \textbf{GitHub:} plataforma de control de versiones que ha permitido
+          trabajar en paralelo y mantener un historial de cambios del proyecto.
+          
+    \item \textbf{Anaconda:} plataforma de gestión de entornos Python utilizada
+          para el control de dependencias y la resolución de conflictos entre paquetes.
+
+    \item \textbf{OneDrive:} utilizado para la compartición y almacenamiento de
+          documentación, grabaciones de vídeo y otros archivos relevantes del proyecto.
+
+    \item \textbf{Google Forms:} empleado para la elaboración y distribución de
+          un cuestionario destinado a los participantes de los experimentos con juegos.
+
+    \item \textbf{Videocámara:} dispositivo de grabación de alta resolución
+          empleado para registrar a los participantes durante las sesiones de juego.
 \end{itemize}
 
 \section{Plan de trabajo}
-Se ha seguido un plan de trabajo orientado a la consecución de los objetivos definidos, buscando maximizar la eficiencia durante todo el desarrollo del proyecto. Se han tomado decisiones estratégicas para paralelizar tareas independientes siempre que ha sido posible, de forma que ningún integrante del equipo quedara sin tarea asignada y se minimizara el tiempo improductivo. La planificación temporal se recoge en el diagrama de Gantt (véase Figura~\ref{fig:diagrama_gant}), donde se puede visualizar la distribución de los distintos objetivos a lo largo del tiempo. 
-Las tareas que mayor tiempo requirieron fueron las relacionadas con la adquisición de datos del dispositivo, llevadas a cabo en paralelo con la investigación y el desarrollo del preprocesamiento de la señal y la búsqueda de modelos predictivos, tendencia que se repite posteriormente con el desarrollo de los videojuegos y la arquitectura del sistema en tiempo real. Cabe destacar que el ritmo de desarrollo se fue acelerando progresivamente a medida que se profundizó en el conocimiento del SDK del dispositivo y se resolvieron los conflictos surgidos con determinadas librerías de Python.
+Se ha seguido un plan de trabajo orientado a la consecución de los objetivos
+definidos, buscando maximizar la eficiencia durante todo el desarrollo del
+proyecto. Se han tomado decisiones estratégicas para paralelizar tareas
+independientes siempre que ha sido posible, de forma que ningún integrante del
+equipo quedara sin tarea asignada y se minimizara el tiempo improductivo. La
+planificación temporal se recoge en el diagrama de Gantt (véase
+Figura~\ref{fig:diagrama_gant}), donde se puede visualizar la distribución de
+los distintos objetivos a lo largo del tiempo. Las tareas que mayor tiempo
+requirieron fueron las relacionadas con la adquisición de datos del
+dispositivo, llevadas a cabo en paralelo con la investigación y el desarrollo
+del preprocesamiento de la señal y la búsqueda de modelos predictivos,
+tendencia que se repite posteriormente con el desarrollo de los videojuegos y
+la arquitectura del sistema en tiempo real. Cabe destacar que el ritmo de
+desarrollo se fue acelerando progresivamente a medida que se profundizó en el
+conocimiento del SDK del dispositivo y se resolvieron los conflictos surgidos
+con determinadas librerías de Python.
 
 \begin{figure}[h]
     \centering
