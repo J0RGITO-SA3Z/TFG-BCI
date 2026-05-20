@@ -1,5 +1,5 @@
-\chapter{Juegos propuestos}
-\label{cap:juegosPropuestos}
+\section{Videojuegos desarrollados para la validación del sistema}
+\label{sec:videojuegosDesarrollados}
 
 Teniendo en cuenta los resultados obtenidos del modelo y todas las pruebas anteriores, se decidió trabajar con tan solo dos predicciones: mano derecha (\textit{right\_hand}) y mano izquierda (\textit{left\_hand}). Por ello, los juegos propuestos para el experimento debían tener como máximo dos controles.
 
@@ -7,8 +7,8 @@ Con esto en mente, se plantearon dos juegos que permitían poner a prueba la pre
 
 Para no perder tiempo extra en la implementación de los juegos, se decidió diseñarlos y pedir a un LLM, por medio de un prompt detallado, que proporcionara la implementación. Una vez generada, se revisó el código, se comprobó que cumplían todos los requerimientos y se hicieron algunos ajustes manuales.
 
-\section{\textit{Endless Wave Runner}}
-\label{sec:endless_wave_runner}
+\subsection{\textit{Endless Wave Runner}}
+\label{subsec:endless_wave_runner}
 
 Para el diseño de este juego se tomó como referencia la nave \textit{``wave''} del juego \textit{Geometry Dash}, de ahí el nombre. En la versión del \textit{Geometry Dash}, la nave avanza automáticamente de izquierda a derecha (realmente la nave permanece estática y es el escenario el que se mueve para dar la sensación de avance) y el jugador controla si se mueve en diagonal hacia arriba o hacia abajo, cambiando entre las dos opciones con una pulsación en la pantalla. El objetivo del juego es avanzar sin que la nave se choque, hasta terminar la fase (véase Figura~\ref{fig:wave_runner}). 
 
@@ -16,7 +16,7 @@ A diferencia del original, en esta versión el jugador avanza automáticamente d
 
 A la hora de diseñar el juego se tuvo en cuenta que este fuera configurable, para adaptar las velocidades y la dificultad a las limitaciones del casco EEG y del propio sistema. Se puede adaptar fácilmente, con tan solo cambiar los atributos de la clase: la velocidad en ambos ejes, la generación de obstáculos, el ancho inicial entre obstáculos, la distancia mínima entre obstáculos, el aumento de velocidad con el tiempo, la disminución del ancho del ``túnel'' (ancho entre obstáculos) y el \textit{respawn} automático, entre otros.
 
-Como se ha mencionado anteriormente, se hizo uso de un LLM para la implementación, concretamente Gemini. El prompt utilizado para la generación fue el siguiente:
+Como se ha mencionado anteriormente, se hizo uso de un LLM para la implementación, concretamente Gemini\footnote{\url{https://gemini.google.com}}. El prompt utilizado para la generación fue el siguiente:
 
 \begingroup % 1. Abrimos el grupo local
 
@@ -60,8 +60,8 @@ En python con pygame. El juego debe estar contenido en una clase llamada Endless
 \end{figure}
 
 
-\section{\textit{Project Arrows}}
-\label{sec:project_arrows}
+\subsection{\textit{Project Arrows}}
+\label{subsec:project_arrows}
 
 La inspiración para este juego fue \textit{``Project Rhombus''}, de \textit{Steam}. En el orignial, el jugador controla un rombo situado en mitad de la pantalla, este rombo tiene una flecha en su interior que apunta hacia arriba, abajo, izquierda o derecha de forma excluyente. Con las cuatro flechas del teclado, se controla hacia dónde apunta la flecha del rombo. A medida que avanza el juego, aparecen flechas por una de las cuatro direcciones posibles en el borde de la pantalla y avanzan hacia el centro. El objetivo de el jugador es defenderse, apuntando la flecha del rombo hacia la flecha enemiga que le vaya a alcanzar, si una flecha enemiga llega al rombo y este no está apuntando hacia ella, el jugador pierde (véase Figura~\ref{fig:project_arrows}).
 
@@ -71,7 +71,7 @@ Al igual que el anterior juego, se contempló que este fuera configurable y adap
 
 Se contempló la posibilidad de añadir un tipo de flecha especial que cambia de lado a mitad de camino, se llegó a implementar pero finalmente se descartó por resultar demasiado complicado.
 
-El prompt utilizado para la generación mediante el LLM Gemini fue:
+El prompt utilizado para la generación mediante el LLM Gemini\footnote{\url{https://gemini.google.com}} fue:
 
 \begingroup % 1. Abrimos el grupo local
 
@@ -113,14 +113,14 @@ En python con pygame. El juego debe estar contenido en una clase llamada Project
 
 Además de los juegos definidos, se diseñó un módulo de feedback visual (\textit{dualArrowComponent}) diseñado para tener una referencia de la destreza del usuario y de la latencia del sistema. 
 
-\section{\textit{Benchmark} visual}
-\label{sec:benchmark_visual}
+\subsection{\textit{Benchmark} visual}
+\label{subsec:benchmark_visual}
 
 Dicho componente, al ejecutarse muestra una ventana en negro con dos flechas, una apuntando hacia la izquierda y la otra hacia la derecha. Está diseñado de forma que se puede cambiar el comportamiento con tan solo llamar a una función o a otra. Sin embargo, las funciones que nos interesan son las que permiten la funcionalidad que se mostrará en las pruebas que realizaremos más adelante (véase Figura~\ref{fig:benchmark_visual}). 
 
 Cada flecha actua como un contenedor, si llega una predicción se comprueba que el contenedor opuesto esté vacío: en caso de que lo esté, se suma un valor definido (\texttt{self.step}) al contenedor correspondiente a la predicción; en caso contrario, se le resta el doble de la cantidad que se hubiera sumado (\texttt{self.step * 2}). Por otro lado, en caso de que reciba \textit{``rest''}, se llamará a otra función que simplemente resta la misma cantidad (\texttt{self.step}) al contenedor que no esté vacío (en caso de que alguno de los dos tenga contenido). De esta forma, solo podrá rellenarse parcial o totalmente un contenedor a la vez, mientras el otro se mantiene vacío.
 
-La implementación, de la misma forma que con los juegos, se realizó utilizando un LLM (Gemini). Se le proporcionó el siguiente prompt:
+La implementación, de la misma forma que con los juegos, se realizó utilizando un LLM (Gemini\footnote{\url{https://gemini.google.com}}). Se le proporcionó el siguiente prompt:
 
 \begingroup % 1. Abrimos el grupo local
 
@@ -147,7 +147,7 @@ Quiero hacer un script en python que actúe de componente, se pueda importar des
 
 
 
-Partiendo de la base que generó Gemini, fue necesario hacer una pequeña modificación para hacer las flechas completamente simétricas y se implementaron a mano los métodos descritos en el párrafo anterior al prompt.
+Partiendo de la base que generó el LLM, fue necesario hacer una pequeña modificación para hacer las flechas completamente simétricas y se implementaron a mano los métodos descritos en el párrafo anterior al prompt.
 
 \begin{figure}[h]
     \centering

@@ -1,8 +1,8 @@
-\chapter{Filtros aplicados al flujo de predicciones}
-\label{cap:filtrosFlujoPredicciones}
+\section{Filtros aplicados al flujo de predicciones}
+\label{sec:filtrosFlujoPredicciones}
 
-\section{Filtros de decisión}
-\label{sec:filtros_decision}
+\subsection{Filtros de decisión}
+\label{subsec:filtros_decision}
 
 El objetivo principal de estos ``filtros de decisión'' es hacer más consistente el flujo de predicciones que se recibe del modelo. Esto se puede conseguir de distintas formas, entre ellas: reducir la cantidad de predicciones agrupándolas, usar mecanismos para ignorar \textit{outliers} (predicciones que se salen de lo ``normal'' en ese periodo temporal), suavizando los cambios de una predicción a otra (eliminando saltos).
 
@@ -43,8 +43,8 @@ El siguiente paso consistió en buscar el mejor valor para el parámetro de suav
     \label{fig:comparativa_parametros_es}
 \end{figure}
 
-\section{Filtros de ayuda integrados en los juegos}
-\label{sec:filtros_ayuda}
+\subsection{Filtros de ayuda integrados en los juegos}
+\label{subsec:filtros_ayuda}
 
 Como ha sido mencionado anteriormente, se diseñaron mecanismos de ayuda para cada juego que permiten reducir los fallos causados por las señales EEG, el sistema o el propio usuario haciendo \textit{motor imagery}. Estos mecanismos, al depender directamente del estado del juego y de las normas del mismo, fueron implementados directamente en el \textit{script} de cada juego. 
 

@@ -121,54 +121,37 @@ precisan objetivos específicos:
 \section{Herramientas utilizadas}
 Durante el desarrollo del proyecto se han utilizado distintas herramientas,
 cada una orientada a un propósito específico dentro de las diferentes fases del
-proyecto .
+proyecto.
 
 \begin{itemize}
-    \item \textbf{Electroencefalógrafo BrainAccess\footnote{\url{https://ejemplo.com}} MIDI de 16 canales:}
-          dispositivo de adquisición de señal EEG utilizado para la recolección de
-          datos de los participantes.
+    \item \textbf{Electroencefalógrafo BrainAccess\footnote{\url{https://www.brainaccess.ai/wp-content/uploads/2022/04/UserManualCAP.pdf}} MIDI de 16 canales:}dispositivo de adquisición de señal EEG utilizado para la recolección de datos de los participantes.
 
-    \item \textbf{Visual Studio Code:} entorno de desarrollo integrado (IDE)
-          empleado tanto para la implementación del software en Python como para la
-          elaboración de este documento en \LaTeX.
+    \item \textbf{Visual Studio Code\footnote{\url{https://code.visualstudio.com}}:} entorno de desarrollo integrado (IDE) empleado tanto para la implementación del software en Python como para la elaboración de este documento en \LaTeX.
+    
+    \item \textbf{Anaconda\footnote{\url{https://www.anaconda.com}}:} plataforma de gestión de entornos Python utilizada para el control de dependencias y la resolución de conflictos entre paquetes.
 
-    \item \textbf{GitHub:} plataforma de control de versiones que ha permitido
-          trabajar en paralelo y mantener un historial de cambios del proyecto.
-          
-    \item \textbf{Anaconda:} plataforma de gestión de entornos Python utilizada
-          para el control de dependencias y la resolución de conflictos entre paquetes.
+    \item \textbf{GitHub\footnote{\url{https://github.com}}:} plataforma de control de versiones que ha permitido trabajar en paralelo y mantener un historial de cambios del proyecto.
+    
+    \item \textbf{Google Gemini\footnote{\url{https://gemini.google.com}}:} modelo de inteligencia artificial de Google utilizado para la implementación de los videojuegos que se van a probar.
 
-    \item \textbf{OneDrive:} utilizado para la compartición y almacenamiento de
-          documentación, grabaciones de vídeo y otros archivos relevantes del proyecto.
-
-    \item \textbf{Google Forms:} empleado para la elaboración y distribución de
-          un cuestionario destinado a los participantes de los experimentos con juegos.
-
-    \item \textbf{Videocámara:} dispositivo de grabación de alta resolución
-          empleado para registrar a los participantes durante las sesiones de juego.
+    \item \textbf{Google Forms\footnote{\url{https://forms.google.com}}:} empleado para la elaboración y distribución de un cuestionario destinado a los participantes de los experimentos con juegos.
+    
+    \item \textbf{OneDrive\footnote{\url{https://onedrive.live.com}}:} utilizado para la compartición y almacenamiento de documentación, grabaciones de vídeo y otros archivos relevantes del proyecto.
+    
+    \item \textbf{Videocámara:} dispositivo de grabación de alta resolución empleado para registrar a los participantes durante las sesiones de juego.
+    \item 
 \end{itemize}
 
 \section{Plan de trabajo}
-Se ha seguido un plan de trabajo orientado a la consecución de los objetivos
-definidos, buscando maximizar la eficiencia durante todo el desarrollo del
-proyecto. Se han tomado decisiones estratégicas para paralelizar tareas
-independientes siempre que ha sido posible, de forma que ningún integrante del
-equipo quedara sin tarea asignada y se minimizara el tiempo improductivo. La
-planificación temporal se recoge en el diagrama de Gantt (véase
-Figura~\ref{fig:diagrama_gant}), donde se puede visualizar la distribución de
-los distintos objetivos a lo largo del tiempo. Las tareas que mayor tiempo
-requirieron fueron las relacionadas con la adquisición de datos del
-dispositivo, llevadas a cabo en paralelo con la investigación y el desarrollo
-del preprocesamiento de la señal y la búsqueda de modelos predictivos,
-tendencia que se repite posteriormente con el desarrollo de los videojuegos y
-la arquitectura del sistema en tiempo real. Cabe destacar que el ritmo de
-desarrollo se fue acelerando progresivamente a medida que se profundizó en el
-conocimiento del SDK del dispositivo y se resolvieron los conflictos surgidos
+Se ha seguido un plan de trabajo orientado a la consecución de los objetivos definidos, buscando maximizar la eficiencia durante todo el desarrollo del proyecto. Se han tomado decisiones estratégicas para paralelizar tareas independientes siempre que ha sido posible, de forma que ningún integrante del
+equipo quedara sin tarea asignada y se minimizara el tiempo improductivo. La planificación temporal se recoge en el diagrama de Gantt (véase Figura~\ref{fig:diagrama_gant}), donde se puede visualizar la distribución de los distintos objetivos a lo largo del tiempo. 
+
+Las tareas que mayor tiempo requirieron fueron las relacionadas con la adquisición de datos del dispositivo, llevadas a cabo en paralelo con la investigación y el desarrollo del preprocesamiento de la señal y la búsqueda de modelos predictivos, tendencia que se repite posteriormente con el desarrollo de los videojuegos y la arquitectura del sistema en tiempo real. Cabe destacar que el ritmo de desarrollo se fue acelerando progresivamente a medida que se profundizó en el conocimiento del SDK del dispositivo y se resolvieron los conflictos surgidos
 con determinadas librerías de Python.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{Imagenes/Bitmap/Diagrama_Gantt.png}
-    \caption{Diagrama de Gantt del plan de trabajo del proyecto. Se puede observar que las tareas que mayor tiempo requirieron fueron las relacionadas con la adquisición de datos del dispositivo.}
+    \caption{Diagrama de Gantt del plan de trabajo del proyecto. Destaca que las tareas vinculadas a la adquisición de datos del dispositivo fueron las que concentraron una mayor carga temporal al inicio del proyecto.}
     \label{fig:diagrama_gant}
 \end{figure}
