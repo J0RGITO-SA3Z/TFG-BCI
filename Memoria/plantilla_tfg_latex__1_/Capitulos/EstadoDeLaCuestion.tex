@@ -3,33 +3,138 @@
 
 En las últimas décadas, el interés y la viabilidad de las interfaces cerebro-computador (Brain-Computer Interfaces, BCI) han aumentado de forma considerable gracias al avance de técnicas de aprendizaje automático y aprendizaje profundo aplicadas al análisis de bioseñales. Estos sistemas permiten establecer una comunicación entre el usuario y un dispositivo externo mediante la interpretación de la actividad cerebral, con aplicaciones en rehabilitación, asistencia a personas con discapacidad y nuevas formas de interacción hombre-máquina.
 
-Para la adquisición de señales cerebrales pueden emplearse dispositivos invasivos y no invasivos. Los sistemas invasivos requieren procedimientos quirúrgicos para implantar sensores sobre o dentro del cerebro, como ocurre con la Electrocorticografía o los microelectrodos intracorticales. Por el contrario, los sistemas no invasivos registran la actividad cerebral desde el exterior sin necesidad de cirugía, destacando la Electroencefalografía (EEG) y la Magnetoencefalografía (MEG). Debido a su seguridad, menor coste y facilidad de uso, las técnicas no invasivas son las más empleadas en aplicaciones BCI, aunque presentan menor resolución espacial y mayor sensibilidad al ruido.
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Actividad cerebral}
+\label{sec:actividadCerebral}
+La actividad cerebral puede entenderse como el conjunto de procesos electroquímicos que tienen lugar en el cerebro y sobre los cuales se sustentan las funciones cognitivas, motoras y sensoriales, siendo responsables de procesos como el pensamiento o el movimiento voluntario.
 
-Existen diversos paradigmas BCI en función del mecanismo cerebral empleado. Entre los más relevantes se encuentran el paradigma P300, basado en la detección de un potencial evocado que aparece aproximadamente 300 ms después de un estímulo relevante, y el paradigma Steady-State Visual Evoked Potential (SSVEP), que aprovecha la respuesta cerebral sincronizada con estímulos visuales periódicos. Ambos paradigmas suelen ofrecer mayores tasas de precisión y menor tiempo de calibración, razón por la cual han sido ampliamente utilizados desde las primeras etapas del desarrollo de los sistemas BCI. Sin embargo, dependen de la presentación continua de estímulos visuales, auditivos o táctiles, lo que limita su naturalidad en según qué aplicaciones.
+El cerebro humano está compuesto por miles de millones de neuronas interconectadas formando redes complejas. Estas neuronas están compuestas principalmente por el cuerpo celular o soma, el axón encargado de transmitir información a otras neuronas y las dendritas, responsables de recibir señales provenientes de otras células nerviosas.
+
+Gran parte de la actividad cerebral surge de procesos electroquímicos producidos por la comunicación entre neuronas. Esta comunicación se basa en diferencias de potencial eléctrico entre el interior y el exterior de la membrana neuronal, generadas por la distribución de iones. Cuando una neurona transmite información a otra, libera neurotransmisores al espacio sináptico existente entre ambas células, modificando el potencial eléctrico de la neurona receptora (véase Figura~\ref{fig:sinapsisNeuronas}).
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Imagenes/Bitmap/SinapsisNeuronas.png}
+  \caption{Esquema simplificado de sinapsis neuronal. Elaboración propia basada en \cite{wikimediaNeuron}.}
+  \label{fig:sinapsisNeuronas}
+\end{figure}
+
+A escala macroscópica, la actividad sincronizada de grandes poblaciones neuronales genera distintos fenómenos fisiológicos medibles, como campos eléctricos o variaciones en el flujo y la oxigenación sanguínea cerebral. Para que estos campos eléctricos sean detectables, no basta con que muchas neuronas estén activas simultáneamente, sino que su actividad debe estar coordinada en el tiempo. De hecho, el grado de sincronía entre neuronas es uno de los factores que más influye en la magnitud de la señal registrada, lo que explica por qué estados cerebrales distintos como la vigilia, el sueño o la anestesia producen patrones eléctricos de amplitud y forma tan diferentes \cite{buzsaki2012origin}.
+
+\subsection{Estructura del cerebro}
+\label{subsec:estructuraCerebro}
+
+El cerebro humano está formado por diferentes regiones especializadas en tareas específicas. Aunque estas regiones trabajan de forma coordinada, determinadas funciones cognitivas y motoras, como la memoria o el movimiento voluntario, se encuentran asociadas principalmente a áreas concretas del cerebro.
+
+El cerebro constituye la región de mayor tamaño y es responsable de funciones superiores como el pensamiento, la percepción sensorial o el control voluntario del movimiento. El cerebelo participa principalmente en la coordinación motora y el equilibrio, mientras que el tronco encefálico regula funciones automáticas esenciales como la respiración o el ritmo cardíaco (véase Figura~\ref{fig:diagramaCerebro}).
+
+La corteza cerebral se divide tradicionalmente en cuatro lóbulos principales: frontal, parietal, temporal y occipital. El lóbulo frontal está relacionado con funciones ejecutivas y el control del movimiento voluntario, siendo especialmente relevante en sistemas BCI basados en imaginación motora. El lóbulo parietal participa en el procesamiento de información sensorial y espacial, el lóbulo temporal se asocia principalmente al procesamiento auditivo y la memoria, y el lóbulo occipital se encarga del procesamiento visual.
+
+Además, el cerebro se organiza en dos hemisferios, izquierdo y derecho, donde cada hemisferio controla el lado opuesto del cuerpo. Conocer esta organización resulta especialmente importante en el desarrollo de sistemas BCI, ya que permite identificar qué regiones cerebrales son más relevantes para la adquisición de señales en función del paradigma utilizado, los objetivos del sistema y la tarea que se desea analizar.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{Imagenes/Bitmap/diagramaCerebro.jpg}
+  \caption{Lóbulos cerebrales y cerebelo. Fuente: \cite{wikimediaCerebro}.}
+  \label{fig:diagramaCerebro}
+\end{figure}
+
+\subsection{Dispositivos de adquisición de actividad cerebral}
+\label{subsec:dispositivosAdquisicion}
+
+Existen diferentes técnicas capaces de registrar y analizar la actividad cerebral mediante distintos fenómenos fisiológicos, como señales eléctricas, campos magnéticos o variaciones en el flujo sanguíneo cerebral. Estas técnicas pueden clasificarse principalmente en invasivas y no invasivas en función de si requieren o no intervención quirúrgica para la adquisición de señales.
+
+Las técnicas invasivas requieren la implantación de electrodos directamente sobre la superficie cerebral o en el interior del tejido neuronal. Este tipo de dispositivos ofrece una elevada resolución espacial y una mayor calidad de señal, aunque implican riesgos médicos.
+
+Por otro lado, las técnicas no invasivas adquieren señales desde el exterior del cráneo mediante sensores colocados sobre el cuero cabelludo. Aunque presentan menor resolución espacial y una mayor sensibilidad al ruido, son considerablemente más seguras, económicas y accesibles, siendo las más utilizadas en sistemas BCI de investigación y consumo. 
+
+A la hora de valorar los diferentes dispositivos de adquisición de actividad cerebral, los factores más importantes suelen ser la resolución espacial, la resolución temporal y el coste del sistema. La resolución espacial hace referencia a la capacidad de distinguir con precisión la región cerebral de la que proviene la señal adquirida, mientras que la resolución temporal indica la rapidez con la que el dispositivo es capaz de detectar cambios en la actividad cerebral. Por último, el coste del sistema limita su accesibilidad tanto en entornos de investigación como en aplicaciones comerciales o de consumo.
+
+Los principales tipos de dispositivos de adquisición de actividad cerebral son los siguientes:
+
+\begin{itemize}
+  \item \textbf{Electroencefalografía (EEG):} técnica no invasiva que registra la actividad eléctrica cerebral mediante electrodos colocados sobre el cuero cabelludo. Las señales adquiridas reflejan principalmente la actividad sincronizada de grandes poblaciones neuronales. Debido a su elevada resolución temporal, bajo coste y portabilidad, es una de las técnicas más utilizadas en sistemas BCI.
+
+  \item \textbf{Magnetoencefalografía (MEG):} técnica no invasiva que mide los campos magnéticos generados por la actividad eléctrica neuronal. Ofrece una elevada resolución temporal y espacial, aunque requiere equipamiento complejo y costoso.
+
+  \item \textbf{Espectroscopía funcional de infrarrojo cercano (fNIRS):} técnica no invasiva que utiliza luz infrarroja para estimar cambios en la oxigenación sanguínea cerebral asociados a la actividad neuronal. Su funcionamiento se basa en las diferencias de absorción de luz entre la hemoglobina oxigenada y desoxigenada. Aunque presenta una resolución temporal inferior al EEG, destaca por su portabilidad y por ser menos sensible al ruido producido por movimientos.
+
+  \item \textbf{Electrocorticografía (ECoG):} técnica invasiva que registra actividad eléctrica cerebral mediante electrodos colocados directamente sobre la superficie cortical. Ofrece señales de mayor calidad y resolución que el EEG, aunque requiere intervención quirúrgica.
+
+  \item \textbf{Interfaces intracorticales:} sistemas invasivos basados en microelectrodos implantados dentro del tejido cerebral capaces de registrar actividad neuronal con una resolución espacial muy elevada. Son utilizadas principalmente en investigación biomédica y aplicaciones clínicas avanzadas.
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Electroencefalograma}
+\label{sec:eeg}
+
+La técnica de Electroencefalografía es una de las más utilizadas en BCI para la obtención de datos. Durante este capítulo se hablará de su funcionamiento, sus ventajas y sus desventajas.
+
+\subsection{Principios de adquisición de la señal}
+\label{subsec:PrincipiosAdquisicionEEG}
+
+La electroencefalografía (EEG) registra la actividad eléctrica cerebral mediante electrodos colocados sobre el cuero cabelludo. Las señales EEG reflejan principalmente la actividad sincronizada de grandes poblaciones neuronales corticales, generando variaciones de potencial eléctrico detectables desde la superficie de la cabeza.
+
+La adquisición de la señal EEG se basa en la medición de diferencias de potencial eléctrico entre distintos electrodos. Debido a ello, un electrodo aislado no proporciona información útil por sí mismo, siendo necesario comparar la señal adquirida respecto a un electrodo de referencia. Generalmente, los sistemas EEG utilizan además un electrodo de tierra o BIAS encargado de estabilizar la medida y reducir interferencias externas.
+
+La señal eléctrica generada en el cerebro antes de ser percibida por un electrodo debe atravesar diferentes tejidos como el cráneo o el cuero cabelludo lo que atenúa considerable mente la señal. Para lidiar con diferencias de potencial tan pequeñas los dispositivos EEG amplifican la señan recibida haciendo que esta resulte muy sensible a ruido externo e interferencias.  
+
+Uno de los factores más importantes en la calidad de adquisición es la impedancia entre el electrodo y la piel. Una impedancia elevada puede degradar la señal adquirida e incrementar la sensibilidad al ruido eléctrico. 
+
+A la hora de adquirir señales EEG aunque el número es orientativo la amplitud de la señal últi se encuentra en el intervalo de 10--100~$\mu$V y por otra lado la impedancia debe rondar los valores de 1--10~k$\Omega$ \cite{usakli2010improvement}
+
+\subsection{Características de la señal EEG}
+\label{subsec:CaracteristicasEEG}
+
+% TODO
+
+\subsection{Artefactos y ruido en señales EEG}
+\label{subsec:artefactosEEG}
+
+
+\subsection{Preprocesado de la señal EEG}
+\label{subsec:preprocesadoEEG}
+
+Las señales EEG son especialmente sensibles a interferencias externas y artefactos fisiológicos, como los producidos por movimientos oculares o actividad muscular. Por ello, es habitual aplicar filtros paso banda para conservar únicamente las frecuencias de interés —en el caso de imaginación motora, principalmente las bandas mu (8–13~Hz) y beta (13–30~Hz)— así como técnicas de eliminación de artefactos.
+
+Respecto a la normalización, se han propuesto diferentes estrategias para reducir las diferencias individuales en la actividad cerebral basal. Una de las más empleadas es la normalización por baseline, que consiste en restar o dividir la actividad registrada durante una ventana de reposo tomada como referencia antes de cada tarea. Otra técnica relevante es el Euclidean Alignment, que alinea matemáticamente las señales de cada sujeto hacia una referencia común, permitiendo que el modelo entrenado con datos de otros usuarios se adapte mejor a uno nuevo sin necesidad de datos etiquetados adicionales, lo que resulta especialmente útil en entornos de uso real.
+
+% TODO
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Interfaces cerebro-computador}
+\label{sec:bci}
+
+% TODO
+
+\subsection{Definición de BCI}
+\label{subsec:definicionBCI}
+
+% TODO
+
+\subsection{Paradigmas}
+\label{subsec:paradigmasBCI}
+
+Existen diversos paradigmas BCI en función del mecanismo cerebral empleado. Entre los más relevantes se encuentran el paradigma P300, basado en la detección de un potencial evocado que aparece aproximadamente 300~ms después de un estímulo relevante, y el paradigma Steady-State Visual Evoked Potential (SSVEP), que aprovecha la respuesta cerebral sincronizada con estímulos visuales periódicos. Ambos paradigmas suelen ofrecer mayores tasas de precisión y menor tiempo de calibración, razón por la cual han sido ampliamente utilizados desde las primeras etapas del desarrollo de los sistemas BCI. Sin embargo, dependen de la presentación continua de estímulos visuales, auditivos o táctiles, lo que limita su naturalidad en según qué aplicaciones.
 
 Por el contrario, el paradigma de imaginación motora (Motor Imagery, MI) permite generar comandos de forma voluntaria sin necesidad de estímulos externos. Aunque presenta habitualmente una mayor dificultad de clasificación y requiere un entrenamiento más prolongado por parte del usuario, resulta una alternativa especialmente atractiva para aplicaciones naturales, continuas o de rehabilitación, así como para su integración en videojuegos o entornos interactivos.
 
-En el paradigma de imaginación motora, el usuario imagina la ejecución de un movimiento sin llegar a realizarlo físicamente, lo que provoca cambios detectables en la actividad cortical asociados a la planificación y representación motora. Una modalidad especialmente relevante es la Kinesthetic Motor Imagery, en la que el sujeto no solo representa visualmente la acción, sino que imagina la sensación interna del movimiento, incluyendo esfuerzo muscular, posición articular o desplazamiento del miembro. Estas variaciones se observan principalmente en regiones sensorimotoras del cerebro, localizadas alrededor del córtex motor primario, especialmente en áreas próximas a los electrodos C3, Cz y C4 del sistema internacional 10-20. Desde el punto de vista espectral, la información más relevante suele encontrarse en las bandas mu (8–13 Hz) y beta (13–30 Hz), donde se producen fenómenos de desincronización y resincronización relacionados con eventos motores. La detección de estos patrones permite diferenciar distintas tareas, como imaginar el movimiento de la mano izquierda, la mano derecha o los pies.
+En el paradigma de imaginación motora, el usuario imagina la ejecución de un movimiento sin llegar a realizarlo físicamente, lo que provoca cambios detectables en la actividad cortical asociados a la planificación y representación motora. Una modalidad especialmente relevante es la Kinesthetic Motor Imagery, en la que el sujeto no solo representa visualmente la acción, sino que imagina la sensación interna del movimiento, incluyendo esfuerzo muscular, posición articular o desplazamiento del miembro. Estas variaciones se observan principalmente en regiones sensorimotoras del cerebro, localizadas alrededor del córtex motor primario, especialmente en áreas próximas a los electrodos C3, Cz y C4 del sistema internacional 10-20. Desde el punto de vista espectral, la información más relevante suele encontrarse en las bandas mu (8–13~Hz) y beta (13–30~Hz), donde se producen fenómenos de desincronización y resincronización relacionados con eventos motores. La detección de estos patrones permite diferenciar distintas tareas, como imaginar el movimiento de la mano izquierda, la mano derecha o los pies.
+
+\subsection{Evolución de los modelos de clasificación}
+\label{subsec:evolucionModelos}
 
 Dentro del ámbito de la clasificación EEG, uno de los principales desafíos actuales es la elevada variabilidad entre sujetos y entre sesiones, lo que dificulta la generalización de los modelos entrenados sobre múltiples usuarios. Esta variabilidad se debe tanto a diferencias anatómicas y fisiológicas entre individuos como a cambios en el estado del usuario a lo largo del tiempo. Para mitigar este problema, es habitual aplicar técnicas de preprocesado y normalización antes de la clasificación.
 
-En cuanto al preprocesado, las señales EEG son especialmente sensibles a interferencias externas y artefactos fisiológicos, como los producidos por movimientos oculares o actividad muscular. Por ello, es habitual aplicar filtros paso banda para conservar únicamente las frecuencias de interés, en el caso de imaginación motora principalmente las bandas mu (8–13 Hz) y beta (13–30 Hz), así como técnicas de eliminación de artefactos.
-
-Respecto a la normalización, se han propuesto diferentes estrategias para reducir las diferencias individuales en la actividad cerebral basal. Una de las más empleadas es la normalización por baseline, que consiste en restar o dividir la actividad registrada durante una ventana de reposo, tomada como referencia antes de cada tarea. Otra técnica relevante es el Euclidean Alignment, que alinea matemáticamente las señales de cada sujeto hacia una referencia común, permitiendo que el modelo entrenado con datos de otros usuarios se adapte mejor a uno nuevo sin necesidad de datos etiquetados adicionales, lo que resulta especialmente útil en entornos de uso real.
-
 Uno de los modelos de referencia en clasificación EEG es EEGNet, una red neuronal convolucional diseñada para diferentes tareas de análisis EEG mediante un número reducido de parámetros. Más recientemente han surgido arquitecturas especializadas como MiRepNet, orientadas específicamente a la clasificación de imaginación motora, que buscan aprender representaciones más robustas a partir de grandes volúmenes de datos procedentes de distintos sujetos y conjuntos experimentales, permitiendo posteriormente adaptar el modelo mediante procesos de fine-tuning con una cantidad reducida de datos del usuario final.
 
-%TODO borrar, cuidado. pero lo dejo por tener cómo se hacen referencias
-En el estado de la cuestión es donde aparecen gran parte de las referencias bibliográficas del trabajo. Una de las formas más cómodas de gestionar la bibliografía en {\LaTeX} es utilizando \textbf{bibtex}. Las entradas bibliográficas deben estar en un fichero con extensión \textit{.bib} (con esta plantilla se proporciona el fichero biblio.bib, donde están las entradas referenciadas más abajo). Cada entrada bibliográfica tiene una clave que permite referenciarla desde cualquier parte del texto con los siguiente comandos:
+\subsection{Potenciales aplicaciones}
+\label{subsec:aplicacionesBCI}
 
-\begin{itemize}
-\item Referencia bibliografica con cite: \cite{ldesc2e}
-\item Referencia bibliográfica con citep: \citep{notsoshort}
-\item Referencia bibliográfica con citet: \citet{latexAPrimer}
-\end{itemize}
+% TODO
 
-Es posible citar más de una fuente, como por ejemplo \citep{latexCompanion,LaTeXLamport,texKnuth}
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Trabajos relacionados y aplicaciones prácticas de BCI}
+\label{sec:trabajosRelacionados}
 
-Después, \LaTeX se ocupa de rellenar la sección de bibliografía con las entradas \textbf{que hayan sido citadas} (es decir, no con todas las entradas que hay en el .bib, sino sólo con aquellas que se hayan citado en alguna parte del texto).
-
-Bibtex es un programa separado de latex, pdflatex o cualquier otra cosa que se use para compilar los .tex, de manera que para que se rellene correctamente la sección de bibliografía es necesario compilar primero el trabajo (a veces es necesario compilarlo dos veces), compilar después con bibtex, y volver a compilar otra vez el trabajo (de nuevo, puede ser necesario compilarlo dos veces). 
+% TODO
