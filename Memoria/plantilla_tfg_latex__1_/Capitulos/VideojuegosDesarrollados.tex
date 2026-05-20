@@ -16,7 +16,7 @@ A diferencia del original, en esta versión el jugador avanza automáticamente d
 
 A la hora de diseñar el juego se tuvo en cuenta que este fuera configurable, para adaptar las velocidades y la dificultad a las limitaciones del casco EEG y del propio sistema. Se puede adaptar fácilmente, con tan solo cambiar los atributos de la clase: la velocidad en ambos ejes, la generación de obstáculos, el ancho inicial entre obstáculos, la distancia mínima entre obstáculos, el aumento de velocidad con el tiempo, la disminución del ancho del ``túnel'' (ancho entre obstáculos) y el \textit{respawn} automático, entre otros.
 
-Como se ha mencionado anteriormente, se hizo uso de un LLM para la implementación, concretamente Gemini. El prompt utilizado para la generación fue el siguiente:
+Como se ha mencionado anteriormente, se hizo uso de un LLM para la implementación, concretamente Gemini\footnote{\url{https://gemini.google.com}}. El prompt utilizado para la generación fue el siguiente:
 
 \begingroup % 1. Abrimos el grupo local
 
@@ -71,7 +71,7 @@ Al igual que el anterior juego, se contempló que este fuera configurable y adap
 
 Se contempló la posibilidad de añadir un tipo de flecha especial que cambia de lado a mitad de camino, se llegó a implementar pero finalmente se descartó por resultar demasiado complicado.
 
-El prompt utilizado para la generación mediante el LLM Gemini fue:
+El prompt utilizado para la generación mediante el LLM Gemini\footnote{\url{https://gemini.google.com}} fue:
 
 \begingroup % 1. Abrimos el grupo local
 
@@ -120,7 +120,7 @@ Dicho componente, al ejecutarse muestra una ventana en negro con dos flechas, un
 
 Cada flecha actua como un contenedor, si llega una predicción se comprueba que el contenedor opuesto esté vacío: en caso de que lo esté, se suma un valor definido (\texttt{self.step}) al contenedor correspondiente a la predicción; en caso contrario, se le resta el doble de la cantidad que se hubiera sumado (\texttt{self.step * 2}). Por otro lado, en caso de que reciba \textit{``rest''}, se llamará a otra función que simplemente resta la misma cantidad (\texttt{self.step}) al contenedor que no esté vacío (en caso de que alguno de los dos tenga contenido). De esta forma, solo podrá rellenarse parcial o totalmente un contenedor a la vez, mientras el otro se mantiene vacío.
 
-La implementación, de la misma forma que con los juegos, se realizó utilizando un LLM (Gemini). Se le proporcionó el siguiente prompt:
+La implementación, de la misma forma que con los juegos, se realizó utilizando un LLM (Gemini\footnote{\url{https://gemini.google.com}}). Se le proporcionó el siguiente prompt:
 
 \begingroup % 1. Abrimos el grupo local
 
@@ -147,7 +147,7 @@ Quiero hacer un script en python que actúe de componente, se pueda importar des
 
 
 
-Partiendo de la base que generó Gemini, fue necesario hacer una pequeña modificación para hacer las flechas completamente simétricas y se implementaron a mano los métodos descritos en el párrafo anterior al prompt.
+Partiendo de la base que generó el LLM, fue necesario hacer una pequeña modificación para hacer las flechas completamente simétricas y se implementaron a mano los métodos descritos en el párrafo anterior al prompt.
 
 \begin{figure}[h]
     \centering
