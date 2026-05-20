@@ -1,13 +1,13 @@
-\chapter{Experimento de adquisición de grabaciones por trials}
-\label{cap:protocoloAdquisicion}
+\section{Experimento de adquisición de grabaciones por trials}
+\label{sec:protocoloAdquisicion}
 
 Este capítulo describe el procedimiento seguido para la recolección de datos de electroencefalografía (EEG) mediante un paradigma de imaginación motora. Se detallan las características de los participantes, el equipamiento empleado, la configuración de dicho equipamiento, el diseño del paradigma visual, la estructura temporal de los ensayos y las medidas adoptadas para garantizar la calidad de los registros y el bienestar de los sujetos.
 
 Con el fin de estandarizar y agilizar el proceso de adquisición, se utilizó la aplicación desarrollada, al igual que en los experimentos piloto, y además de un segundo programa orientado a la supervisión del experimento mediante la visualización en directo de las lecturas EEG.
 
 % ---------------------------------------------------------------
-\section{Participantes}
-\label{sec:participantes}
+\subsection{Participantes}
+\label{subsec:participantes}
 
 Al comenzar, cada participante completó un cuestionario inicial recopilado de forma automática por la aplicación. Los datos recogidos fueron: edad, sexo, dominancia manual, densidad capilar, experiencia previa con sistemas BCI y presencia de problemas neurológicos conocidos.
 
@@ -15,8 +15,8 @@ Se recolectaron datos principalmente de personas sin experiencia previa en BCI, 
 Se contaron con dos mujeres y seis hombres con edades desde los 12 y los 60 años. Asimismo, se evitaron participantes con trastornos neurológicos como TDAH, hiperactividad u otros que pudieran dificultar la realización del experimento, tal y como se observó durante los experimentos piloto.
 
 % ---------------------------------------------------------------
-\section{Equipamiento y Configuración EEG}
-\label{sec:equipamiento}
+\subsection{Equipamiento y Configuración EEG}
+\label{subsec:equipamiento}
 
 Se mantuvo la misma configuración de equipamiento utilizada en los experimentos piloto (véase la Sección~\ref{sec:equipamiento}), empleando el dispositivo EEG con la misma configuración de 17 electrodos, 15 de medición, 1 de referencia y 1 de \textit{bias}
 
@@ -28,15 +28,15 @@ Adicionalmente, el programa incorporó un servidor TCP que permitió retransmiti
 
 Esta funcionalidad resultó de gran utilidad para analizar el estado del sujeto durante la sesión y proporcionarle tras esta indicaciones orientadas a mejorar la calidad de la grabación, como la corrección de movimientos o la reducción de artefactos. Asimismo, permitió detectar apagados inesperados del dispositivo EEG tras largos periodos de funcionamiento, de modo que el responsable del experimento pudiera intervenir rápidamente y reiniciar la sesión minimizando la pérdida de tiempo.
 
-\section{Entorno experimental}
-\label{sec:Entorno}
+\subsection{Entorno experimental}
+\label{subsec:Entorno}
 
 Los experimentos se realizaron en una sala acondicionada para minimizar estímulos externos que pudieran interferir en la concentración del participante o en la calidad de las señales registradas. Para ello, se mantuvo la sala en total oscuridad y se procuró un entorno con el menor nivel de ruido posible. Durante cada sesión, en la sala únicamente permanecía el participante y el investigador que debía supervisar el experimento desde una posición fuera de su campo visual. Sobre la mesa de trabajo se dispuso exclusivamente la pantalla utilizada para presentar las instrucciones y estímulos del experimento, evitando la presencia de objetos al alcance del participante que pudieran generar distracciones o molestias.
 
-\section{Paradigma Experimental}
-\label{sec:paradigma}
+\subsection{Paradigma Experimental}
+\label{subsec:paradigma}
 
-\subsection{Diseño General}
+\subsubsection{Diseño General}
 Durante las sesiones de adquisición se registraron eventos de imaginación motora (MI) correspondientes a tres clases: \textbf{pie}, \textbf{mano izquierda} y \textbf{mano derecha}. 
 
 Previamente al inicio de cada grabación se realizó una medición de las impedancias de todos los electrodos. Esta comprobación permitió al supervisor verificar que el contacto entre los electrodos y el cuero cabelludo era adecuado antes de comenzar la adquisición. En caso necesario, los electrodos podían recolocarse y repetirse la medición tantas veces como fuese preciso hasta alcanzar valores aceptables.
@@ -46,15 +46,15 @@ Las grabaciones se realizaron en bloques de dos sesiones consecutivas. Entre amb
 Tras cada bloque de dos grabaciones, el dispositivo EEG se retiró completamente y volvió a colocarse para las dos sesiones siguientes, permitiendo así simular nuevas condiciones de montaje y evaluar la reproducibilidad del sistema. Además, entre bloques se limpiaron los electrodos con alcohol para eliminar restos de sudor u otras impurezas acumuladas durante el uso.
 
 % ---------------------------------------------------------------
-\subsection{Estructura de cada grabación}
-\label{subsec:estructura_grabación}
+\subsubsection{Estructura de cada grabación}
+\label{subsubsec:estructura_grabación}
 
 Se  siguió la misma estructura de secuencia que en los experimentos piloto  (véase la Sección~\ref{sec:estructuraGrabacion}).
 
 Esta secuencia se repitió 15 veces para cada clase, obteniéndose un total de 45 ensayos por sesión. Considerando el periodo inicial de \textit{baseline}, cada grabación tuvo una duración aproximada de 6 minutos y 20 segundos.
 
 % ---------------------------------------------------------------
-\subsection{Instrucciones al participante}
+\subsubsection{Instrucciones al participante}
 Antes del inicio de cada sesión, se explicó al participante la finalidad del experimento y el procedimiento que se iba a seguir. Asimismo, se le informó de que el uso del dispositivo EEG no conllevaba ningún riesgo para su salud y de que los datos recogidos serían publicados y utilizados con fines académicos de forma anonimizada, sin posibilidad de relacionar las grabaciones con su identidad. Finalmente, todos los participantes firmaron un consentimiento informado previo a la realización del experimento.
 
 Posteriormente a los participantes se les indicó que debían realizar una tarea de imaginación motora kinestésica, consistente en imaginar que apretaban una pelota de goma con la mano correspondiente, sin ejecutar ningún movimiento real ni generar contracción muscular. Se les pidió centrar la atención en la sensación interna del movimiento, como si estuvieran realizando la acción físicamente. \cite{Kinestetic}
@@ -62,6 +62,6 @@ Posteriormente a los participantes se les indicó que debían realizar una tarea
 Asimismo, se les explicó que acciones como tragar, parpadear, movimiento ocular, hiperventilar o realizar cualquier otro movimiento corporal podían introducir artefactos y ruido en la señal EEG registrada. Por ello, se solicitó minimizar este tipo de movimientos durante el experimento y, en la medida de lo posible, realizarlos durante los periodos de descanso o cuando no aparecía ningún estímulo en pantalla, ya que dichos fragmentos serían posteriormente descartados del análisis.
 
 % ---------------------------------------------------------------
-\section{Formato de los datos}
+\subsection{Formato de los datos}
 
 Las grabaciones en crudo (\textit{raw}) se almacenan siguiendo el mismo criterio que en los experimentos piloto (véase la Sección~\ref{sec:formato}).Con la única diferencia de que todas las grabaciones \texttt{FIF} de un mismo usuario se almacenan en una carpeta junto con un \texttt{json} que contiene el cuestionario inicial y las lecturas de las impedancias relativas a cada grabación.
