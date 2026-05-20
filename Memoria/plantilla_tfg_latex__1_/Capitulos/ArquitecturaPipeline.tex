@@ -5,10 +5,10 @@ El objetivo final de este trabajo consiste en diseñar e implementar una interfa
 
 Tras el análisis realizado en el estado del arte, se identificaron varias limitaciones comunes en este tipo de sistemas, especialmente relacionadas con la variabilidad de las señales EEG, la inestabilidad de las predicciones en tiempo real y la dificultad de trasladar los resultados obtenidos en entornos controlados a aplicaciones interactivas reales. Como consecuencia, el sistema propuesto en este trabajo no se centra únicamente en la clasificación de señales EEG, sino también en el diseño de mecanismos capaces de compensar dichas limitaciones y ofrecer una experiencia de uso fluida y jugable.
 
-Este capítulo describe la arquitectura completa desarrollada para el sistema, detallando el flujo seguido desde la adquisición de las señales EEG hasta la aplicación final de las decisiones dentro de los videojuegos. Se comienza con la recopilación de datos inicial, el preprocesado de la misma, la generación de la matriz de alineamiento euclídeo y el entrenamiento del modelo. Se prosigue con la ejecución del sistema en tiempo real, en el q trabajan concurrentemente: el recolector de datos y coordinador, el preprocesado de la señal EEG y clasificación de la misma, el suavizado del flujo de predicciones y, por último, el filtrado final (filtro de ayuda) y control del juego mediante las predicciones recibidas.
+Este capítulo describe la arquitectura completa desarrollada para el sistema, detallando el flujo seguido desde la adquisición de las señales EEG hasta la aplicación final de las decisiones dentro de los videojuegos. Se comienza con la recopilación de datos inicial, el preprocesado de la misma, la generación de la matriz de \hyperref[subsec:alineamiento_euclideo]{alineamiento euclídeo} y el entrenamiento del \hyperref[sec:modelo]{modelo}. Se prosigue con la ejecución del sistema en tiempo real, en el q trabajan concurrentemente: el recolector de datos y coordinador, el preprocesado de la señal EEG y clasificación de la misma, el suavizado del flujo de predicciones y, por último, el filtrado final (filtro de ayuda) y control del juego mediante las predicciones recibidas.
 
 \begin{itemize}
-	\item \textbf{Fase 1: Obtención de datos para el entrenamiento del modelo.} En esta fase se recopilan datos (basándose en el \hyperref[cap:protocoloAdquisicion]{protocolo de adquisición} más adelante explicado) necesarios para el \textit{fine-tuning} del modelo y la generación de la matriz de alineamiento euclideo usada para normalización. Se desarrollaron dos procesos independientes: uno encargado de visualizar la interfaz gráfica del experimento, indicando de forma visual al usuario la acción de imaginación motora que debía realizar en cada instante, y otro responsable de recibir los datos procedentes del dispositivo EEG.
+	\item \textbf{Fase 1: Obtención de datos para el entrenamiento del \hyperref[sec:modelo]{modelo}.} En esta fase se recopilan datos (basándose en el \hyperref[sec:protocoloAdquisicion]{protocolo de adquisición} más adelante explicado) necesarios para el \textit{fine-tuning} del \hyperref[sec:modelo]{modelo} y la generación de la matriz de \hyperref[subsec:alineamiento_euclideo]{alineamiento euclideo} usada para normalización. Se desarrollaron dos procesos independientes: uno encargado de visualizar la interfaz gráfica del experimento, indicando de forma visual al usuario la acción de imaginación motora que debía realizar en cada instante, y otro responsable de recibir los datos procedentes del dispositivo EEG.
 	
 	\begin{enumerate}
 		\item \textbf{Proceso 0:} encargado de visualizar la interfaz gráfica del experimento, indicando de forma visual al usuario la acción de imaginación motora que debe realizar en cada instante.
@@ -17,13 +17,13 @@ Este capítulo describe la arquitectura completa desarrollada para el sistema, d
 
 	Ambos procesos se comunican mediante una tubería unidireccional, a través de la cual el proceso coordinador envía instrucciones al proceso encargado de la interfaz gráfica indicando qué símbolos deben mostrarse al usuario en cada momento.
 
-	Una vez finalizada la recolección de datos, se preprocesan los datos en el \textbf{proceso 1}, se calcula la matriz de alineamiento euclideo y se realiza \textit{fine-tuning} en el modelo. Tras esto, se inicia la \textbf{fase 2}. 
+	Una vez finalizada la recolección de datos, se preprocesan los datos en el \textbf{proceso 1}, se calcula la matriz de \hyperref[subsec:alineamiento_euclideo]{alineamiento euclideo} y se realiza \textit{fine-tuning} en el \hyperref[sec:modelo]{modelo}. Tras esto, se inicia la \textbf{fase 2}. 
 
-	\item \textbf{Fase 2: Funcionamiento en tiempo real.} Esta describe el funcionamiento en tiempo real por completo. Desde la obtención de datos, pasando por el procesamiento de los mismos, hasta la salida producida. Para el \textit{pipeline} en tiempo real se decidió emplear 4 procesos representados en el diagrama \ref{fig:pipelineTR}.
+	\item \textbf{Fase 2: Funcionamiento en tiempo real.} Esta describe el funcionamiento en tiempo real por completo. Desde la obtención de datos, pasando por el procesamiento de los mismos, hasta la salida producida. Para el sistema en tiempo real se decidió emplear 4 procesos representados en el diagrama \ref{fig:pipelineTR}.
 	
 	\begin{enumerate}
 		\item \textbf{Proceso 1: Recolector de datos y coordinador.} El mismo proceso encargado de recibir los datos del dispositivo EEG es reutilizado para esta fase. Sus responsabilidades son crear los demás procesos y recoger continuamente datos del dispositivo EEG y retransmitirlos inmediatamente.
-		\item \textbf{Proceso 2: \hyperref[cap:tratamientoDatos]{Tratamiento de los datos} y \hyperref[cap:modelo]{modelo}.} A nivel de implementación y cálculos, es el más grande de todos. Trata los datos recibidos y aplica inferencia sobre el modelo para clasificarlos en tiempo real.
+		\item \textbf{Proceso 2: \hyperref[cap:tratamientoDatos]{Tratamiento de los datos} y \hyperref[sec:modelo]{modelo}.} A nivel de implementación y cálculos, es el más grande de todos. Trata los datos recibidos y aplica inferencia sobre el \hyperref[sec:modelo]{modelo} para clasificarlos en tiempo real.
 		
 		Para ello, dispone de un \textit{buffer} circular capaz de almacenar continuamente los datos retransmitidos por el dispositivo EEG en los últimos 15 segundos. A pesar de que las predicciones posteriores se realizan utilizando únicamente ventanas temporales de 4 segundos, el uso de un \textit{buffer} más amplio permite mejorar la aplicación de \hyperref[subsec:FiltradoFrecuencia]{filtros de bajas frecuencias}. 
 		
@@ -36,18 +36,17 @@ Este capítulo describe la arquitectura completa desarrollada para el sistema, d
  
 			\item \textbf{El segundo} es responsable de generar predicciones periódicas a partir de los datos almacenados en el \textit{buffer}, alcanzando una frecuencia aproximada de 6,6 predicciones por segundo.
 			
-			Este recibe el \textit{trial} y le aplica, en primer lugar, el alineamiento euclídeo haciendo uso de la matriz calculada previamente. A continuación, realiza la \hyperref[sec:interpolación_espacial]{interpolación espacial} con el objetivo de adaptar el número y disposición de canales EEG a la configuración esperada por el modelo.
+			Este recibe el \textit{trial} y le aplica, en primer lugar, el \hyperref[subsec:alineamiento_euclideo]{alineamiento euclídeo} haciendo uso de la matriz calculada previamente. A continuación, realiza la \hyperref[sec:interpolación_espacial]{interpolación espacial} con el objetivo de adaptar el número y disposición de canales EEG a la configuración esperada por el \hyperref[sec:modelo]{modelo}.
 
-			Finalmente, el \textit{trial} resultante es clasificado por el modelo, enviándose posteriormente la predicción resultante al siguiente módulo.
+			Finalmente, el \textit{trial} resultante es clasificado por el \hyperref[sec:modelo]{modelo}, enviándose posteriormente la predicción resultante al siguiente módulo.
 
 		\end{enumerate}
 		
-		Una vez obtenido el 
-		\item \textbf{Proceso 3: \hyperref[sec:filtros_decision]{Intérprete del flujo de predicciones}.} Gestiona el flujo constante de predicciones que recibe del anterior bloque, las procesa y las suaviza haciendo uso de \hyperref[sec:filtros_decision]{filtros de decisión} para simplificar su utilización en el siguiente módulo.
+		\item \textbf{Proceso 3: \hyperref[subsec:filtros_decision]{Intérprete del flujo de predicciones}.} Gestiona el flujo constante de predicciones que recibe del anterior bloque, las procesa y las suaviza haciendo uso de \hyperref[subsec:filtros_decision]{filtros de decisión} para simplificar su utilización en el siguiente módulo.
 		
-		\item \textbf{Proceso 4: \hyperref[sec:filtros_ayuda]{Filtro de ayuda} y \hyperref[cap:juegosPropuestos]{juego} a ejecutar.} Este último es responsable de llevar toda la lógica del juego/\textit{benchmark} que se quiera ejecutar y de decidir qué acción tomar en cada momento, basándose en las predicciones recibidas y el estado del juego en cada instante. 
+		\item \textbf{Proceso 4: \hyperref[subsec:filtros_ayuda]{Filtro de ayuda} y \hyperref[sec:videojuegosDesarrollados]{juego} a ejecutar.} Este último es responsable de llevar toda la lógica del juego/\textit{benchmark} que se quiera ejecutar y de decidir qué acción tomar en cada momento, basándose en las predicciones recibidas y el estado del juego en cada instante. 
 
-		Este proceso se diseñó para ser completamente independiente, permitiendo así modularidad y una mayor facilidad de integración en el \textit{pipeline} con diferentes juegos, además de ser una alternativa más estable y compartimentada tratando de aliviar la carga del \textbf{proceso 3}.
+		Este proceso se diseñó para ser completamente independiente, permitiendo así modularidad y una mayor facilidad de integración en la arquitectura con diferentes juegos, además de ser una alternativa más estable y compartimentada tratando de aliviar la carga del \textbf{proceso 3}.
 
 		\end{enumerate}
 
@@ -56,7 +55,7 @@ Este capítulo describe la arquitectura completa desarrollada para el sistema, d
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{Imagenes/Bitmap/Pipeline_TR}
-	\caption{Diagrama de la arquitectura del \textit{pipeline} en tiempo real.}
+	\caption{Diagrama de la arquitectura de la interfaz en tiempo real.}
 	\label{fig:pipelineTR}
 \end{figure}
 
@@ -68,6 +67,6 @@ Por otro lado, la separación de la última funcionalidad en un bloque independi
 
 Además, permite aprovechar la concurrencia para reducir la latencia global del sistema.
 
-También facilita los cambios modulares: favoreciendo variar el \hyperref[cap:modelo]{modelo} usado, escoger entre los distintos \hyperref[sec:filtros_decision]{filtros de decisión}, probar distintos \hyperref[cap:juegosPropuestos]{juegos}\dots
+También facilita los cambios modulares: favoreciendo variar el \hyperref[sec:modelo]{modelo} usado, escoger entre los distintos \hyperref[subsec:filtros_decision]{filtros de decisión}, probar distintos \hyperref[sec:videojuegosDesarrollados]{juegos}\dots
 
 Por último, esta arquitectura deja abierta la posibilidad de distribuir los diferentes procesos en máquinas independientes (en lugar de procesos) sustituyendo las tuberías locales por sockets TCP. Aunque esta funcionalidad distribuida no ha sido implementada en el presente trabajo, permitiría ejecutar el pipeline de inferencia en servidores externos con capacidad GPU, facilitando así el uso del dispositivo desde equipos con recursos computacionales limitados.
