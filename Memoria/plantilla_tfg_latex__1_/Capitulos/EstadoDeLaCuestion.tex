@@ -87,7 +87,7 @@ A la hora de adquirir señales EEG aunque el número es orientativo la amplitud 
 \label{subsec:DispositivosEEG}
 Uno de los principales retos a la hora de desarrollar un sistema BCI es la gran variedad de dispositivos EEG. Los principales problemas que surgen al usar estos últimos son el ruido y la impedancia entre el electrodo y el cuero cabelludo. 
 
-Los dispositivos EEG se diferencian en primer lugar por el número de electrodos que poseen así como por el tipo de electrodos que poseen. Existen principalmente dos tipos de electrodos los electrodos secos que presentan mayores impedancias pero un coste más reducido y que se colocan directamente sobre el cuero cabelludo sin ningún tipo de peparación previa. Por otro lado se encuentran los electrodos húmedos a los cuales se les aplica un gel conductivo que permie mejorar la conexión entre el electrodo y el cuero cabelludo mejorando así la calidad de la señal. \cite{usakli2010improvement}
+Los dispositivos EEG se diferencian en primer lugar por el número de electrodos que poseen así como por el tipo de electrodos que poseen. Existen principalmente dos tipos de electrodos los electrodos secos que presentan mayores impedancias pero un coste más reducido y que se colocan directamente sobre el cuero cabelludo sin ningún tipo de peparación previa. Por otro lado se encuentran los electrodos húmedos a los cuales se les aplica un gel conductivo que permie mejorar la conexión entre el electrodo y el cuero cabelludo mejorando así la calidad de la señal. Sinembargo los dispositivos EEG con electrodos húmedos requieren más preparación para su uso. \cite{usakli2010improvement}
 
 Por otro lado los dispositivos EEG también se diferencia por otras características como la frecuencia de muestreo y la presencia de mecanismos para aumentar la relación señal/ruido. Entre estos mecanísmos se encuentra la presencia de un electrodo BIAS o tierra el cual intenta anular el ruido general leido por el EEG. 
 
@@ -107,6 +107,32 @@ La limitada disponibilidad de datos constituye uno de los principales desafíos 
 \subsection{Características de la señal EEG}
 \label{subsec:CaracteristicasEEG}
 
+La señal obtenida del dispositivo EEG son las lecturas de los diferentes electrodos del dispositivo. Dicha señal está compuesta por ruido y por diferentes frecuencias conocidas como ritmos cerebrales o bandas de frecuencia. Cada una de las bandas se relaciona con diferentes funciones del cerebro o estados del mismo, y su análisis en el dominio de la frecuencia constituye uno de los enfoques más habituales en el procesado de señales EEG.
+
+La Tabla~\ref{tab:bandasEEG} resume las características principales de cada banda de frecuencia y su relevancia en el contexto de los sistemas BCI.
+
+\begin{table}[h]
+\centering
+\caption{Principales bandas de frecuencia EEG y su relevancia en BCI.}
+\label{tab:bandasEEG}
+\begin{tabular}{|l|c|p{7.5cm}|}
+\hline
+\textbf{Banda} & \textbf{Rango (Hz)} & \textbf{Función principal / relevancia en BCI} \\
+\hline
+Delta ($\delta$) & 0.5–4   & Sueño profundo. Escasa utilidad directa en BCI; su presencia en vigilia puede indicar fatiga o artefacto. \\
+\hline
+Theta ($\theta$) & 4–8     & Somnolencia, meditación y memoria. Relevante en BCI cognitivos y de estimación de carga mental. \\
+\hline
+\textbf{Alfa / Mu ($\alpha$/$\mu$)} & \textbf{8–13} & \textbf{Relajación e inhibición sensoriomotora. El ritmo mu, localizado en la corteza sensoriomotora, experimenta desincronización durante la imaginación motora (ERD), siendo una de las bandas más informativas en BCI de imaginación motora.} \\
+\hline
+\textbf{Beta ($\beta$)} & \textbf{13–30} & \textbf{Alerta y actividad motora. Junto con la banda mu, presenta desincronización (ERD) durante la imaginación del movimiento y resincronización (ERS) tras su finalización. Es fundamental en BCI de imaginación motora.} \\
+\hline
+Gamma ($\gamma$) & >30     & Procesamiento cognitivo de alto nivel. Su extracción en EEG de superficie es compleja debido al ruido muscular. \\
+\hline
+\end{tabular}
+\end{table}
+
+En el contexto de los sistemas BCI basados en imaginación motora, las bandas \textbf{mu (8–13~Hz)} y \textbf{beta (13–30~Hz)} son las de mayor relevancia. Cuando un sujeto imagina la ejecución de un movimiento, se producen cambios en la potencia espectral de estas bandas.
 
 \subsection{Artefactos y ruido en señales EEG}
 \label{subsec:artefactosEEG}
