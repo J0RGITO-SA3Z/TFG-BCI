@@ -109,7 +109,7 @@ de duración para cada apartado (resultando un total de 1h 26 min):
     \item \textbf{Grabación de \hyperref[cap:protocoloAdquisicion]{experimento visual} (5 min):} Ejecución de la grabación siguiendo la misma \hyperref[subsec:estructura_grabación]{estructura} que en el experimento visual, con la diferencia de que en este caso se realizan 10 trials por clase y se incluyen solo mano izquierda (\textit{left\_hand}) y mano derecha (\textit{right\_hand}). El objetivo y utlidad de este procedimiento viene siendo que el usuario tenga un primer contacto con la dinámica del experimento (a modo de ``calentamiento'').
     \item \textbf{Descanso (5 min):} Se le indica al usuario que se relaje y descanse \textbf{sin} el casco unos minutos.
     \item \textbf{Entrenamiento \textit{Fine-tune} (9 min):} Realización de una segunda grabación con motivo de adaptar el modelo al usuario por medio de \textit{fine-tuning}. Esta grabación mantiene la \hyperref[subsec:estructura_grabación]{estructura} mencionada anteriormente pero realiza 30 trials por clase con mano izquierda y derecha.
-    \item \textbf{\hyperref[subsec:benchmark_visual]{\textit{Benchmark} visual (DualArrowComponent)} (7 min):} Primera prueba en tiempo real del experimento, sirve de primera toma de contacto para ver el sistema en acción, que el usuario vea claramente los resultados de sus acciones mentales (MI) y para estimar latencias. Nada más comenzar, se procede indicando que el usuario:
+    \item \textbf{\hyperref[subsec:benchmark_visual]{\textit{Benchmark} visual (DualArrowComponent)} (7 min):} Primera prueba en tiempo real del experimento, sirve de primera toma de contacto para ver el sistema en acción, que el usuario vea claramente los resultados de sus acciones mentales (MI) y para estimar latencias. Nada más comenzar, se procede indicando al usuario que:
           \begin{enumerate}
               \item Realice imaginación motora de mano derecha hasta rellenar la flecha por
                     completo.
@@ -117,7 +117,7 @@ de duración para cada apartado (resultando un total de 1h 26 min):
                     izquierda hasta rellenar la flecha izquierda, imaginación motora de mano
                     derecha hasta llenar la flecha derecha.
               \item En caso de que el usuario no logre rellenar las tres iteraciones completando
-                    las flechas, este deberá descansar 5 minutos y repetir desde el paso de
+                    las flechas, deberá descansar 5 minutos y repetir desde el paso de
                     entrenamiento anteriormente mencionado.
           \end{enumerate}
     \item \textbf{Descanso (5 min):} Se le indica al usuario que se relaje y descanse \textbf{con} el casco unos minutos.
@@ -157,7 +157,7 @@ siguientes:
               \item \textbf{Tiempo máximo sobrevivido por juego y ayuda:} Se toma nota del tiempo en segundos del mayor intervalo que el usuario haya logrado mantenerse con vida por cada juego y nivel de ayuda. Esto nos permite comparar el desempeño del usuario en base al juego y a la severidad de la corrección aplicada.
               \item \textbf{Tiempo máximo sobrevivido por juego:} Esta métrica deriva de la anterior. Filtra por juego el máximo tiempo conseguido. Asimismo se anota como indicador el nivel de ayuda con el que se ha conseguido dicha racha. Esta sirve a modo de indicador del rendimiento global y del mejor nivel de ayuda aplicado.
           \end{itemize}
-    \item \textbf{Tiempo de reacción medio ante obstáculos:} Se evalua el tiempo desde que se presenta un peligro (en \hyperref[subsec:project_arrows]{\textit{project arrows}} se considera que el peligro ha comenzado cuando aparece una flecha por el borde de la pantalla y en \hyperref[subsec:endless_wave_runner]{\textit{wave runner}} desde que se dirije hacia una dirección se considera el peligro de ese borde) hasta que la reacción ante el mismo es tomada, y se calcula la media de todos los valores obtenidos. Se tendrán en cuenta solo los valores obtenidos de aquellas acciones tomadas a tiempo. Esta métrica nos informa del tiempo medio de reacción limpio, dentro del tiempo límite que presenta estar en un entorno dinámico.
+    \item \textbf{Tiempo de reacción medio ante obstáculos:} Se evalua el tiempo desde que se presenta un peligro hasta que la reacción ante el mismo es tomada, y se calcula la media de todos los valores obtenidos. Se tendrán en cuenta solo los valores obtenidos de aquellas acciones tomadas a tiempo. Esta métrica nos informa del tiempo medio de reacción limpio, dentro del tiempo límite que presenta estar en un entorno dinámico.
     \item \textbf{Tasa de acciones tomadas a tiempo frente a número de peligros enfrentados:} La utilidad de esta métrica reside en averiguar cuánta es la proporción de acciones tomadas correctamente por juego y nivel de ayuda. Esto nos permite analizar cuán fiable resulta el sistema a nivel de reacción dinámica.
     \item \textbf{Datos recolectados del formulario:} Estos son de utilidad para valorar las sensaciones del usuario con el sistema. Resultan ser una métrica más subjetiva que las anteriores, pero no deja de ser necesaria: uno de los objetivos del sistema es que la experiencia del usuario sea lo más agradable posible. Se pretende encontrar un equilibrio entre que el jugador no se frustre y a su vez sienta que tiene el control de las acciones tomadas.
 \end{itemize}
@@ -171,6 +171,37 @@ que dependen, además de aquello que se ha podido observar, del tiempo de
 reacción del usuario y de la destreza del mismo tratando con MI. Por tanto,
 cuando tomamos estas estimaciones, estamos midiendo el error tanto de la
 arquitectura como del propio jugador.
+
+\subsection{Protocolo de obtención de métricas}
+\label{subsec:protocoloObtencionMetricas}
+
+Se realizaron grabaciones de todos los experimentos en tiempo real, de estas se recolectaron los datos necesarios para el cálculo de las métricas anteriormente mencionadas, siguiendo las siguientes pautas:
+
+\begin{itemize}
+    \item \textbf{Estimación del tiempo de reacción en base al benchmark (\hyperref[subsec:benchmark_visual]{\textit{dualArrowComponent}}):} Tomando como referencia la \hyperref[sec:rt_estructura]{estructura del experimento}, el primer punto del protocolo seguido para el \textit{benchmark visual}, se utiliza de margen para poder empezar a medir correctamente las tres iteraciones explicadas en el punto 2. 
+    
+    Para comenzar la medición se parte del instante en el que la flecha derecha se rellena por completo la primera vez. Desde entonces, se mide el tiempo hasta que el participante consigue vaciar la derecha y, consecutivamente, rellenar la izquierda. Para las demás iteraciones se sigue el mismo criterio, empezando por la izquierda o la derecha según corresponda. 
+
+    En ocasiones excepcionales, el usuario cambia de dirección antes de lograr llenar la flecha que debía por completo. Estos casos se han descartado de las mediciones para no comprometer los datos.
+
+    \item \textbf{Tiempos máximos:} Para llevar a cabo la medida de cada racha de tiempo sobrevivido, se toma como inicio el momento de reaparición y como final la colisión contra algún obstáculo. 
+    
+    \item \textbf{Tiempo de reacción medio ante obstáculos:} Se cuentan los segundos desde que se presenta un peligro: en \hyperref[subsec:project_arrows]{\textit{project arrows}} se considera que el peligro ha comenzado cuando aparece una flecha por el borde de la pantalla; y en \hyperref[subsec:endless_wave_runner]{\textit{wave runner}} desde que el personaje jugable se dirije hacia una dirección. Cada medición finaliza en el momento en que el jugador toma una acción para prevenir ese peligro. 
+    
+    Teniendo en cuenta la naturaleza de los videojuegos utilizados, merece la pena explicar claramente cómo se miden los tiempos para ciertas situaciones.
+    \begin{itemize}
+      \item En caso de morir se resetea el contador del tiempo de reacción. 
+    
+      \item Cuando el participante se salva de un peligro siempre se presenta otro, empezando el contador de la reacción a este.
+    
+      \item En caso de tomarse la acción correcta e instantáneamente se deshaga (por ejemplo, en \hyperref[subsec:project_arrows]{\textit{project arrows}} si se aproxima una flecha por el lado izquierdo y el jugador apunta a la izquierda pero vuelve a la derecha antes de protegerse de la flecha enemiga), no se toma esa primera reacción como fin del intervalo. La acción solo se utilizará para el fin de la medición en caso de que sea clara y definitiva contra el peligro.
+
+      \item En ciertas situaciones que presentan un peligro inminente, el jugador trata de tomar una acción en contra del mismo, pero no lo consigue hasta después de morir. Dado este escenario, la acción tomada al reaparecer contaminaría los datos. Por ello, se descartan todas las mediciones de menos de 1 segundo para el cálculo de la media.
+
+    \end{itemize}
+
+    \item \textbf{Tasa de acciones tomadas a tiempo frente a número de peligros enfrentados:} En este caso, se contabilizan todas las veces que el jugador sobrevive a un peligro y se divide por el número total de veces que se le ha presentado un peligro.
+\end{itemize}
 
 \section{Resultados obtenidos y análisis}
 \label{sec:resultadosYAnalisis}
