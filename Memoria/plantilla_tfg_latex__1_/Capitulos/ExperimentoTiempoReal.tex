@@ -4,7 +4,7 @@
 \section{Participantes}
 \label{sec:rt_participantes}
 
-Al igual que en el \hyperref[cap:protocoloAdquisicion]{experimento de
+Al igual que en el \hyperref[sec:protocoloAdquisicion]{experimento de
     adquisición de grabaciones por trials}, todos los participantes respondieron
 las mismas preguntas previamente, por medio de la aplicación. Además, los
 usuarios completaron un segundo cuestionario para medir sus niveles de
@@ -106,9 +106,9 @@ de duración para cada apartado (resultando un total de 1h 26 min):
 
 \begin{itemize}
     \item \textbf{Explicación al usuario (10 min):} Se le expone al usuario en qué consiste el experimento, se le introduce el concepto de imaginación motora y se le advierte del problema que suponen los parpadeos, movimientos y tragos de saliva, especialmente dentro de la ventana de 4 segundos de imaginación motora.
-    \item \textbf{Grabación de \hyperref[cap:protocoloAdquisicion]{experimento visual} (5 min):} Ejecución de la grabación siguiendo la misma \hyperref[subsec:estructura_grabación]{estructura} que en el experimento visual, con la diferencia de que en este caso se realizan 10 trials por clase y se incluyen solo mano izquierda (\textit{left\_hand}) y mano derecha (\textit{right\_hand}). El objetivo y utlidad de este procedimiento viene siendo que el usuario tenga un primer contacto con la dinámica del experimento (a modo de ``calentamiento'').
+    \item \textbf{Grabación de \hyperref[sec:protocoloAdquisicion]{experimento visual} (5 min):} Ejecución de la grabación siguiendo la misma \hyperref[subsubsec:estructura_grabación]{estructura} que en el experimento visual, con la diferencia de que en este caso se realizan 10 trials por clase y se incluyen solo mano izquierda (\textit{left\_hand}) y mano derecha (\textit{right\_hand}). El objetivo y utlidad de este procedimiento viene siendo que el usuario tenga un primer contacto con la dinámica del experimento (a modo de ``calentamiento'').
     \item \textbf{Descanso (5 min):} Se le indica al usuario que se relaje y descanse \textbf{sin} el casco unos minutos.
-    \item \textbf{Entrenamiento \textit{Fine-tune} (9 min):} Realización de una segunda grabación con motivo de adaptar el modelo al usuario por medio de \textit{fine-tuning}. Esta grabación mantiene la \hyperref[subsec:estructura_grabación]{estructura} mencionada anteriormente pero realiza 30 trials por clase con mano izquierda y derecha.
+    \item \textbf{Entrenamiento \textit{Fine-tune} (9 min):} Realización de una segunda grabación con motivo de adaptar el modelo al usuario por medio de \textit{fine-tuning}. Esta grabación mantiene la \hyperref[subsubsec:estructura_grabación]{estructura} mencionada anteriormente pero realiza 30 trials por clase con mano izquierda y derecha.
     \item \textbf{\hyperref[subsec:benchmark_visual]{\textit{Benchmark} visual (DualArrowComponent)} (7 min):} Primera prueba en tiempo real del experimento, sirve de primera toma de contacto para ver el sistema en acción, que el usuario vea claramente los resultados de sus acciones mentales (MI) y para estimar latencias. Nada más comenzar, se procede indicando al usuario que:
           \begin{enumerate}
               \item Realice imaginación motora de mano derecha hasta rellenar la flecha por
@@ -204,4 +204,140 @@ Se realizaron grabaciones de todos los experimentos en tiempo real, de estas se 
 \end{itemize}
 
 \section{Resultados obtenidos y análisis}
-\label{sec:resultadosYAnalisis}
+\label{sec:rt_resultados_y_analisis}
+
+Debido a que el experimento se ha realizado con una muestra reducida de tres participantes, el enfoque de este análisis prioriza la observación detallada e individualizada de cada caso. A continuación, se exponen los resultados objetivos extraídos de las grabaciones y los datos subjetivos de los formularios, finalizando con un análisis aislado del desempeño de cada participante y del comportamiento del sistema.
+
+\subsection{Perfilado de los participantes}
+\label{subsec:rt_perfiles}
+
+A continuación se presenta una breve descripción de los participantes en forma de tabla (ver la Tabla\ref{tab:sujetos}).
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Característica} & \textbf{Sujeto 1} & \textbf{Sujeto 2} & \textbf{Sujeto 3} \\
+\hline
+
+Edad & 21 & 21 & 22 \\
+\hline
+Sexo & H & H & H \\
+\hline
+Dominancia manual & Diestro & Diestro & Diestro \\
+\hline
+Densidad capilar & Fina & Media & Fina \\
+\hline
+Experiencia con MI & Poca & Ninguna & Ninguna \\
+\hline
+Problemas neurológicos & No & Migrañas con aura & No \\
+\hline
+
+\end{tabular}
+\caption{Características de los sujetos}
+\label{tab:sujetos}
+\end{table}
+
+\subsection{Evaluación del sistema base (benchmark visual)}
+\label{subsec:rt_res_benchmark}
+% Aquí hablas de la métrica del dualArrowComponent.
+En la Tabla \ref{tab:resultados_benchmark} se exponen los tiempos medios de reacción de cada usuario durante la fase de \textit{benchmark}, midiendo la consistencia en el flujo de predicciones puras antes de entrar a los entornos dinámicos de los videojuegos.
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{
+      \begin{tabular}{|l|c|c|c|}
+      \hline
+      \textbf{Participante} & \textbf{Tiempo medio iteración (s)} & \textbf{Experiencia previa} \\ \hline
+      Sujeto 1 & 11,65 & Sí \\ \hline
+      Sujeto 2 & 12,05 & No \\ \hline
+      Sujeto 3 & 7,16 & No \\ \hline
+      \end{tabular}
+}
+\caption{Tiempos de reacción en el benchmark visual (\textit{dualArrowComponent}).}
+\label{tab:resultados_benchmark}
+\end{table}
+
+\subsection{Rendimiento en videojuegos}
+\label{subsec:rt_res_videojuegos}
+
+En esta sección se agrupan las métricas numéricas explicadas anteriormente, todas se han obtenido de los vídeos.
+
+\subsubsection{Tiempos máximos de supervivencia}
+
+En la Tabla \ref{tab:tiempos_supervivencia} se exponen la mejor racha de cada jugador para los distintos escenarios. Destaca por encima de todos el sujeto 3 en el juego \textit{wave runner} con 1 minuto y 10 segundos.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\multirow{2}{*}{\textbf{Participante}} & \multicolumn{2}{c|}{\textbf{Wave Runner (s)}} & \multicolumn{2}{c|}{\textbf{Project Arrows (s)}} \\ \cline{2-5} 
+ & \textbf{Aimbot 0} & \textbf{Aimbot 0.7} & \textbf{Aimbot 0} & \textbf{Aimbot 0.7}\\ \hline
+Sujeto 1 & 8,47 & 63,10 & 19,60 & 27,58 \\ \hline
+Sujeto 2 & 23,42 & 51,45 & 30,00 & 35,90 \\ \hline
+Sujeto 3 & 30,14 & 70,00 & 41,6 & 57,13 \\ \hline
+\end{tabular}
+\caption{Tiempo máximo sobrevivido por usuario, videojuego y nivel de asistencia. No se incluyen los tiempos para el nivel de asistencia 1.}
+\label{tab:tiempos_supervivencia}
+\end{table}
+
+\subsubsection{Tiempo medio de reacción ante obstáculos y tasa de éxito}
+
+A continuación se muestran las medias calculadas con los tiempos de reacción de cada sujeto, por juego y nivel de ayuda (ver Tabla \ref{tab:tiempos_supervivencia}). 
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\multirow{2}{*}{\textbf{Participante}} & \multicolumn{2}{c|}{\textbf{Wave Runner (s)}} & \multicolumn{2}{c|}{\textbf{Project Arrows (s)}} \\ \cline{2-5} 
+ & \textbf{Aimbot 0} & \textbf{Aimbot 0.7} & \textbf{Aimbot 0} & \textbf{Aimbot 0.7}\\ \hline
+Sujeto 1 & 1,82 & 4,17 & 3,19 & 2,63 \\ \hline
+Sujeto 2 & 4,53 & 4,94 & 2,29 & 2,42 \\ \hline
+Sujeto 3 & 3,39 & 4,74 & 2,09 & 2,52 \\ \hline
+\end{tabular}
+\caption{Tiempo medio de reacción ante obstáculos por usuario, videojuego y nivel de asistencia.}
+\label{tab:tiempos_supervivencia}
+\end{table}
+
+Por último, en la Tabla \ref{tab:tasas_aciertos} se pueden ver los porcentajes de acierto que han tenido los usuarios por juego y ayuda.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\multirow{2}{*}{\textbf{Participante}} & \multicolumn{2}{c|}{\textbf{Wave Runner (\%)}} & \multicolumn{2}{c|}{\textbf{Project Arrows (\%)}} \\ \cline{2-5} 
+ & \textbf{Aimbot 0} & \textbf{Aimbot 0.7} & \textbf{Aimbot 0} & \textbf{Aimbot 0.7}\\ \hline
+Sujeto 1 & 36,80 & 74,44 & 50,00 & 77,78 \\ \hline
+Sujeto 2 & 47,72 & 77,19 & 75,00 & 83,34 \\ \hline
+Sujeto 3 & 51,56 & 79,17 & 72,5 & 86,27 \\ \hline
+\end{tabular}
+\caption{Tasa de obstáculos superados frente al número de obstáculos afrontados por usuario, videojuego y nivel de asistencia.}
+\label{tab:tasas_aciertos}
+\end{table}
+
+\subsection{Experiencia de usuario}
+\label{subsec:rt_res_formulario}
+% Aquí analizas las respuestas del formulario. Al ser 3 personas, puedes decir cosas como: "La totalidad de los sujetos reportó diversión..." o "Dos de los tres participantes sintieron frustración con la latencia...". 
+% Se recomienda hacer un gráfico de barras apiladas o radar con las respuestas de la escala Likert.
+
+\subsection{Análisis aislado y discusión por participante}
+\label{subsec:rt_analisis_aislado}
+A partir de los datos cruzados entre las métricas de rendimiento y las respuestas al formulario, se procede a analizar de forma aislada el comportamiento de cada usuario. Al contar con una muestra reducida, este enfoque permite identificar cómo la fisiología, la experiencia y la psicología de cada individuo afectan al uso del BCI.
+
+\subsubsection{Sujeto 1}
+% Ejemplo de lo que poner aquí:
+% "El Sujeto 1, al contar con experiencia previa, logró los mejores tiempos en el benchmark. En Wave Runner, su tiempo de reacción fue de X segundos. Sin embargo, en el formulario indicó cierta frustración con el Aimbot al 0.7, ya que sentía que el sistema tomaba decisiones por él antes de que terminara de imaginar el movimiento..."
+
+\subsubsection{Sujeto 2}
+% Ejemplo:
+% "El Sujeto 2, sin experiencia previa, tuvo dificultades en el benchmark inicial. Su tasa de éxito sin ayudas fue del X%, pero al activar el Aimbot a 0.7, su supervivencia aumentó drásticamente un Y%. En el cuestionario, fue el usuario que reportó mayor nivel de satisfacción general, lo que indica que los mecanismos de ayuda son vitales para la retención de jugadores novatos."
+
+\subsubsection{Sujeto 3}
+% Análisis del sujeto 3...
+
+\subsection{Discusión general}
+\label{subsec:rt_discusion_general}
+% Aquí cierras el capítulo uniendo todo. 
+% - ¿Se ha cumplido el objetivo de que sea jugable?
+% - ¿Qué nivel de severidad del Aimbot (0, 0.7, 1) demostró ser el mejor equilibrio entre rendimiento y sensación de control por parte del usuario?
+% - ¿La latencia medida en los juegos corresponde con la frustración reportada en los formularios?Ñ
