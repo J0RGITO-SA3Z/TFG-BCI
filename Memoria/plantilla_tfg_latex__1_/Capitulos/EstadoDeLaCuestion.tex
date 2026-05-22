@@ -107,7 +107,11 @@ La limitada disponibilidad de datos constituye uno de los principales desafíos 
 \subsection{Características de la señal EEG}
 \label{subsec:CaracteristicasEEG}
 
-La señal obtenida del dispositivo EEG son las lecturas de los diferentes electrodos del dispositivo. Dicha señal está compuesta por ruido y por diferentes frecuencias conocidas como ritmos cerebrales o bandas de frecuencia. Cada una de las bandas se relaciona con diferentes funciones del cerebro o estados del mismo, y su análisis en el dominio de la frecuencia constituye uno de los enfoques más habituales en el procesado de señales EEG.
+La señal obtenida mediante un dispositivo EEG corresponde a las diferencias de potencial registradas por los distintos electrodos situados sobre el cuero cabelludo. Estas señales contienen tanto actividad cerebral relevante como diversas fuentes de ruido y artefactos fisiológicos o ambientales.
+
+Una de las principales características de las señales EEG es su naturaleza no estacionaria, ya que sus propiedades pueden variar a lo largo del tiempo. Además, existe una elevada variabilidad inter-sujeto debida a diferencias anatómicas y fisiológicas, como la geometría craneal, la conductividad de los tejidos o la distribución cortical.
+
+La actividad EEG puede descomponerse en distintas bandas de frecuencia, también conocidas como ritmos cerebrales, asociadas a diferentes estados cognitivos y funciones neuronales. El análisis de estas bandas en el dominio de la frecuencia constituye uno de los enfoques más utilizados en el procesamiento de señales EEG y en el desarrollo de sistemas BCI.
 
 La Tabla~\ref{tab:bandasEEG} resume las características principales de cada banda de frecuencia y su relevancia en el contexto de los sistemas BCI.
 
@@ -132,11 +136,36 @@ Gamma ($\gamma$) & >30     & Procesamiento cognitivo de alto nivel. Su extracci�
 \end{tabular}
 \end{table}
 
-En el contexto de los sistemas BCI basados en imaginación motora, las bandas \textbf{mu (8–13~Hz)} y \textbf{beta (13–30~Hz)} son las de mayor relevancia. Cuando un sujeto imagina la ejecución de un movimiento, se producen cambios en la potencia espectral de estas bandas.
+En el contexto de los sistemas BCI basados en imaginación motora, las bandas \textbf{mu (8–13~Hz)} y \textbf{beta (13–30~Hz)} son las de mayor relevancia. Cuando un sujeto imagina la ejecución de un movimiento, se producen cambios en estas bandas.
+
+A la hora de extraer características de señales EEG existen múltiples enfoques. Uno de los principales desafíos es el carácter no estacionario de estas señales, ya que sus propiedades espectrales pueden variar a lo largo del tiempo. Debido a ello, el análisis exclusivamente en frecuencia mediante la Transformada de Fourier presenta limitaciones al no conservar información temporal.
+
+Para abordar este problema se utilizan métodos tiempo-frecuencia como la Short-Time Fourier Transform (STFT) o la Wavelet Transform, capaces de analizar simultáneamente la evolución temporal y frecuencial de la señal EEG. Además, existen otros métodos ampliamente utilizados en sistemas BCI, como la extracción de matrices de covarianza o los filtros espaciales Common Spatial Patterns (CSP). \cite{singh2021comprehensive}
 
 \subsection{Artefactos y ruido en señales EEG}
 \label{subsec:artefactosEEG}
 
+Como se ha mencionado anteriormente, uno de los principales inconvenientes de los dispositivos EEG es su baja relación señal-ruido (SNR). Debido a ello, uno de los mayores desafíos en el procesamiento de señales EEG consiste en mejorar la calidad de la señal registrada con el fin de facilitar tanto su análisis como el entrenamiento de modelos de inteligencia artificial.
+
+Se considera ruido o artefacto cualquier señal captada por el dispositivo EEG que no pertenezca a la actividad cerebral de interés. Por este motivo, resulta fundamental identificar las principales fuentes de interferencia para poder separarlas o atenuarlas durante las etapas de preprocesamiento y de recolección de los datos. \cite{jiang2019removal}
+
+Las fuentes de ruido en EEG pueden clasificarse en dos grandes grupos: interferencias ambientales y artefactos producidos por el propio sujeto. Entre las más relevantes se encuentran las siguientes:
+
+\begin{itemize}
+
+\item \textbf{Artefactos oculares (EOG):} producidos principalmente por parpadeos y movimientos oculares. Constituyen una de las fuentes de ruido más frecuentes en EEG debido a la elevada amplitud del potencial eléctrico generado por los ojos, afectando especialmente a los electrodos frontales.
+
+\item \textbf{Artefactos musculares (EMG):} originados por la actividad muscular del sujeto, como tensión mandibular, movimiento facial o contracción del cuello. Este tipo de artefactos suele introducir componentes de alta frecuencia que pueden solaparse con las bandas de interés en imaginación motora.
+
+\item \textbf{Artefactos cardíacos (ECG):} provocados por la actividad eléctrica del corazón. Aunque su impacto suele ser menor que el de otros artefactos fisiológicos, puede propagarse a determinados canales EEG y alterar el registro.
+
+\item \textbf{Interferencia de la red eléctrica:} causada por dispositivos electrónicos cercanos y por la propia instalación eléctrica. En Europa aparece principalmente a 50~Hz y suele eliminarse mediante filtros notch.
+
+\item \textbf{Movimiento de electrodos:} producido por desplazamientos del cableado o variaciones en el contacto entre el electrodo y el cuero cabelludo. Puede generar cambios bruscos en la señal y deriva de baja frecuencia.
+
+\item \textbf{Sudoración y cambios de impedancia:} las variaciones en la conductividad entre el electrodo y la piel pueden introducir fluctuaciones lentas.
+
+\end{itemize}
 
 \subsection{Preprocesado de la señal EEG}
 \label{subsec:preprocesadoEEG}
@@ -145,9 +174,7 @@ Las señales EEG son especialmente sensibles a interferencias externas y artefac
 
 Respecto a la normalización, se han propuesto diferentes estrategias para reducir las diferencias individuales en la actividad cerebral basal. Una de las más empleadas es la normalización por baseline, que consiste en restar o dividir la actividad registrada durante una ventana de reposo tomada como referencia antes de cada tarea. Otra técnica relevante es el Euclidean Alignment, que alinea matemáticamente las señales de cada sujeto hacia una referencia común, permitiendo que el modelo entrenado con datos de otros usuarios se adapte mejor a uno nuevo sin necesidad de datos etiquetados adicionales, lo que resulta especialmente útil en entornos de uso real.
 
-% TODO
 
-% ─────────────────────────────────────────────────────────────────────────────
 \section{Interfaces cerebro-computador}
 \label{sec:bci}
 
