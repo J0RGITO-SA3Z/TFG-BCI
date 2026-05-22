@@ -3,7 +3,8 @@
     "allow": [
       "Bash(C:\\\\Users\\\\julianix\\\\miniconda3\\\\envs\\\\bci-mi-tfg\\\\python.exe -m pip install onnx)",
       "PowerShell(C:\\\\Users\\\\julianix\\\\miniconda3\\\\envs\\\\bci-mi-tfg\\\\python.exe -m pip install onnx)",
-      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\julianix\\\\Documents\\\\programacion\\\\python\\\\TFG-BCI\\\\EEG_app\\\\src\\\\\" -Recurse -Directory | Select-Object -ExpandProperty FullName | Sort-Object)"
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\julianix\\\\Documents\\\\programacion\\\\python\\\\TFG-BCI\\\\EEG_app\\\\src\\\\\" -Recurse -Directory | Select-Object -ExpandProperty FullName | Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\julianix\\\\Documents\\\\programacion\\\\python\\\\TFG-BCI\\\\lib\" -Recurse -Force | Select-Object FullName | ForEach-Object { $_.FullName.Substring\\(\"c:\\\\Users\\\\julianix\\\\Documents\\\\programacion\\\\python\\\\TFG-BCI\\\\\".Length\\) })"
     ]
   }
 }
