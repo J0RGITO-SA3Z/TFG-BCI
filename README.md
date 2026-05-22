@@ -2,7 +2,7 @@
 
 Sistema BCI basado en imaginación motora que clasifica señales EEG en tiempo real para controlar videojuegos y parámetros MIDI. Desarrollado como Trabajo de Fin de Grado.
 
-> **Importante:** La aplicación está diseñada exclusivamente para el dispositivo **BrainAccess Mini**. No es compatible con otros cascos EEG.
+> **Importante:** La aplicación está diseñada exclusivamente para el dispositivo **BrainAccess Mini**. No es compatible con otros dispositivos EEG.
 
 ---
 

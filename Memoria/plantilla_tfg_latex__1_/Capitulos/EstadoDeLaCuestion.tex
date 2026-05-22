@@ -92,7 +92,7 @@ Los dispositivos EEG se diferencian en primer lugar por el número de electrodos
 Por otro lado los dispositivos EEG también se diferencia por otras características como la frecuencia de muestreo y la presencia de mecanismos para aumentar la relación señal/ruido. Entre estos mecanísmos se encuentra la presencia de un electrodo BIAS o tierra el cual intenta anular el ruido general leido por el EEG. 
 
 \subsection{Ventajas sobre otros métodos de adquisición}
-\label{subsec:CaracteristicasEEG}
+\label{subsec:ventajasEEG}
 
 Las principales ventajas de los dispositivos basados en electroencefalografía (EEG) frente a otras técnicas de adquisición de actividad cerebral residen en su elevada resolución temporal, su carácter no invasivo y su accesibilidad económica. La alta resolución temporal del EEG permite detectar cambios en la actividad cerebral en escalas del orden de milisegundos, lo que resulta especialmente útil en aplicaciones en tiempo real como los sistemas Brain-Computer Interface (BCI). Esta característica supone una ventaja frente a otras técnicas como la espectroscopía funcional de infrarrojo cercano (fNIRS), cuya respuesta temporal es considerablemente más lenta.
 
@@ -174,32 +174,32 @@ Las señales EEG son especialmente sensibles a interferencias externas y artefac
 
 Respecto a la normalización, se han propuesto diferentes estrategias para reducir las diferencias individuales en la actividad cerebral basal. Una de las más empleadas es la normalización por baseline, que consiste en restar o dividir la actividad registrada durante una ventana de reposo tomada como referencia antes de cada tarea. Otra técnica relevante es el Euclidean Alignment, que alinea matemáticamente las señales de cada sujeto hacia una referencia común, permitiendo que el modelo entrenado con datos de otros usuarios se adapte mejor a uno nuevo sin necesidad de datos etiquetados adicionales, lo que resulta especialmente útil en entornos de uso real.
 
-
 \section{Interfaces cerebro-computador}
 \label{sec:bci}
 
-% TODO
+% TODO (descripcion)
 
-\subsection{Definición de BCI}
-\label{subsec:definicionBCI}
-
-% TODO
-
-\subsection{Paradigmas}
+\subsection{Paradigmas BCI}
 \label{subsec:paradigmasBCI}
 
-Existen diversos paradigmas BCI en función del mecanismo cerebral empleado. Entre los más relevantes se encuentran el paradigma P300, basado en la detección de un potencial evocado que aparece aproximadamente 300~ms después de un estímulo relevante, y el paradigma Steady-State Visual Evoked Potential (SSVEP), que aprovecha la respuesta cerebral sincronizada con estímulos visuales periódicos. Ambos paradigmas suelen ofrecer mayores tasas de precisión y menor tiempo de calibración, razón por la cual han sido ampliamente utilizados desde las primeras etapas del desarrollo de los sistemas BCI. Sin embargo, dependen de la presentación continua de estímulos visuales, auditivos o táctiles, lo que limita su naturalidad en según qué aplicaciones.
+Existen diversos paradigmas BCI en función del mecanismo cerebral que se pretende detectar. Entre los más relevantes se encuentran el paradigma P300, basado en la detección de un potencial evocado que aparece aproximadamente 300~ms después de un estímulo relevante, y el paradigma Steady-State Visual Evoked Potential (SSVEP), que aprovecha la respuesta cerebral sincronizada con estímulos visuales periódicos. Ambos paradigmas suelen ofrecer altas tasas de precisión y bajo tiempo de calibración, razón por la cual han sido ampliamente utilizados desde las primeras etapas del desarrollo de los sistemas BCI. Sin embargo, dependen de la presentación continua de estímulos visuales, auditivos o táctiles, lo que limita su naturalidad en según qué aplicaciones.
+
+Con estos paradigmas se han desarrollado sistemas de comunicación y escritura, así como sistemas de control de sillas de ruedas destinados a personas con discapacidades motoras severas, como pacientes con ELA o parálisis avanzada~\cite{guger2009p300}.
+
+Uno de los ejemplos más conocidos son los teclados virtuales basados en BCI, donde el usuario selecciona caracteres mediante la observación de estímulos visuales presentados en una pantalla. En paradigmas basados en SSVEP, cada letra o comando parpadea a una frecuencia distinta, permitiendo identificar el elemento observado a partir de la respuesta cerebral evocada correspondiente
 
 Por el contrario, el paradigma de imaginación motora (Motor Imagery, MI) permite generar comandos de forma voluntaria sin necesidad de estímulos externos. Aunque presenta habitualmente una mayor dificultad de clasificación y requiere un entrenamiento más prolongado por parte del usuario, resulta una alternativa especialmente atractiva para aplicaciones naturales, continuas o de rehabilitación, así como para su integración en videojuegos o entornos interactivos.
 
-En el paradigma de imaginación motora, el usuario imagina la ejecución de un movimiento sin llegar a realizarlo físicamente, lo que provoca cambios detectables en la actividad cortical asociados a la planificación y representación motora. Una modalidad especialmente relevante es la Kinesthetic Motor Imagery, en la que el sujeto no solo representa visualmente la acción, sino que imagina la sensación interna del movimiento, incluyendo esfuerzo muscular, posición articular o desplazamiento del miembro. Estas variaciones se observan principalmente en regiones sensorimotoras del cerebro, localizadas alrededor del córtex motor primario, especialmente en áreas próximas a los electrodos C3, Cz y C4 del sistema internacional 10-20. Desde el punto de vista espectral, la información más relevante suele encontrarse en las bandas mu (8–13~Hz) y beta (13–30~Hz), donde se producen fenómenos de desincronización y resincronización relacionados con eventos motores. La detección de estos patrones permite diferenciar distintas tareas, como imaginar el movimiento de la mano izquierda, la mano derecha o los pies.
+En el paradigma de imaginación motora, el usuario imagina la ejecución de un movimiento sin llegar a realizarlo físicamente. Existen dos modalidades principales: la imaginación motora visual (Visual Motor Imagery, VMI), en la que el sujeto se representa visualmente a sí mismo realizando el movimiento como si observara la imagen de su propia mano moviéndose; y la imaginación motora kinestésica (Kinesthetic Motor Imagery, KMI), en la que el sujeto imagina la sensación interna del movimiento, incluyendo el esfuerzo muscular, la posición articular y el desplazamiento del miembro. Está ampliamente demostrado que la KMI genera patrones corticales más pronunciados y diferenciables que la VMI, lo que se traduce en una mayor precisión de clasificación en sistemas BCI~\cite{wriessnegger2018frequency}. Ambas modalidades provocan cambios detectables en la actividad cortical asociados a la planificación y representación motora. Estas variaciones se observan principalmente en regiones sensorimotoras del cerebro, localizadas alrededor del córtex motor primario, especialmente en áreas próximas a los electrodos C3, Cz y C4 del sistema internacional 10-20. Desde el punto de vista espectral, la información más relevante suele encontrarse en las bandas mu (8–13~Hz) y beta (13–30~Hz), donde se producen fenómenos de desincronización y resincronización relacionados con eventos motores. La detección de estos patrones permite diferenciar distintas tareas, como imaginar el movimiento de la mano izquierda, la mano derecha o los pies.
 
 \subsection{Evolución de los modelos de clasificación}
 \label{subsec:evolucionModelos}
 
 Dentro del ámbito de la clasificación EEG, uno de los principales desafíos actuales es la elevada variabilidad entre sujetos y entre sesiones, lo que dificulta la generalización de los modelos entrenados sobre múltiples usuarios. Esta variabilidad se debe tanto a diferencias anatómicas y fisiológicas entre individuos como a cambios en el estado del usuario a lo largo del tiempo. Para mitigar este problema, es habitual aplicar técnicas de preprocesado y normalización antes de la clasificación.
 
-Uno de los modelos de referencia en clasificación EEG es EEGNet, una red neuronal convolucional diseñada para diferentes tareas de análisis EEG mediante un número reducido de parámetros. Más recientemente han surgido arquitecturas especializadas como MiRepNet, orientadas específicamente a la clasificación de imaginación motora, que buscan aprender representaciones más robustas a partir de grandes volúmenes de datos procedentes de distintos sujetos y conjuntos experimentales, permitiendo posteriormente adaptar el modelo mediante procesos de fine-tuning con una cantidad reducida de datos del usuario final.
+Uno de los modelos de referencia en clasificación EEG es EEGNet, una red neuronal convolucional diseñada para diferentes tareas de análisis EEG mediante un número reducido de parámetros. Más recientemente han surgido los denominados modelos fundacionales, que buscan aprender representaciones generales a partir de grandes colecciones de datos combinando múltiples datasets, para posteriormente adaptarse a tareas o sujetos específicos mediante \textit{fine-tuning}. Sin embargo, mezclar datos de distintos paradigmas BCI puede resultar problemático debido a las diferencias neurofisiológicas existentes entre ellos.
+
+En este contexto destaca MiRepNet~\cite{liu2025mirepnetpipelinefoundationmodel}, un modelo fundacional especializado exclusivamente en imaginación motora. Su arquitectura está basada en el \textit{transformer} y consta de tres bloques principales: un tokenizador que transforma la señal EEG en representaciones vectoriales mediante convoluciones temporales y espaciales, un encoder \textit{transformer} que modela las relaciones entre dichas representaciones, y una cabeza de clasificación. El modelo se preentrena sobre más de 50.000 \textit{trials} de imaginación motora procedentes de múltiples datasets, aprendiendo así patrones generales de este paradigma. Posteriormente, mediante un proceso de \textit{fine-tuning} con una cantidad reducida de datos del sujeto objetivo, el modelo se adapta de forma eficaz a las características individuales de cada usuario.
 
 \subsection{Potenciales aplicaciones}
 \label{subsec:aplicacionesBCI}
