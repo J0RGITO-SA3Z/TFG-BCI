@@ -100,9 +100,9 @@ Además, el EEG es una técnica completamente no invasiva, ya que la adquisició
 
 Por otro lado, existen técnicas como la Magnetoencephalography (MEG), que presentan una resolución temporal similar al EEG y una resolución espacial superior. Sin embargo, los sistemas MEG requieren equipamiento altamente especializado y de elevado coste económico, incluyendo sensores superconductores y salas aisladas magnéticamente, lo que limita considerablemente su accesibilidad y disponibilidad.
 
-En el ámbito del aprendizaje automático aplicado a sistemas BCI, la disponibilidad de grandes volúmenes de datos resulta fundamental para entrenar modelos robustos y generalizables. Debido a su bajo coste y facilidad de uso, el EEG es actualmente una de las técnica con mayor cantidad de datasets públicos disponibles. Esta disponibilidad de datos constituye una ventaja significativa frente a otras técnicas más precisas pero menos accesibles.
+En el ámbito del aprendizaje automático aplicado a sistemas BCI, la disponibilidad de grandes volúmenes de datos resulta fundamental para entrenar modelos robustos y generalizables. Debido a su bajo coste y facilidad de uso, el EEG es actualmente una de las técnica con mayor cantidad de \textit{datasets} públicos disponibles. Esta disponibilidad de datos constituye una ventaja significativa frente a otras técnicas más precisas pero menos accesibles.
 
-La limitada disponibilidad de datos constituye uno de los principales desafíos en el desarrollo de sistemas Brain-Computer Interface (BCI), especialmente en aplicaciones basadas en aprendizaje profundo, donde son necesarios grandes volúmenes de datos para entrenar modelos robustos y generalizables. Para facilitar la investigación y mejorar la reproducibilidad de resultados, han surgido múltiples iniciativas orientadas a la publicación de datasets abiertos y estandarizados. Entre las más relevantes destacan las competiciones \textit{BCI Competition} \cite{bci_competition_iv}, los repositorios abiertos como \textit{PhysioNet} \cite{physionet_eeg}, y plataformas de benchmarking como \textit{MOABB} (\textit{Mother Of All BCI Benchmarks}) \cite{moabb}. Estas iniciativas han permitido establecer entornos comunes de evaluación y comparación entre algoritmos, favoreciendo el avance de nuevos métodos de clasificación EEG.
+La limitada disponibilidad de datos constituye uno de los principales desafíos en el desarrollo de sistemas Brain-Computer Interface (BCI), especialmente en aplicaciones basadas en aprendizaje profundo, donde son necesarios grandes volúmenes de datos para entrenar modelos robustos y generalizables. Para facilitar la investigación y mejorar la reproducibilidad de resultados, han surgido múltiples iniciativas orientadas a la publicación de \textit{datasets} abiertos y estandarizados. Entre las más relevantes destacan las competiciones \textit{BCI Competition} \cite{bci_competition_iv}, los repositorios abiertos como \textit{PhysioNet} \cite{physionet_eeg}, y plataformas de \textit{benchmarking} como \textit{MOABB} (\textit{Mother Of All BCI Benchmarks}) \cite{moabb}. Estas iniciativas han permitido establecer entornos comunes de evaluación y comparación entre algoritmos, favoreciendo el avance de nuevos métodos de clasificación EEG.
 
 \subsection{Características de la señal EEG}
 \label{subsec:CaracteristicasEEG}
@@ -159,7 +159,7 @@ Las fuentes de ruido en EEG pueden clasificarse en dos grandes grupos: interfere
 
 \item \textbf{Artefactos cardíacos (ECG):} provocados por la actividad eléctrica del corazón. Aunque su impacto suele ser menor que el de otros artefactos fisiológicos, puede propagarse a determinados canales EEG y alterar el registro.
 
-\item \textbf{Interferencia de la red eléctrica:} causada por dispositivos electrónicos cercanos y por la propia instalación eléctrica. En Europa aparece principalmente a 50~Hz y suele eliminarse mediante filtros notch.
+\item \textbf{Interferencia de la red eléctrica:} causada por dispositivos electrónicos cercanos y por la propia instalación eléctrica. En Europa aparece principalmente a 50~Hz y suele eliminarse mediante filtros \textit{notch}.
 
 \item \textbf{Movimiento de electrodos:} producido por desplazamientos del cableado o variaciones en el contacto entre el electrodo y el cuero cabelludo. Puede generar cambios bruscos en la señal y deriva de baja frecuencia.
 
@@ -172,12 +172,13 @@ Las fuentes de ruido en EEG pueden clasificarse en dos grandes grupos: interfere
 
 Las señales EEG son especialmente sensibles a interferencias externas y artefactos fisiológicos, como los producidos por movimientos oculares o actividad muscular. Por ello, es habitual aplicar filtros paso banda para conservar únicamente las frecuencias de interés —en el caso de imaginación motora, principalmente las bandas mu (8–13~Hz) y beta (13–30~Hz)— así como técnicas de eliminación de artefactos.
 
-Respecto a la normalización, se han propuesto diferentes estrategias para reducir las diferencias individuales en la actividad cerebral basal. Una de las más empleadas es la normalización por baseline, que consiste en restar o dividir la actividad registrada durante una ventana de reposo tomada como referencia antes de cada tarea. Otra técnica relevante es el Euclidean Alignment, que alinea matemáticamente las señales de cada sujeto hacia una referencia común, permitiendo que el modelo entrenado con datos de otros usuarios se adapte mejor a uno nuevo sin necesidad de datos etiquetados adicionales, lo que resulta especialmente útil en entornos de uso real.
+Respecto a la normalización, se han propuesto diferentes estrategias para reducir las diferencias individuales en la actividad cerebral basal. Una de las más empleadas es la normalización por \textit{baseline}, que consiste en restar o dividir la actividad registrada durante una ventana de reposo tomada como referencia antes de cada tarea. Otra técnica relevante es el \textit{Euclidean Alignment}, que alinea matemáticamente las señales de cada sujeto hacia una referencia común, permitiendo que el modelo entrenado con datos de otros usuarios se adapte mejor a uno nuevo sin necesidad de datos etiquetados adicionales, lo que resulta especialmente útil en entornos de uso real.
 
 \section{Interfaces cerebro-computador}
 \label{sec:bci}
+Una interfaz cerebro-computador, o BCI por sus siglas en inglés (Brain-Computer Interface), es un sistema que establece un canal de comunicación directo entre el cerebro y el mundo exterior. Su principio de funcionamiento es conceptualmente simple: toma como entrada una determinada actividad cerebral medible y produce como salida un comando o mensaje construido a partir de interpretar dicha señal, actuando así como un puente que elimina la dependencia del sistema nervioso periférico y la musculatura voluntaria para interactuar con el entorno~\cite{mcfarland2002brain}.
 
-% TODO (descripcion)
+Los sistemas BCI realizan dicha traducción de formas diferentes dependiendo del paradigma empleado, entendido como el tipo de tarea mental que realiza el usuario durante la adquisición de la actividad cerebral. Existen diversos paradigmas que explotan diferentes mecanismos neurofisiológicos, involucrando secciones especializadas del cerebro, y cuya adecuación depende en gran medida de la aplicación concreta para la que se diseña el sistema~\cite{nicolas2012brain}.
 
 \subsection{Paradigmas BCI}
 \label{subsec:paradigmasBCI}
@@ -195,19 +196,24 @@ En el paradigma de imaginación motora, el usuario imagina la ejecución de un m
 \subsection{Evolución de los modelos de clasificación}
 \label{subsec:evolucionModelos}
 
-Dentro del ámbito de la clasificación EEG, uno de los principales desafíos actuales es la elevada variabilidad entre sujetos y entre sesiones, lo que dificulta la generalización de los modelos entrenados sobre múltiples usuarios. Esta variabilidad se debe tanto a diferencias anatómicas y fisiológicas entre individuos como a cambios en el estado del usuario a lo largo del tiempo. Para mitigar este problema, es habitual aplicar técnicas de preprocesado y normalización antes de la clasificación.
+Históricamente, los primeros modelos de aprendizaje automático aplicados a interfaces cerebro-computador (BCI) se basaban en arquitecturas importadas de otros dominios, especialmente de la visión por computador, sin una adaptación específica a las características propias de las señales EEG. Posteriormente, surgieron modelos diseñados específicamente para este tipo de señales, como EEGNet, cuya arquitectura incorpora mecanismos orientados a capturar tanto patrones temporales como espaciales característicos del EEG.
 
-Uno de los modelos de referencia en clasificación EEG es EEGNet, una red neuronal convolucional diseñada para diferentes tareas de análisis EEG mediante un número reducido de parámetros. Más recientemente han surgido los denominados modelos fundacionales, que buscan aprender representaciones generales a partir de grandes colecciones de datos combinando múltiples datasets, para posteriormente adaptarse a tareas o sujetos específicos mediante \textit{fine-tuning}. Sin embargo, mezclar datos de distintos paradigmas BCI puede resultar problemático debido a las diferencias neurofisiológicas existentes entre ellos.
+No obstante, estos modelos suelen entrenarse en escenarios con una cantidad limitada de datos, ya sea a nivel intra-sujeto o utilizando \textit{datasets} relativamente pequeños, lo que limita su capacidad de generalización. Con el objetivo de abordar esta limitación, han surgido los denominados modelos fundacionales, que buscan aprender representaciones generales a partir de grandes colecciones de datos. Para ello, estos modelos suelen combinar múltiples \textit{datasets}, en ocasiones pertenecientes a distintos paradigmas BCI, y posteriormente adaptarse a tareas específicas mediante técnicas de \textit{fine-tuning}.
 
-En este contexto destaca MiRepNet~\cite{liu2025mirepnetpipelinefoundationmodel}, un modelo fundacional especializado exclusivamente en imaginación motora. Su arquitectura está basada en el \textit{transformer} y consta de tres bloques principales: un tokenizador que transforma la señal EEG en representaciones vectoriales mediante convoluciones temporales y espaciales, un encoder \textit{transformer} que modela las relaciones entre dichas representaciones, y una cabeza de clasificación. El modelo se preentrena sobre más de 50.000 \textit{trials} de imaginación motora procedentes de múltiples datasets, aprendiendo así patrones generales de este paradigma. Posteriormente, mediante un proceso de \textit{fine-tuning} con una cantidad reducida de datos del sujeto objetivo, el modelo se adapta de forma eficaz a las características individuales de cada usuario.
+Sin embargo, la mezcla de datos procedentes de diferentes paradigmas puede resultar problemática debido a las diferencias neurofisiológicas existentes entre ellos, lo que puede afectar negativamente a la calidad de las representaciones aprendidas. En este contexto, MiRepNet~\cite{liu2025mirepnetpipelinefoundationmodel} se plantea como un modelo fundacional especializado en imaginación motora, entrenado exclusivamente con \textit{datasets} de este paradigma. De este modo, busca aprender patrones generales específicos de la imaginación motora que permitan, mediante \textit{fine-tuning} con una cantidad reducida de datos, adaptarse eficazmente a nuevos sujetos.
 
-\subsection{Potenciales aplicaciones}
-\label{subsec:aplicacionesBCI}
-
-% TODO
+En la literatura se han realizado comparaciones de rendimiento entre distintos tipos de modelos de clasificación EEG, evaluando arquitecturas genéricas frente a modelos especializados y fundacionales, como por ejemplo en~\cite{liu2025mirepnetpipelinefoundationmodel}.
 
 % ─────────────────────────────────────────────────────────────────────────────
-\section{Trabajos relacionados y aplicaciones prácticas de BCI}
+\section{BCI aplicado a videojuegos}
 \label{sec:trabajosRelacionados}
 
-% TODO
+% Definicion de videojuego (asignar acciones dentro del juego a los eventos detectados por el BCI)
+
+\subsection{Mecánicas de videojuegos}
+\label{subsec:MecanicasVideojuegos}
+
+\subsection{Accesibilidad en videojuegos}
+\label{subsec:AccesibilidadVideojuegos}
+
+(accessibilidad y busqueda de mecanicas)
