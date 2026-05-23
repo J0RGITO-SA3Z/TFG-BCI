@@ -2,13 +2,21 @@
 \label{cap:contribucionesPersonales}
 \addcontentsline{toc}{chapter}{Contribuciones Personales}
 
-En caso de trabajos no unipersonales, cada participante indicará en la memoria su contribución al proyecto con una extensión de al menos dos páginas por cada uno de los participantes.
+\section*{Miguel Xuclá Herrero}
 
-En caso de trabajo unipersonal, elimina esta página en el fichero \texttt{TFGTeXiS.tex} (comenta o borra la línea \verb|\include{Capitulos/ContribucionesPersonales}|).
 
-\section*{Estudiante 1}
-Al menos dos páginas con las contribuciones del estudiante 1.
+\section*{Jorge Sáez Salto}
 
-\section*{Estudiante 2}
-Al menos dos páginas con las contribuciones del estudiante 2. En caso de que haya más estudiantes, copia y pega una de estas secciones.
 
+\section*{Julián Reguera Peñalosa}
+Julián fue el encargado de estudiar la librería asociada al dispositivo EEG \textit{BrainAccess MIDI}, así como toda la documentación y API proporcionada por el fabricante. A partir de ello, realizó una investigación inicial sobre el funcionamiento general de los dispositivos EEG y, más concretamente, sobre el proceso de adquisición y manejo de señales utilizando el dispositivo BrainAccess MIDI desde Python.
+
+Durante las primeras fases del desarrollo también se encargó de preparar el entorno de trabajo común del proyecto, desarrollando scripts de instalación y ejecución de la aplicación con el objetivo de simplificar la configuración del entorno y facilitar el desarrollo al resto de integrantes del equipo.
+
+Posteriormente llevó a cabo una investigación sobre distintos métodos de interpolación espacial aplicados a señales EEG, estudiando especialmente los métodos utilizados habitualmente en librerías de procesamiento como MNE. Como resultado de este trabajo desarrolló la primera versión funcional de la aplicación EEG, que permitía configurar el dispositivo, comprobar las impedancias de los electrodos y realizar grabaciones básicas de señal.
+
+Además, participó en la definición del protocolo experimental utilizado durante las fases preliminares de captura de señal (véase el Capítulo~\ref{cap:experimentosPreliminares}), colaborando en la preparación de las sesiones y en la evaluación de la calidad de las grabaciones obtenidas. También participó en todas las grabaciones del experimento piloto y fue el encargado principal de realizar las grabaciones definitivas utilizadas posteriormente en la evaluación del modelo y el preprocesado.
+
+En relación con el procesamiento de señal y los modelos de aprendizaje, colaboró en la investigación y evaluación de diferentes técnicas de filtrado y normalización de señales EEG, así como en el estudio del modelo MiRepNet y su posible adaptación al problema de imaginación motora abordado en el proyecto.
+
+Dentro del sistema de tiempo real, diseñó e implementó la arquitectura basada en procesos independientes utilizada por la aplicación EEG, así como los mecanismos de comunicación entre dichos procesos. También desarrolló gran parte de la cadena de adquisición y procesamiento en tiempo real, incluyendo la captura continua de datos, la implementación de buffers circulares para el manejo de ventanas de señal, la aplicación de filtros y normalizaciones en línea y la integración del modelo de clasificación dentro del flujo completo de inferencia.

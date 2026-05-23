@@ -208,12 +208,38 @@ En la literatura se han realizado comparaciones de rendimiento entre distintos t
 \section{BCI aplicado a videojuegos}
 \label{sec:trabajosRelacionados}
 
-% Definicion de videojuego (asignar acciones dentro del juego a los eventos detectados por el BCI)
+La aplicación de sistemas BCI a videojuegos es un tema que despierta un gran interés debido a sus múltiples apariciones en la ciencia ficción, donde se plantea la posibilidad de controlar un avatar o interactuar con un entorno virtual únicamente mediante el pensamiento. Sin embargo, la realidad actual está todavía lejos de este escenario. En la práctica, la mayoría de las interfaces BCI aplicadas a videojuegos están orientadas a contextos médicos y de rehabilitación, más que al entretenimiento, debido principalmente al elevado coste de los dispositivos EEG, a la fatiga que se produce con muchos de los paradigmas BCI que requieren un alto nivel de concentracion y a las limitaciones técnicas existentes~\cite{kerous2018eeg}.
+
+Aun así, con el objetivo de acercar la tecnología BCI al ámbito de los videojuegos, los enfoques adoptados en la actualidad se centran principalmente en dos líneas. La primera consiste en la creación de experiencias innovadoras y nuevas mecánicas de interacción que aprovechen las capacidades de las interfaces cerebro-computador más allá de los métodos de control tradicionales. La segunda está orientada a mejorar la accesibilidad, permitiendo que personas con movilidad reducida o discapacidades motoras puedan interactuar con videojuegos mediante señales cerebrales, facilitando así su acceso a experiencias que de otro modo podrían resultar inaccesibles.
 
 \subsection{Mecánicas de videojuegos}
 \label{subsec:MecanicasVideojuegos}
 
+Una mecánica de un videojuego se define como el conjunto de reglas, acciones y medios que determinan cómo un usuario puede interactuar con el mundo virtual [Sicart, 2008]. Existe una gran variedad de mecánicas que refleja la amplitud del espacio de diseño que la industria ha explorado a lo largo de su historia. Entre las principales categorías se encuentran:
+
+- Controles de movimiento y desplazamiento: Comprenden las acciones más básicas relacionadas con la navegación por el mundo virtual, como correr, saltar, agacharse o nadar, y constituyen el núcleo de la interacción en la mayoría de géneros.
+
+- Control de cámara y perspectiva: Engloban las acciones que determinan el punto de vista del jugador, como orientar la vista, hacer zoom o cambiar entre perspectivas, y aunque a menudo pasan desapercibidas, representan un input prácticamente continuo durante el juego.
+
+- Combate y acción: Incluyen acciones como atacar, defenderse, apuntar o esquivar, y constituyen el eje central de géneros como los shooters, los juegos de lucha o los RPGs de acción.
+
+- Interacción con el entorno: Abarcan acciones como coger objetos, activar mecanismos, resolver puzzles o explorar el escenario, siendo especialmente relevantes en juegos de aventura o mundo abierto.
+
+- Gestión de recursos: Comprenden la administración del inventario, la economía del juego, el crafting o la gestión de tiempo y energía, aportando una dimensión estratégica a la experiencia.
+
+- Progresión y personalización: Incluyen sistemas de subida de nivel, desbloqueo de habilidades y modificación del personaje o equipamiento, que dotan al jugador de una sensación de evolución a lo largo de la partida.
+
+La implementación de todas estas categorías recae históricamente sobre un conjunto reducido de dispositivos de entrada: el teclado y ratón en PC, y el mando en consola. Pese a los numerosos intentos de la industria por ampliar este espacio, ninguna alternativa ha logrado desplazar estos dispositivos como estándar dominante, lo que refleja que el margen de innovación dentro del paradigma de input físico convencional es cada vez más estrecho.
+
+La industria, durante décadas, ha intentado explorar nuevas formas de interactuar con los videojuegos con el fin de ampliar el espacio de interacción y aumentar la inmersión. Muchas compañías lanzaron productos pioneros con ideas vanguardistas, desde el control mediante gestos y movimiento corporal con el Nintendo Power Glove (1989), el Wii Remote (2006) o el Microsoft Kinect (2010), hasta el reconocimiento de voz con el LaserScope de Konami (1992), llegando incluso a propuestas más extremas como los trajes hápticos, la estimulación muscular eléctrica o la realidad virtual. Sin 
+
 \subsection{Accesibilidad en videojuegos}
 \label{subsec:AccesibilidadVideojuegos}
 
-(accessibilidad y busqueda de mecanicas)
+Uno de los campos más prometedores de aplicación de las interfaces cerebro-computador (BCI) en videojuegos es la accesibilidad. Los videojuegos tradicionales requieren habitualmente dispositivos de entrada físicos, como teclados, ratones o mandos, cuya utilización puede resultar complicada o incluso imposible para personas con discapacidades motoras severas. Facilitar el acceso al videojuego a personas con movilidad reducida o nula puede contribuir significativamente a mejorar su calidad de vida, permitiéndoles interactuar con otros jugadores y participar en experiencias de ocio digital.
+
+Ante esta problemática han surgido múltiples métodos de interacción adaptados, entre los que se incluyen joysticks bucales que funcionan soplando o aspirando aire, como el QuadStick FPS Controller, o sistemas de rastreo ocular como el Tobii Eye Tracker 5. Estas tecnologías permiten a muchos usuarios controlar videojuegos mediante movimientos mínimos, ofreciendo alternativas a los dispositivos tradicionales.
+
+En este contexto, las tecnologías puede llegar a ofrecer BCI una nueva vía de interacción capaz de permitir el acceso al ocio digital mediante el uso directo de señales cerebrales. A diferencia de otros sistemas adaptativos, las interfaces cerebro-computador pueden reducir o incluso eliminar la necesidad de movimiento físico, interpretando la actividad cerebral del usuario para traducirla en acciones dentro del videojuego. Esto las convierte en una herramienta especialmente relevante para personas con discapacidades motoras muy severas, ampliando las posibilidades de accesibilidad en el ámbito de los videojuegos.
+
+No obstante, la literatura también señala que los resultados obtenidos en entornos experimentales suelen ser mejores que los alcanzables en condiciones reales, debido a factores como las distracciones, el ruido del entorno o la fatiga del usuario~\cite{kerous2018eeg}.
