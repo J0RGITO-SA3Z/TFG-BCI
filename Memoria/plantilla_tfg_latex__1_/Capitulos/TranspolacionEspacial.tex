@@ -29,7 +29,14 @@ Finalmente se obtiene el trial interpolado:
 
 \[X'[i,t] = \sum_{c=1}^{C_o} W_{ic}\,X[c,t], \quad i=1,\ldots,C_f,\ t=1,\ldots,T.\]
 
-Este método tiene varias variantes según la función utilizada para proyectar los canales en 2D. Se han probado tanto la función proporcionada por MNE como la usada en el código original de MiRepNet. Como se puede observar en la figura [figura], la función de MNE respeta más las posiciones reales de los electrodos en el cuero cabelludo, mientras que la función de MiRepNet únicamente representa la posición relativa entre ellos.
+Este método tiene varias variantes según la función utilizada para proyectar los canales en 2D. Se han probado tanto la función proporcionada por MNE como la usada en el código original de MiRepNet. Como se puede observar en la Figura~\ref{fig:layout2D}, la función de MNE respeta más las posiciones reales de los electrodos en el cuero cabelludo, mientras que la función de MiRepNet únicamente representa la posición relativa entre ellos.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Imagenes/Bitmap/Layout2DInterpolacion.png}
+    \caption{Comparación de los layouts 2D generados por MNE (izquierda) y MiRepNet (derecha) para la proyección de los electrodos.}
+    \label{fig:layout2D}
+\end{figure}
 
 \subsection{Interpolación mediante \textit{splines} esféricos}
 \label{subsec:interp_splines}
