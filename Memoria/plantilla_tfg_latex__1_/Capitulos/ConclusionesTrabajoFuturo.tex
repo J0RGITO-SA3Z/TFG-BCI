@@ -1,21 +1,109 @@
 \chapter{Conclusiones y Trabajo Futuro}
-\label{cap:conclusiones}
+\label{cap:conclusiones_y_trabajo_futuro}
 
-En conclusión, como se ha observado en la comparación de los distintos métodos de preprocesado de la señal, pese a la baja densidad de electrodos utilizada (14 canales) y al empleo de un dispositivo EEG con electrodos secos, se ha comprobado que la clasificación binaria de tareas de imaginación motora en usuarios sin experiencia previa puede alcanzar precisiones de hasta el 97 \%.
+\section{Conclusiones}
+\label{sec:conclusiones}
 
-Pese a los distintos métodos empleados para intentar mejorar el rendimiento del sistema como la aplicación de diferentes filtros de preprocesado, técnicas de interpolación espacial más precisas o la detección y eliminación de canales defectuosos, no se observaron mejoras significativas en el rendimiento del modelo. Esto sugiere que el tokenizador empleado por el modelo posee la capacidad suficiente para detectar artefactos y adaptarse a señales EEG más ruidosas. 
+En conclusión, la comparación de los distintos métodos de preprocesado ha
+demostrado que, pese a la baja densidad de electrodos (14 canales) y al empleo
+de un dispositivo EEG con electrodos secos, la clasificación binaria de tareas
+de imaginación motora en usuarios sin experiencia previa puede alcanzar
+precisiones de hasta el 97\% en un entorno \textit{offline}.
 
-Cabe destacar la discrepancia encontrada entre el código del repositorio oficial de MiRepNet~\cite{liu2025mirepnetpipelinefoundationmodel} y la descripción presentada en el artículo original. Aunque en el paper se indica que la interpolación espacial se aplica antes del alineamiento euclídeo, en la implementación oficial del modelo el entrenamiento se realiza siguiendo el orden inverso: primero se aplica el alineamiento euclídeo y posteriormente la interpolación. En consecuencia, para poder reutilizar correctamente los pesos preentrenados del modelo, es necesario mantener dicho orden de procesamiento.
+Pese a los distintos métodos empleados para intentar mejorar el rendimiento del
+sistema, como la aplicación de diferentes filtros de preprocesado, técnicas de
+interpolación espacial más precisas o la detección y eliminación de canales
+defectuosos, no se observaron mejoras significativas en el rendimiento del
+modelo. Esto sugiere que el tokenizador empleado por el modelo posee la
+capacidad suficiente para detectar artefactos y adaptarse a señales EEG más
+ruidosas.
 
-Por otro lado, los resultados obtenidos muestran una elevada variabilidad entre sujetos. En particular, los sujetos 2, 4 y 6 apenas lograron superar el 50 \% de precisión en la clasificación. Esto sugiere que dichos participantes podrían no haber comprendido correctamente cómo realizar las tareas de imaginación motora o, alternativamente, que la baja calidad de las grabaciones EEG afectase negativamente al rendimiento del modelo.
+Cabe destacar la discrepancia encontrada entre el código del repositorio
+oficial de MiRepNet~\cite{liu2025mirepnetpipelinefoundationmodel} y la
+descripción presentada en el artículo original. Aunque en el paper se indica
+que la interpolación espacial se aplica antes del alineamiento euclídeo, en la
+implementación oficial del modelo el entrenamiento se realiza siguiendo el
+orden inverso: primero se aplica el alineamiento euclídeo y posteriormente la
+interpolación. En consecuencia, para poder reutilizar correctamente los pesos
+preentrenados del modelo, es necesario mantener dicho orden de procesamiento.
 
-[poner las conclusiones sobre los juegos y las cosas que se han hecho]
+Por otro lado, los resultados obtenidos muestran una elevada variabilidad entre
+sujetos. En particular, los sujetos 2, 4 y 6 apenas lograron superar el 50 \%
+de precisión en la clasificación. Esto sugiere que dichos participantes podrían
+no haber comprendido correctamente cómo realizar las tareas de imaginación
+motora o, alternativamente, que la baja calidad de las grabaciones EEG afectase
+negativamente al rendimiento del modelo.
 
-De cara a futuros trabajos, con el objetivo de mejorar la experiencia de usuario, sería recomendable incorporar un modelo previo al clasificador BCI encargado de detectar cuándo el usuario está realizando realmente una tarea de imaginación motora y cuándo no. Esto permitiría evitar la ejecución de acciones no deseadas producidas por predicciones realizadas fuera de periodos de control intencionado.
+En el contexto del tiempo real, gracias a la precisión del modelo clasificando
+y a los distintos mecanismos de filtrado desarrollados, se han logrado
+rendimientos en torno al 80\% con un mecanismo de ayuda aplicado en el
+videojuego.
 
-Por otro lado, resultaría interesante ampliar el número de clases de imaginación motora utilizadas, con el fin de incrementar el conjunto de acciones que el usuario puede ejecutar dentro del videojuego. Asimismo, la combinación del paradigma de imaginación motora con otros paradigmas BCI o técnicas de eye tracking podría aumentar significativamente las posibilidades de interacción y enriquecer la experiencia de juego.
+Por la naturaleza de las ondas EEG y del modelo, el sistema desarrollado
+plantea tiempos de respuesta relativamente altos, entre 2 a 4 segundos
+aproximadamente. Sin embargo, esto no resulta un problema si el videojuego
+resulta correctamente adaptado. Además, por lo general los usuarios no
+encontraron frustrantes la latencia, de acuerdo con los formularios.
 
-Un ejemplo sencillo pero potencialmente útil consistiría en estimar el nivel de fatiga o cansancio del usuario y, en función de este, ajustar dinámicamente mecanismos de asistencia del videojuego, como el sistema de auto-aim.
+Entre los distintos usuarios que jugaron haciendo uso de la interfaz, hay
+variaciones altas. Lo que lleva a pensar que los resultados dependen mucho del
+jugador de la capacidad de este para tratar con MI. Con los filtros de ayuda
+estas diferencias se suavizan, consiguiendo que los resultados de los distintos
+usuarios se igualen.
 
-[Hay que incluir el trabajo a futuro relacionado con el juego ]
+Cabe mencionar que, con la ayuda al máximo (jugando el sistema
+automáticamente), los usuarios disfrutaron la experiencia pero a su vez
+tuvieron dudas de si realmente controlaban ellos el videojuego. Sin embargo,
+con una ayuda moderada encontraron la experiencia agradable y sentían que
+tenían el control en su mayoría, haciendo que este nivel de ayuda resulte la
+mejor opción de las probadas.
 
+Como conclusión final, se ha demostrado que es posible controlar un videojuego
+en tiempo real utilizando un sistema y hardware accesibles, apoyándose el
+sistema en mecanismos de ayuda y adaptando el videojuego correctamente.
+
+\section{Trabajo futuro}
+\label{sec:trabajo_futuro}
+
+De cara a futuros trabajos, con el objetivo de mejorar la experiencia de
+usuario, sería recomendable incorporar un modelo, previo al clasificador BCI,
+encargado de detectar cuándo el usuario está realizando realmente una tarea de
+imaginación motora y cuándo no. Esto permitiría evitar la ejecución de acciones
+no deseadas producidas por predicciones realizadas fuera de periodos de control
+intencionado. Además de facilitar la posibilidad de incluir la clase ``nada'' o
+``descanso'' de forma más precisa.
+
+Por otro lado, resultaría interesante ampliar el número de clases de
+imaginación motora utilizadas, con el fin de incrementar el conjunto de
+acciones que el usuario puede ejecutar dentro del videojuego. Asimismo, la
+combinación del paradigma de imaginación motora con otros paradigmas BCI o
+técnicas de eye tracking podría aumentar significativamente las posibilidades
+de interacción y enriquecer la experiencia de juego.
+
+Un ejemplo sencillo pero potencialmente útil consistiría en estimar el nivel de
+fatiga o cansancio del usuario y, en función de este, ajustar dinámicamente
+mecanismos de asistencia del videojuego, como el sistema de \textit{auto-aim}.
+
+Sería necesario, más adelante, escalar la investigación y probar el sistema con
+más usuarios. Para esto, se debería adaptar el código para que recoja las
+métricas automáticamente siguiendo los métodos establecidos y reunir
+participantes aplicando criterios de diversidad para tener una muestra
+representativa.
+
+También se plantea la posibilidad de explorar distintos filtros de decisión,
+como el Bayesiano descrito en ~\cite{perdikis2011evidence} que presenta una
+mejora frente al alisado exponencial, corrigiendo el posible sesgo del modelo
+hacia una clase concreta. Asimismo, se podría comparar el filtro de decisión,
+utilizado para los experimentos en tiempo real, frente a los demás métodos de
+suavizado planteados y a los nuevos investigados (como el Bayesiano).
+
+Además, sería de interés ver el progreso de los participantes si se entrenaran
+a jugar solamente con MI a los juegos planteados. De esta forma, se podría
+comprobar la importancia de la experiencia en este ámbito y analizar cómo varía
+la evolución de distintas personas.
+
+Por otro lado, resultaría util explorar distintos filtros de ayuda, explorando
+la posibilidad de maximizar la ayuda sin que el usuario lo note, mejorando la
+experiencia y reduciendo latencias. Finalmente, merecería la pena idear una
+adaptación general aplicable a cualquier juego, con mecanismos de ayuda
+externos al videojuego.
