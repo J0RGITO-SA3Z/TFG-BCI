@@ -6,10 +6,18 @@
 
 
 \section*{Jorge Sáez Salto}
+Jorge llevó a cabo una investigación inicial sobre técnicas de extracción de características de señales (ICA, Fourier, Wavelet), estudio de los distintos paradigmas EEG, rangos de frecuencia del cerebro humano, filtros de frecuencia, búsqueda de repositorios con \textit{datasets}, modelos de clasificación especializados en este campo, y posteriormente técnicas de detección y corrección de \textit{trials} ruidosos y métodos de filtrado de predicciones de modelos de clasificación.
 
+En las primeras fases del proyecto, Jorge se dedicó especialmente a la búsqueda y preparación en Python de un modelo de clasificación, siendo MiRepNet la opción finalmente escogida. Asimismo, se encargó de la resolución de dependencias de librerías y entornos, logrando realizar el primer \textit{test} de funcionamiento del modelo.
+
+Jorge desempeñó un rol multifunción durante las fases siguientes: participó en el desarrollo de la aplicación, concretamente en los módulos de configuración de electrodos y experimento visual con \textit{pygame}, y el \textit{SDK} del \textit{BrainAccess MIDI} (véase el Capítulo~\ref{cap:aplicacionBCI}), y asistió a dos de las cuatro sesiones de grabación piloto, supervisando el transcurso de las mismas. Posteriormente, se encargó de la integración de las grabaciones obtenidas con el modelo de clasificación, llevando a cabo numerosas pruebas con distintos filtros y normalizaciones hasta su correcta implementación, así como del desarrollo de la fase de entrenamiento para la extracción de la matriz de alineamiento euclidiano y el modelo preentrenado previo al experimento en tiempo real.
+
+Realizó investigaciones y pruebas sobre detección de \textit{trials} ruidosos e interpolación de canales, estudiando métodos como \textit{FASTER} y \textit{Autoreject}, y participó en la toma de decisiones sobre los criterios de detección de \textit{trials} ruidosos a aplicar en la arquitectura final.
+
+En las últimas fases del proyecto, Jorge tuvo un papel importante en el desarrollo del experimento en tiempo real, realizando simulaciones \textit{offline}, prueba de procesos intérpretes, e implementación y pruebas con los distintos filtros de decisión, y colaborando en la creación de los sistemas de ayuda para los diferentes juegos, así como su integración en la aplicación del sistema BCI. Por último, se encargó de redactar el protocolo, preparar el entorno y realizar las grabaciones en vídeo de los tres experimentos con videojuegos, así como participar en la extracción de datos y métricas de los mismos y la elaboración de conclusiones (véase el Capítulo~\ref{cap:experimentoTiempoReal}).
 
 \section*{Julián Reguera Peñalosa}
-Julián fue el encargado de estudiar la librería asociada al dispositivo EEG \textit{BrainAccess MIDI}, así como toda la documentación y API proporcionada por el fabricante. A partir de ello, realizó una investigación inicial sobre el funcionamiento general de los dispositivos EEG y, más concretamente, sobre el proceso de adquisición y manejo de señales utilizando el dispositivo BrainAccess MIDI desde Python.
+Julián fue el encargado de estudiar la librería asociada al dispositivo EEG \textit{BrainAccess MIDI}, así como toda la documentación y API proporcionada por el fabricante. A partir de ello, realizó una investigación inicial sobre el funcionamiento general de los dispositivos EEG y, más concretamente, sobre el proceso de adquisición y manejo de señales utilizando el dispositivo \textit{BrainAccess MIDI} desde Python.
 
 Durante las primeras fases del desarrollo también se encargó de preparar el entorno de trabajo común del proyecto, desarrollando scripts de instalación y ejecución de la aplicación con el objetivo de simplificar la configuración del entorno y facilitar el desarrollo al resto de integrantes del equipo.
 
