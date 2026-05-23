@@ -1,8 +1,21 @@
 \chapter{Conclusiones y Trabajo Futuro}
 \label{cap:conclusiones}
 
-Conclusiones del trabajo y líneas de trabajo futuro.
+En conclusión, como se ha observado en la comparación de los distintos métodos de preprocesado de la señal, pese a la baja densidad de electrodos utilizada (14 canales) y al empleo de un dispositivo EEG con electrodos secos, se ha comprobado que la clasificación binaria de tareas de imaginación motora en usuarios sin experiencia previa puede alcanzar precisiones de hasta el 97 \%.
 
-Antes de la entrega de actas de cada convocatoria, en el plazo que se indica en el calendario de los trabajos de fin de grado, el estudiante entregará en el Campus Virtual la versión final de la memoria en PDF.
+Pese a los distintos métodos empleados para intentar mejorar el rendimiento del sistema como la aplicación de diferentes filtros de preprocesado, técnicas de interpolación espacial más precisas o la detección y eliminación de canales defectuosos, no se observaron mejoras significativas en el rendimiento del modelo. Esto sugiere que el tokenizador empleado por el modelo posee la capacidad suficiente para detectar artefactos y adaptarse a señales EEG más ruidosas. 
 
+Cabe destacar la discrepancia encontrada entre el código del repositorio oficial de MiRepNet~\cite{liu2025mirepnetpipelinefoundationmodel} y la descripción presentada en el artículo original. Aunque en el paper se indica que la interpolación espacial se aplica antes del alineamiento euclídeo, en la implementación oficial del modelo el entrenamiento se realiza siguiendo el orden inverso: primero se aplica el alineamiento euclídeo y posteriormente la interpolación. En consecuencia, para poder reutilizar correctamente los pesos preentrenados del modelo, es necesario mantener dicho orden de procesamiento.
+
+Por otro lado, los resultados obtenidos muestran una elevada variabilidad entre sujetos. En particular, los sujetos 2, 4 y 6 apenas lograron superar el 50 \% de precisión en la clasificación. Esto sugiere que dichos participantes podrían no haber comprendido correctamente cómo realizar las tareas de imaginación motora o, alternativamente, que la baja calidad de las grabaciones EEG afectase negativamente al rendimiento del modelo.
+
+[poner las conclusiones sobre los juegos y las cosas que se han hecho]
+
+De cara a futuros trabajos, con el objetivo de mejorar la experiencia de usuario, sería recomendable incorporar un modelo previo al clasificador BCI encargado de detectar cuándo el usuario está realizando realmente una tarea de imaginación motora y cuándo no. Esto permitiría evitar la ejecución de acciones no deseadas producidas por predicciones realizadas fuera de periodos de control intencionado.
+
+Por otro lado, resultaría interesante ampliar el número de clases de imaginación motora utilizadas, con el fin de incrementar el conjunto de acciones que el usuario puede ejecutar dentro del videojuego. Asimismo, la combinación del paradigma de imaginación motora con otros paradigmas BCI o técnicas de eye tracking podría aumentar significativamente las posibilidades de interacción y enriquecer la experiencia de juego.
+
+Un ejemplo sencillo pero potencialmente útil consistiría en estimar el nivel de fatiga o cansancio del usuario y, en función de este, ajustar dinámicamente mecanismos de asistencia del videojuego, como el sistema de auto-aim.
+
+[Hay que incluir el trabajo a futuro relacionado con el juego ]
 

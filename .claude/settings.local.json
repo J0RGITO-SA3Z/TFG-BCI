@@ -5,7 +5,8 @@
       "PowerShell(C:\\\\Users\\\\julianix\\\\miniconda3\\\\envs\\\\bci-mi-tfg\\\\python.exe -m pip install onnx)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\julianix\\\\Documents\\\\programacion\\\\python\\\\TFG-BCI\\\\EEG_app\\\\src\\\\\" -Recurse -Directory | Select-Object -ExpandProperty FullName | Sort-Object)",
       "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\julianix\\\\Documents\\\\programacion\\\\python\\\\TFG-BCI\\\\lib\" -Recurse -Force | Select-Object FullName | ForEach-Object { $_.FullName.Substring\\(\"c:\\\\Users\\\\julianix\\\\Documents\\\\programacion\\\\python\\\\TFG-BCI\\\\\".Length\\) })",
-      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\julianix\\\\Documents\\\\programacion\\\\python\\\\TFG-BCI\\\\Memoria\\\\plantilla_tfg_latex__1_\\\\Capitulos\\\\\" -Filter \"*.tex\" -File)"
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\julianix\\\\Documents\\\\programacion\\\\python\\\\TFG-BCI\\\\Memoria\\\\plantilla_tfg_latex__1_\\\\Capitulos\\\\\" -Filter \"*.tex\" -File)",
+      "Bash(grep -n \"\\\\\\\\\\\\\\\\paper\" \"c:\\\\Users\\\\julianix\\\\Documents\\\\programacion\\\\python\\\\TFG-BCI\\\\Memoria\\\\plantilla_tfg_latex__1_\\\\Capitulos\\\\Modelo.tex\")"
     ]
   }
 }
