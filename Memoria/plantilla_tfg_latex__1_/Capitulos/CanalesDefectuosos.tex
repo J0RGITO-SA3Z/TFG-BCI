@@ -23,7 +23,7 @@ Dado que se disponía de varias grabaciones por sujeto, se optó por emplear alg
 
 Por el contrario, cuando las grabaciones de entrenamiento contenían una alta proporción de estos artefactos, el modelo tendía a degradar su capacidad de predicción, llegando en muchos casos a predecir de forma sistemática una única clase.
 
-A partir de estas observaciones, surgió la necesidad de automatizar el proceso de detección de datos defectuosos. Además, se planteó refinar la estrategia de descarte, pasando de eliminar grabaciones completas a aplicar un enfoque más granular basado en la identificación y eliminación de epochs contaminados. En este contexto, se introducen los métodos descritos en el presente apartado.
+A partir de estas observaciones, surgió la necesidad de automatizar el proceso de detección de datos defectuosos. Además, se planteó refinar la estrategia de descarte, pasando de eliminar grabaciones completas a aplicar un enfoque más granular basado en la identificación y eliminación de \textit{epochs} contaminados. En este contexto, se introducen los métodos descritos en el presente apartado.
 
 \subsection{Métodos de detección de canales defectuosos}
 \label{subsec:metodos_deteccion_canales}
@@ -52,7 +52,7 @@ Las alternativas evaluadas y sus características fueron las siguientes:
 
 Como veredicto final, la metodología más prometedora resultó ser Autoreject, por su facilidad de uso y configuración automática. No obstante, presenta dos problemáticas clave para su integración en un flujo en tiempo real: en primer lugar, la complejidad añadida en la fase de entrenamiento derivada del cálculo de umbrales mediante validación cruzada; en segundo lugar, su integración con MNE introduce una penalización en tiempo de ejecución, añadiendo una latencia considerable en la fase de preprocesamiento.
 
-Por todas estas razones, se ha optado por inspirarse en estas metodologías para desarrollar un proceso de detección y rechazo de epochs más simple, eficiente, fácil de integrar y fácil de calibrar en función de los casos de uso específicos del proyecto.
+Por todas estas razones, se ha optado por inspirarse en estas metodologías para desarrollar un proceso de detección y rechazo de \textit{epochs} más simple, eficiente, fácil de integrar y fácil de calibrar en función de los casos de uso específicos del proyecto.
 
 Un aspecto clave es que la detección no se aplica sobre la señal filtrada con el filtro estándar de 8--30\,Hz utilizado para el entrenamiento del modelo, sino sobre una versión de la señal filtrada en una banda más amplia de 1--40\,Hz. Esto se debe a que el filtro de 8--30\,Hz atenúa significativamente los picos de baja frecuencia asociados a los artefactos, reduciendo su amplitud y dificultando su detección. Al aplicar los detectores sobre la señal de banda ancha, los artefactos se preservan con mayor fidelidad y los umbrales resultan más efectivos.
 
@@ -73,9 +73,9 @@ Un aspecto clave es que la detección no se aplica sobre la señal filtrada con 
 \subsection{Acciones a tomar sobre los canales defectuosos}
 \label{subsec:accionesCanalesDefectuosos}
 
-Una vez identificados los canales defectuosos, surgen distintas estrategias para su tratamiento. En primer lugar, puede optarse por descartar aquellos epochs (o \textit{trials}) en los que el número de canales defectuosos supera un umbral predefinido, ya que se consideran segmentos de baja calidad.
+Una vez identificados los canales defectuosos, surgen distintas estrategias para su tratamiento. En primer lugar, puede optarse por descartar aquellos \textit{epochs} (o \textit{trials}) en los que el número de canales defectuosos supera un umbral predefinido, ya que se consideran segmentos de baja calidad.
 
-Para aquellos epochs que no superan dicho umbral, existen dos alternativas principales. Por un lado, es posible mantener los canales defectuosos sin modificar, asumiendo el impacto que puedan tener sobre el modelo. Por otro lado, puede aplicarse una interpolación espacial de dichos canales, con el objetivo de estimar su señal a partir de los electrodos vecinos y reducir así la cantidad de información no representativa que se introduce en el sistema.
+Para aquellos \textit{epochs} que no superan dicho umbral, existen dos alternativas principales. Por un lado, es posible mantener los canales defectuosos sin modificar, asumiendo el impacto que puedan tener sobre el modelo. Por otro lado, puede aplicarse una interpolación espacial de dichos canales, con el objetivo de estimar su señal a partir de los electrodos vecinos y reducir así la cantidad de información no representativa que se introduce en el sistema.
 
 \subsection{Implementación}
 \label{subsec:implementacion_canales}
@@ -89,7 +89,7 @@ Para aquellos epochs que no superan dicho umbral, existen dos alternativas princ
 
 Los detectores descritos se han implementado siguiendo una jerarquía de clases basada en una clase abstracta \texttt{BadChannelDetector}. Esta clase define el método \texttt{process(X)} que recibe las lecturas de un epoch, itera sobre cada canal y delega la decisión de si un canal es defectuoso al método abstracto \texttt{is\_bad\_channel}, que cada subclase implementa de forma específica. El resultado es una lista de índices de canales considerados malos.
 
-La clase \texttt{BadChannelInterpolator} actúa como orquestadora: recibe una lista de detectores y aplica todos ellos sobre cada epoch, acumulando la unión de los canales defectuosos detectados. Si el número de canales malos en un epoch supera el parámetro \texttt{channels\_max}, el epoch se descarta por completo. Para los epochs que no superan dicho umbral, los canales defectuosos se reconstruyen mediante interpolación espacial a partir de los electrodos vecinos.
+La clase \texttt{BadChannelInterpolator} actúa como orquestadora: recibe una lista de detectores y aplica todos ellos sobre cada epoch, acumulando la unión de los canales defectuosos detectados. Si el número de canales malos en un \textit{epoch} supera el parámetro \texttt{channels\_max}, el epoch se descarta por completo. Para los epochs que no superan dicho umbral, los canales defectuosos se reconstruyen mediante interpolación espacial a partir de los electrodos vecinos.
 
 Un aspecto relevante de la implementación es el uso de un doble pipeline de preprocesado. La detección de canales defectuosos se realiza sobre la señal filtrada en una banda más amplia (1--40\,Hz), que preserva mejor los artefactos de baja y alta frecuencia. La señal que finalmente se utiliza para el entrenamiento del modelo se obtiene de un pipeline independiente con el filtro estándar de 8--30\,Hz. Esto permite que la detección sea más sensible a artefactos sin degradar la señal de entrenamiento. Este flujo se implementa mediante los métodos primero se ejecuta los detectores sobre los datos del pipeline de detección y se almacenan los resultados poseteriormente se aplica el descarte y la interpolación sobre los datos del pipeline final.
 
@@ -99,9 +99,9 @@ Un aspecto relevante de la implementación es el uso de un doble pipeline de pre
 Para cuantificar el efecto del rechazo e interpolación de epochs sobre el rendimiento del clasificador, se diseñó un experimento comparativo con tres condiciones de preprocesado, evaluadas mediante validación cruzada repetida (\textit{StratifiedShuffleSplit}, 5 repeticiones, 15\,\% de datos para entrenamiento):
 
 \begin{enumerate}
-    \item \textbf{Sin rechazo}: filtro paso banda 8--30\,Hz, sin detección ni eliminación de epochs.
-    \item \textbf{Rechazo + interpolación}: detección con filtro 1--40\,Hz; los epochs con hasta 3 canales defectuosos se interpolan espacialmente y los que superan ese umbral se descartan. La señal final se filtra a 8--30\,Hz.
-    \item \textbf{Solo rechazo}: mismo proceso de detección, pero los epochs con canales defectuosos se mantienen igual en lugar de interpolarse en el caso de que no tengan más de 3 canales defectuosos. La señal final se filtra igualmente a 8--30\,Hz.
+    \item \textbf{Sin rechazo}: filtro paso banda 8--30\,Hz, sin detección ni eliminación de \textit{epochs}.
+    \item \textbf{Rechazo + interpolación}: detección con filtro 1--40\,Hz; los \textit{epochs} con hasta 3 canales defectuosos se interpolan espacialmente y los que superan ese umbral se descartan. La señal final se filtra a 8--30\,Hz.
+    \item \textbf{Solo rechazo}: mismo proceso de detección, pero los \textit{epochs} con canales defectuosos se mantienen igual en lugar de interpolarse en el caso de que no tengan más de 3 canales defectuosos. La señal final se filtra igualmente a 8--30\,Hz.
 \end{enumerate}
 
 En las condiciones con rechazo se aplica submuestreo aleatorio estratificado para igualar el número de \textit{trials} por clase antes del entrenamiento. La Tabla~\ref{tab:impacto_rechazo} recoge el accuracy medio $\pm$ desviación típica para cada sujeto y condición.
@@ -120,7 +120,7 @@ Rechazo + interp.  & 0.960 $\pm$ 0.037 & 0.534 $\pm$ 0.090 & \textbf{0.792 $\pm$
 Solo rechazo       & 0.970 $\pm$ 0.025 & 0.440 $\pm$ 0.034 & 0.739 $\pm$ 0.116 & 0.418 $\pm$ 0.055 & 0.888 $\pm$ 0.056 & 0.468 $\pm$ 0.103 & 0.575 $\pm$ 0.073 & 0.639 $\pm$ 0.082 \\
 \hline
 Eliminados (1-40)  & 15 & 3  & 23 & 19 & 11 & 18 & 36 & 3  \\
-Total epochs       & 120 & 120 & 120 & 120 & 120 & 115 & 120 & 120 \\
+Total \textit{epochs}       & 120 & 120 & 120 & 120 & 120 & 115 & 120 & 120 \\
 \hline
 \end{tabular}%
 }

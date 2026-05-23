@@ -5,7 +5,7 @@
 \label{sec:rt_participantes}
 
 Al igual que en el \hyperref[sec:protocoloAdquisicion]{experimento de
-    adquisición de grabaciones por trials}, todos los participantes respondieron
+    adquisición de grabaciones por \textit{trials}}, todos los participantes respondieron
 las mismas preguntas previamente, por medio de la aplicación. Además, los
 usuarios completaron un segundo cuestionario para medir sus niveles de
 satisfacción con el sistema, dicho formulario se pasó a cada usuario tantas
@@ -106,9 +106,9 @@ de duración para cada apartado (resultando un total de 1h 26 min):
 
 \begin{itemize}
     \item \textbf{Explicación al usuario (10 min):} Se le expone al usuario en qué consiste el experimento, se le introduce el concepto de imaginación motora y se le advierte del problema que suponen los parpadeos, movimientos y tragos de saliva, especialmente dentro de la ventana de 4 segundos de imaginación motora.
-    \item \textbf{Grabación de \hyperref[sec:protocoloAdquisicion]{experimento visual} (5 min):} Ejecución de la grabación siguiendo la misma \hyperref[subsubsec:estructura_grabación]{estructura} que en el experimento visual, con la diferencia de que en este caso se realizan 10 trials por clase y se incluyen solo mano izquierda (\textit{left\_hand}) y mano derecha (\textit{right\_hand}). El objetivo y utlidad de este procedimiento viene siendo que el usuario tenga un primer contacto con la dinámica del experimento (a modo de ``calentamiento'').
+    \item \textbf{Grabación de \hyperref[sec:protocoloAdquisicion]{experimento visual} (5 min):} Ejecución de la grabación siguiendo la misma \hyperref[subsubsec:estructura_grabación]{estructura} que en el experimento visual, con la diferencia de que en este caso se realizan 10 \textit{trials} por clase y se incluyen solo mano izquierda (\textit{left\_hand}) y mano derecha (\textit{right\_hand}). El objetivo y utlidad de este procedimiento viene siendo que el usuario tenga un primer contacto con la dinámica del experimento (a modo de ``calentamiento'').
     \item \textbf{Descanso (5 min):} Se le indica al usuario que se relaje y descanse \textbf{sin} el casco unos minutos.
-    \item \textbf{Entrenamiento \textit{Fine-tune} (9 min):} Realización de una segunda grabación con motivo de adaptar el modelo al usuario por medio de \textit{fine-tuning}. Esta grabación mantiene la \hyperref[subsubsec:estructura_grabación]{estructura} mencionada anteriormente pero realiza 30 trials por clase con mano izquierda y derecha.
+    \item \textbf{Entrenamiento \textit{Fine-tune} (9 min):} Realización de una segunda grabación con motivo de adaptar el modelo al usuario por medio de \textit{fine-tuning}. Esta grabación mantiene la \hyperref[subsubsec:estructura_grabación]{estructura} mencionada anteriormente pero realiza 30 \textit{trials} por clase con mano izquierda y derecha.
     \item \textbf{\hyperref[subsec:benchmark_visual]{\textit{Benchmark} visual (DualArrowComponent)} (7 min):} Primera prueba en tiempo real del experimento, sirve de primera toma de contacto para ver el sistema en acción, que el usuario vea claramente los resultados de sus acciones mentales (MI) y para estimar latencias. Nada más comenzar, se procede indicando al usuario que:
           \begin{enumerate}
               \item Realice imaginación motora de mano derecha hasta rellenar la flecha por
@@ -151,7 +151,7 @@ del sistema, como la experiencia del usuario. Las métricas decididas son las
 siguientes:
 
 \begin{itemize}
-    \item \textbf{Estimación del tiempo de reacción en base al benchmark (\hyperref[subsec:benchmark_visual]{\textit{dualArrowComponent}}):} Se mide el tiempo medio del usuario desde que ``debe'' rellenar una flecha hasta que lo consigue finalmente. Esto nos permite ver el tiempo de reacción del sistema y la consistencia en el flujo de predicciones.
+    \item \textbf{Estimación del tiempo de reacción en base al \textit{benchmark} (\hyperref[subsec:benchmark_visual]{\textit{dualArrowComponent}}):} Se mide el tiempo medio del usuario desde que ``debe'' rellenar una flecha hasta que lo consigue finalmente. Esto nos permite ver el tiempo de reacción del sistema y la consistencia en el flujo de predicciones.
     \item \textbf{Tiempo máximo sobrevidido:} Esta métrica se divide en otras dos con objetivos distintos:
           \begin{itemize}
               \item \textbf{Tiempo máximo sobrevivido por juego y ayuda:} Se toma nota del tiempo en segundos del mayor intervalo que el usuario haya logrado mantenerse con vida por cada juego y nivel de ayuda. Esto nos permite comparar el desempeño del usuario en base al juego y a la severidad de la corrección aplicada.
@@ -178,7 +178,7 @@ arquitectura como del propio jugador.
 Se realizaron grabaciones de todos los experimentos en tiempo real, de estas se recolectaron los datos necesarios para el cálculo de las métricas anteriormente mencionadas, siguiendo las siguientes pautas:
 
 \begin{itemize}
-    \item \textbf{Estimación del tiempo de reacción en base al benchmark (\hyperref[subsec:benchmark_visual]{\textit{dualArrowComponent}}):} Tomando como referencia la \hyperref[sec:rt_estructura]{estructura del experimento}, el primer punto del protocolo seguido para el \textit{benchmark visual}, se utiliza de margen para poder empezar a medir correctamente las tres iteraciones explicadas en el punto 2. 
+    \item \textbf{Estimación del tiempo de reacción en base al \textit{benchmark} (\hyperref[subsec:benchmark_visual]{\textit{dualArrowComponent}}):} Tomando como referencia la \hyperref[sec:rt_estructura]{estructura del experimento}, el primer punto del protocolo seguido para el \textit{benchmark visual}, se utiliza de margen para poder empezar a medir correctamente las tres iteraciones explicadas en el punto 2. 
     
     Para comenzar la medición se parte del instante en el que la flecha derecha se rellena por completo la primera vez. Desde entonces, se mide el tiempo hasta que el participante consigue vaciar la derecha y, consecutivamente, rellenar la izquierda. Para las demás iteraciones se sigue el mismo criterio, empezando por la izquierda o la derecha según corresponda. 
 
@@ -254,7 +254,7 @@ En la Tabla \ref{tab:resultados_benchmark} se exponen los tiempos medios de reac
       Sujeto 3 & 7,16 & No \\ \hline
       \end{tabular}
 }
-\caption{Tiempos de reacción en el benchmark visual (\textit{dualArrowComponent}).}
+\caption{Tiempos de reacción en el \textit{benchmark} visual (\textit{dualArrowComponent}).}
 \label{tab:resultados_benchmark}
 \end{table}
 

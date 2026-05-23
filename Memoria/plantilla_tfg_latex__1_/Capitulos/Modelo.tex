@@ -76,7 +76,7 @@ El proceso de \textit{fine-tuning} consiste en realizar un segundo entrenamiento
 \subsubsection{Congelación del \textit{transformer}}
 \label{subsubsec:congelacionTransformer}
 
-El modelo MiRepNet proporciona la posibilidad de congelar los pesos del encoder y realizar \textit{fine-tuning} únicamente sobre el tokenizador y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el paper original [paper], ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
+El modelo MiRepNet proporciona la posibilidad de congelar los pesos del encoder y realizar \textit{fine-tuning} únicamente sobre el tokenizador y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el \textit{paper} original [paper], ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
 
 Con el objetivo de evaluar el impacto de esta técnica sobre el rendimiento final, se llevó a cabo un experimento comparando ambos enfoques: realizar \textit{fine-tuning} completo del modelo y realizar \textit{fine-tuning} manteniendo congelado el encoder.
 
@@ -146,7 +146,7 @@ La gráfica \ref{fig:epochsEntrenamiento} muestra, para cada sujeto, la media de
 
 En dicha gráfica se observa que el sujeto 1 alcanza valores cercanos al 100\% tanto en entrenamiento como en validación, sin presentar sobreajuste.
 
-Por otro lado, los sujetos 2 y 4, cuyos resultados no superan aproximadamente el 55\% de \textit{accuracy} en validación, comienzan a mostrar signos de overfitting a partir de las primeras epocas de entrenamiento. No obstante, dado el bajo rendimiento global de estos sujetos, no se han considerado determinantes para la selección final de hiperparámetros.
+Por otro lado, los sujetos 2 y 4, cuyos resultados no superan aproximadamente el 55\% de \textit{accuracy} en validación, comienzan a mostrar signos de \textit{overfitting} a partir de las primeras epocas de entrenamiento. No obstante, dado el bajo rendimiento global de estos sujetos, no se han considerado determinantes para la selección final de hiperparámetros.
 
 En el resto de sujetos, el sobreajuste comienza a apreciarse aproximadamente entre las epocas 6 y 10, aunque con distinta intensidad dependiendo del sujeto. En la mayoría de los casos, este fenómeno no provoca una caída significativa del \textit{accuracy} de validación, sino más bien una estabilización de este mientras el rendimiento sobre entrenamiento continúa aumentando progresivamente.
 
