@@ -198,7 +198,7 @@ A continuación se describen las principales librerías utilizadas en el desarro
 
 \begin{itemize}
 
-\item \textbf{BrainAccess SDK:} librería oficial para la comunicación y control del dispositivo EEG. Cabe destacar que se ha trabajado con una versión antigua del SDK, ya que el dispositivo BrainAccess MIDI empleado es un modelo de varios años de antigüedad. Esto dificultó considerablemente la búsqueda de documentación válida y funcional, puesto que la mayoría de los repositorios disponibles, incluida la página oficial de BrainAccess, contienen datasheets correspondientes a versiones más modernas cuyas implementaciones no son compatibles con el dispositivo utilizado. A ello se suma la escasa información de dominio público (vídeos, tutoriales, guías, etc.) existente sobre este modelo concreto, lo que generó bloqueos significativos durante las primeras fases del desarrollo.
+\item \textbf{BrainAccess SDK:} librería oficial para la comunicación y control del dispositivo EEG. Cabe destacar que se ha trabajado con una versión antigua del SDK, ya que el dispositivo BrainAccess MIDI empleado es un modelo de varios años de antigüedad. Esto dificultó considerablemente la búsqueda de documentación válida y funcional, puesto que la mayoría de los repositorios disponibles, incluida la página oficial de BrainAccess, contienen \textit{datasheets} correspondientes a versiones más modernas cuyas implementaciones no son compatibles con el dispositivo utilizado. A ello se suma la escasa información de dominio público (vídeos, tutoriales, guías, etc.) existente sobre este modelo concreto, lo que generó bloqueos significativos durante las primeras fases del desarrollo.
 
 Una vez localizada la versión compatible del SDK y la documentación correspondiente, fue posible hacer uso de estructuras de datos y métodos como \texttt{EEG.recorder()} para la grabación y la extracción de datos del casco. Asimismo, se revisó la implementación interna de la librería y su funcionamiento mediante multihilo en C++, lo que permitió diseñar estructuras de datos más eficientes para su integración en el \textit{pipeline} del experimento en tiempo real (véase Sección~\ref{sec:experimentoTiempoReal}).
 
@@ -206,11 +206,11 @@ Una vez localizada la versión compatible del SDK y la documentación correspond
 
 \item \textbf{rich:} librería para la construcción de interfaces de usuario en consola. Proporciona componentes como tablas, paneles y texto con formato que han permitido implementar los menús y la presentación de información de la aplicación de forma clara y estructurada (véase Figura~\ref{fig:menuPrincipal}).
 
-\item \textbf{NumPy:} biblioteca utilizada para computación numérica y manipulación eficiente de arrays multidimensionales. Se emplea para el procesamiento y normalización de las señales EEG antes de su entrada al modelo.
+\item \textbf{NumPy:} biblioteca utilizada para computación numérica y manipulación eficiente de \textit{arrays} multidimensionales. Se emplea para el procesamiento y normalización de las señales EEG antes de su entrada al modelo.
 
-\item \textbf{PyTorch:} framework de aprendizaje profundo empleado para la carga, el ajuste fino (\textit{fine-tuning}) y la inferencia del modelo MiRepNet (véase Sección~\ref{sec:evaluacionMiRepNet}). Permite aprovechar la GPU mediante CUDA cuando está disponible, lo que acelera significativamente el proceso de entrenamiento.
+\item \textbf{PyTorch:} \textit{framework} de aprendizaje profundo empleado para la carga, el ajuste fino (\textit{fine-tuning}) y la inferencia del modelo MiRepNet (véase Sección~\ref{sec:evaluacionMiRepNet}). Permite aprovechar la GPU mediante CUDA cuando está disponible, lo que acelera significativamente el proceso de entrenamiento.
 
-\item \textbf{PyQt5 / pyqtgraph:} frameworks utilizados para la implementación de la aplicación de visualización TCP en tiempo real, que permite monitorizar las señales EEG desde la misma máquina o desde un dispositivo externo durante el transcurso de una grabación o experimento (véase Sección~\ref{sec:visualizacionTiempoReal}).
+\item \textbf{PyQt5 / pyqtgraph:} \textit{frameworks} utilizados para la implementación de la aplicación de visualización TCP en tiempo real, que permite monitorizar las señales EEG desde la misma máquina o desde un dispositivo externo durante el transcurso de una grabación o experimento (véase Sección~\ref{sec:visualizacionTiempoReal}).
 
 \item \textbf{Pygame:} librería empleada con dos propósitos principales: la implementación del experimento visual y la presentación de los estímulos visuales en pantalla (véase Sección~\ref{sec:experimentoVisual}), y el desarrollo de los juegos y \textit{benchmarks} utilizados en el experimento en tiempo real (véase Sección~\ref{subsec:juegosBCI}).
 

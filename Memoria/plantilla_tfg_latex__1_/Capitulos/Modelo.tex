@@ -12,14 +12,14 @@ Por esta razón se optó por MiRepNet~\cite{liu2025mirepnetpipelinefoundationmod
 \subsection{Arquitectura basada en transformer}
 \label{subsec:arquitecturaModelo}
 
-MiRepNet se compone de tres bloques principales que actúan de forma secuencial: un tokenizador que convierte la señal EEG en una secuencia de representaciones vectoriales, un encoder \textit{transformer} que modela las relaciones entre dichas representaciones, y una cabeza de clasificación que produce la predicción final. A continuación se describe cada uno de estos componentes.
+MiRepNet se compone de tres bloques principales que actúan de forma secuencial: un \textit{tokenizador} que convierte la señal EEG en una secuencia de representaciones vectoriales, un \textit{encoder} \textit{transformer} que modela las relaciones entre dichas representaciones, y una cabeza de clasificación que produce la predicción final. A continuación se describe cada uno de estos componentes.
 
 \subsubsection{Estructura tokenizador}
 \label{subsubsec:arquitecturaTockenizador}
 
 La arquitectura de MiRepNet está basada en la arquitectura \textit{transformer}. Primero los datos son transformados en tockens que posteriormente son procesados por un \textit{transformer}. 
 
-El proceso del tokenizer comienza con la señal de entrada representada como una matriz de dimensiones $C \times T$, donde $C$ corresponde al número de canales (electrodos) y $T$ al número de muestras temporales.
+El proceso del \textit{tokenizer} comienza con la señal de entrada representada como una matriz de dimensiones $C \times T$, donde $C$ corresponde al número de canales (electrodos) y $T$ al número de muestras temporales.
 
 En primer lugar, se aplica una convolución temporal, compuesta por 64 filtros entrenables, que opera a lo largo del eje temporal de cada canal de forma independiente. Esta operación permite al modelo aprender patrones temporales característicos de la señal EEG, como ritmos específicos (por ejemplo, bandas de frecuencia) o la atenuación de ruido.
 
@@ -27,11 +27,11 @@ A continuación, sobre la representación generada se aplica una convolución es
 
 Posteriormente, se aplica una operación de normalización junto con la función de activación ELU, con el objetivo de estabilizar el proceso de entrenamiento e introducir no linealidad en el modelo, permitiendo así la representación de patrones más complejos.
 
-A continuación, se emplea una operación de average pooling para reducir la dimensión temporal de las representaciones, lo que permite disminuir la cantidad de datos a procesar y mejorar la eficiencia del modelo.
+A continuación, se emplea una operación de \textit{average pooling} para reducir la dimensión temporal de las representaciones, lo que permite disminuir la cantidad de datos a procesar y mejorar la eficiencia del modelo.
 
-Tras esta etapa, se obtienen un conjunto de vectores que contienen información espaciotemporal resumida de la señal EEG. Sobre estos vectores se aplica una capa de proyección, implementada mediante una convolución, cuyo objetivo es transformar las representaciones al espacio de dimensión fija definido por el embedding dimension.
+Tras esta etapa, se obtienen un conjunto de vectores que contienen información espaciotemporal resumida de la señal EEG. Sobre estos vectores se aplica una capa de proyección, implementada mediante una convolución, cuyo objetivo es transformar las representaciones al espacio de dimensión fija definido por el \textit{embedding dimension}.
 
-Finalmente, los tokens se construyen tomando, para cada instante temporal, los valores de todos los filtros, de modo que cada token la información espacio-temporal completa obtenida mediante las convoluciones para un instante. 
+Finalmente, los \textit{tokens} se construyen tomando, para cada instante temporal, los valores de todos los filtros, de modo que cada \textit{token} la información espacio-temporal completa obtenida mediante las convoluciones para un instante. 
 
 \subsubsection{Estructura pretraining}
 \label{subsubsec:arquitecturaEntrenamiento}
@@ -43,15 +43,15 @@ Finalmente, los tokens se construyen tomando, para cada instante temporal, los v
 	\label{fig:esquemaTrainingModelo}
 \end{figure}
 
-Durante la fase de pretraining, el modelo combina aprendizaje supervisado y no supervisado con el objetivo de mejorar la calidad de las representaciones aprendidas. Para ello, en primer lugar se oculta una parte de los tokens de entrada, generando así una tarea de reconstrucción.
+Durante la fase de \textit{pretraining}, el modelo combina aprendizaje supervisado y no supervisado con el objetivo de mejorar la calidad de las representaciones aprendidas. Para ello, en primer lugar se oculta una parte de los \textit{tokens} de entrada, generando así una tarea de reconstrucción.
 
-Los datos son procesados inicialmente por un bloque \textit{transformer} compuesto por un módulo de multi-head attention, encargado de modelar las relaciones entre los tokens, y una red feedforward. Ambos subbloques están precedidos por una operación de normalización y emplean conexiones residuales, de modo que la salida de cada subbloque se suma a su entrada. Este primer \textit{transformer} tiene como objetivo aprender representaciones generales de las señales EEG en tareas de imaginación motora.
+Los datos son procesados inicialmente por un bloque \textit{transformer} compuesto por un módulo de \textit{multi-head attention}, encargado de modelar las relaciones entre los \textit{tokens}, y una red \textit{feedforward}. Ambos subbloques están precedidos por una operación de normalización y emplean conexiones residuales, de modo que la salida de cada subbloque se suma a su entrada. Este primer \textit{transformer} tiene como objetivo aprender representaciones generales de las señales EEG en tareas de imaginación motora.
 
-La salida de este bloque se bifurca en dos ramas. Por un lado, se aplica una transformación lineal para realizar la predicción de la tarea supervisada (clasificación). Por otro lado, las representaciones se introducen en un segundo bloque \textit{transformer}, con la misma estructura que el anterior, cuyo objetivo es reconstruir los tokens previamente ocultos. Esta segunda rama constituye la parte no supervisada del entrenamiento.
+La salida de este bloque se bifurca en dos ramas. Por un lado, se aplica una transformación lineal para realizar la predicción de la tarea supervisada (clasificación). Por otro lado, las representaciones se introducen en un segundo bloque \textit{transformer}, con la misma estructura que el anterior, cuyo objetivo es reconstruir los \textit{tokens} previamente ocultos. Esta segunda rama constituye la parte no supervisada del entrenamiento.
 
 Finalmente, el modelo se entrena mediante la optimización conjunta de ambas tareas, combinando las pérdidas asociadas a la clasificación y a la reconstrucción.
 
-\subsubsection{Estructura Downstream}
+\subsubsection{Estructura \textit{Downstream}}
 \label{subsubsec:arquitecturaDownstream}
 
 \begin{figure}[h]
@@ -61,7 +61,7 @@ Finalmente, el modelo se entrena mediante la optimización conjunta de ambas tar
 	\label{fig:esquemaModelo}
 \end{figure}
 
-Tras la fase de pretraining, se deja de aplicar el enmascaramiento de tokens y se elimina el segundo bloque \textit{transformer} encargado de la reconstrucción, manteniéndose únicamente el \textit{transformer} principal junto con la capa lineal de clasificación. Este \textit{transformer} ha aprendido representaciones generales de las señales EEG, que pueden ser reutilizadas en tareas específicas.
+Tras la fase de \textit{pretraining}, se deja de aplicar el enmascaramiento de \textit{tokens} y se elimina el segundo bloque \textit{transformer} encargado de la reconstrucción, manteniéndose únicamente el \textit{transformer} principal junto con la capa lineal de clasificación. Este \textit{transformer} ha aprendido representaciones generales de las señales EEG, que pueden ser reutilizadas en tareas específicas.
 
 Para adaptar el modelo a un sujeto concreto, es necesario realizar una fase de \textit{fine-tuning}, en la que el modelo se entrena utilizando datos del propio usuario. Durante esta fase, es posible optar por congelar los pesos del \textit{transformer}, manteniendo así las representaciones generales aprendidas durante el preentrenamiento, o bien permitir su actualización.
 
@@ -76,13 +76,13 @@ El proceso de \textit{fine-tuning} consiste en realizar un segundo entrenamiento
 \subsubsection{Congelación del \textit{transformer}}
 \label{subsubsec:congelacionTransformer}
 
-El modelo MiRepNet proporciona la posibilidad de congelar los pesos del encoder y realizar \textit{fine-tuning} únicamente sobre el tokenizador y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el \textit{paper} original \cite{liu2025mirepnetpipelinefoundationmodel}, ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
+El modelo MiRepNet proporciona la posibilidad de congelar los pesos del \textit{encoder} y realizar \textit{fine-tuning} únicamente sobre el \textit{tokenizador} y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el \textit{paper} original \cite{liu2025mirepnetpipelinefoundationmodel}, ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
 
-Con el objetivo de evaluar el impacto de esta técnica sobre el rendimiento final, se llevó a cabo un experimento comparando ambos enfoques: realizar \textit{fine-tuning} completo del modelo y realizar \textit{fine-tuning} manteniendo congelado el encoder.
+Con el objetivo de evaluar el impacto de esta técnica sobre el rendimiento final, se llevó a cabo un experimento comparando ambos enfoques: realizar \textit{fine-tuning} completo del modelo y realizar \textit{fine-tuning} manteniendo congelado el \textit{encoder}.
 
-Para ello, los datos fueron divididos mediante validación cruzada k-fold, utilizando 10 epocas de entrenamiento en ambos casos. Posteriormente, se comparó el rendimiento obtenido al congelar el encoder frente al entrenamiento completo del modelo.
+Para ello, los datos fueron divididos mediante validación cruzada k-fold, utilizando 10 épocas de entrenamiento en ambos casos. Posteriormente, se comparó el rendimiento obtenido al congelar el \textit{encoder} frente al entrenamiento completo del modelo.
 
-Los resultados finales del experimento se muestran en la Tabla \ref{tab:freezeComparison}, donde se observa una pérdida clara de rendimiento cuando el \textit{fine-tuning} no se realiza sobre el encoder. Por lo tanto se ha optado por prescindir de este método. 
+Los resultados finales del experimento se muestran en la Tabla \ref{tab:freezeComparison}, donde se observa una pérdida clara de rendimiento cuando el \textit{fine-tuning} no se realiza sobre el \textit{encoder}. Por lo tanto se ha optado por prescindir de este método. 
 
 \begin{table}[h]
 	\centering
@@ -109,7 +109,7 @@ Los resultados finales del experimento se muestran en la Tabla \ref{tab:freezeCo
 
 Por otro lado, uno de los aspectos más importantes relacionados con el \textit{fine-tuning} es determinar cuántos \textit{trials} por clase son necesarios para lograr un entrenamiento adecuado del modelo. Desde el punto de vista de una aplicación en tiempo real, resulta preferible utilizar la menor cantidad posible de \textit{trials}, ya que esto reduce el tiempo requerido por parte del usuario.
 
-Con el objetivo de determinar el número de \textit{trials} por clase óptimo, se ha realizado un experimento fijando el número de epocas de entrenamiento a 10 , utilizando el preprocesado previamente descrito y clasificando unicamente mano derecha y mano izquierda. Para cada sujeto, se ha evaluado el rendimiento del modelo empleando diferentes cantidades de \textit{trials}. Además, con el fin de reducir el impacto de la semilla aleatoria en la división de los datos entre entrenamiento y prueba, el proceso se ha repetido 10 veces para cada combinación de sujeto y número de \textit{trials}, utilizando distintas semillas aleatorias. El resultado obtenido se muestra en la gráfica \ref{fig:numTrialsFinetuning}.
+Con el objetivo de determinar el número de \textit{trials} por clase óptimo, se ha realizado un experimento fijando el número de épocas de entrenamiento a 10 , utilizando el preprocesado previamente descrito y clasificando únicamente mano derecha y mano izquierda. Para cada sujeto, se ha evaluado el rendimiento del modelo empleando diferentes cantidades de \textit{trials}. Además, con el fin de reducir el impacto de la semilla aleatoria en la división de los datos entre entrenamiento y prueba, el proceso se ha repetido 10 veces para cada combinación de sujeto y número de \textit{trials}, utilizando distintas semillas aleatorias. El resultado obtenido se muestra en la gráfica \ref{fig:numTrialsFinetuning}.
 
 \begin{figure}[h]
 	\centering
@@ -131,11 +131,11 @@ Cabe destacar que el aumento de datos destinados al \textit{fine-tuning} implica
 \subsubsection{Número de épocas de entrenamiento}
 \label{subsubsec:numEpochsFineTuning}
 
-Otra cuestión relevante es determinar la cantidad óptima de epocas de entrenamiento para evitar el sobreajuste del modelo.
+Otra cuestión relevante es determinar la cantidad óptima de épocas de entrenamiento para evitar el sobreajuste del modelo.
 
 Con este objetivo, se realizó un experimento fijando la cantidad de datos utilizados para \textit{fine-tuning} en 30 \textit{trials} por clase y considerando únicamente la clasificación entre imaginación motora de mano derecha y mano izquierda.
 
-La gráfica \ref{fig:epochsEntrenamiento} muestra, para cada sujeto, la media de los accuracies obtenidos junto con su desviación típica.
+La gráfica \ref{fig:epochsEntrenamiento} muestra, para cada sujeto, la media de los \textit{accuracies} obtenidos junto con su desviación típica.
 
 \begin{figure}[h]
 	\centering
@@ -146,11 +146,11 @@ La gráfica \ref{fig:epochsEntrenamiento} muestra, para cada sujeto, la media de
 
 En dicha gráfica se observa que el sujeto 1 alcanza valores cercanos al 100\% tanto en entrenamiento como en validación, sin presentar sobreajuste.
 
-Por otro lado, los sujetos 2 y 4, cuyos resultados no superan aproximadamente el 55\% de \textit{accuracy} en validación, comienzan a mostrar signos de \textit{overfitting} a partir de las primeras epocas de entrenamiento. No obstante, dado el bajo rendimiento global de estos sujetos, no se han considerado determinantes para la selección final de hiperparámetros.
+Por otro lado, los sujetos 2 y 4, cuyos resultados no superan aproximadamente el 55\% de \textit{accuracy} en validación, comienzan a mostrar signos de \textit{overfitting} a partir de las primeras épocas de entrenamiento. No obstante, dado el bajo rendimiento global de estos sujetos, no se han considerado determinantes para la selección final de hiperparámetros.
 
-En el resto de sujetos, el sobreajuste comienza a apreciarse aproximadamente entre las epocas 6 y 10, aunque con distinta intensidad dependiendo del sujeto. En la mayoría de los casos, este fenómeno no provoca una caída significativa del \textit{accuracy} de validación, sino más bien una estabilización de este mientras el rendimiento sobre entrenamiento continúa aumentando progresivamente.
+En el resto de sujetos, el sobreajuste comienza a apreciarse aproximadamente entre las épocas 6 y 10, aunque con distinta intensidad dependiendo del sujeto. En la mayoría de los casos, este fenómeno no provoca una caída significativa del \textit{accuracy} de validación, sino más bien una estabilización de este mientras el rendimiento sobre entrenamiento continúa aumentando progresivamente.
 
-Finalmente, se decidió utilizar 10 epocas durante el proceso de \textit{fine-tuning}. Esta elección permite mantener un equilibrio entre el tiempo de entrenamiento y el rendimiento del modelo, evitando tanto un entrenamiento insuficiente como un sobreajuste excesivo.
+Finalmente, se decidió utilizar 10 épocas durante el proceso de \textit{fine-tuning}. Esta elección permite mantener un equilibrio entre el tiempo de entrenamiento y el rendimiento del modelo, evitando tanto un entrenamiento insuficiente como un sobreajuste excesivo.
 
 \subsection{Implementación}
 \label{subsec:implementacionModelo}
