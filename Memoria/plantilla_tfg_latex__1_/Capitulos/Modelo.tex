@@ -76,7 +76,7 @@ El proceso de \textit{fine-tuning} consiste en realizar un segundo entrenamiento
 \subsubsection{Congelación del \textit{transformer}}
 \label{subsubsec:congelacionTransformer}
 
-El modelo MiRepNet proporciona la posibilidad de congelar los pesos del encoder y realizar \textit{fine-tuning} únicamente sobre el tokenizador y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el \textit{paper} original [paper], ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
+El modelo MiRepNet proporciona la posibilidad de congelar los pesos del encoder y realizar \textit{fine-tuning} únicamente sobre el tokenizador y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el \textit{paper} original \cite{liu2025mirepnetpipelinefoundationmodel}, ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
 
 Con el objetivo de evaluar el impacto de esta técnica sobre el rendimiento final, se llevó a cabo un experimento comparando ambos enfoques: realizar \textit{fine-tuning} completo del modelo y realizar \textit{fine-tuning} manteniendo congelado el encoder.
 
