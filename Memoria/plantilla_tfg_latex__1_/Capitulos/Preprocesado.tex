@@ -15,13 +15,13 @@ Por este motivo, resulta útil aplicar filtrado en frecuencia para centrarse en 
 
 El filtro \textit{notch} es un tipo de filtro diseñado para atenuar de forma selectiva una frecuencia concreta o un rango muy estrecho del espectro, sin afectar significativamente al resto de la señal. Este tipo de filtrado resulta especialmente útil cuando se desea eliminar interferencias bien localizadas en frecuencia.
 
-En nuesto caso hemos utilizado un filtro \textit{notch} centrado en 50 Hz para suprimir la interferencia introducida por la red eléctrica que aparece en dicha frecuencia.
+Para el este caso se ha utilizado un filtro \textit{notch} centrado en 50 Hz para suprimir la interferencia introducida por la red eléctrica que aparece en dicha frecuencia.
 
 \subsubsection{Filtro paso de banda}
 
 El filtro paso banda permite conservar las componentes de la señal dentro de un rango de frecuencias determinado, atenuando el resto. Equivale a aplicar un filtro de paso bajo y un filtro de paso alto. 
 
-Eliminando las frecuencias bajas conseguimos eliminar el ruido de la corriente continua que se cuela en la señal, drift causado por sudoración o cambios en las impedancias de los electrodos, artefactos asociados a la respiración y otros. Normalmente el valor de lectura del EEG tiene que estar en el rango de 200~$\mu$V, clasificando como saturada la entrada de un canal que supere ese valor. Sin embargo, estos ruidos de mucha más potencia hacen que las lecturas se disparen. Se puede apreciar la efectividad de la eliminación de estas frecuencias en la Figura~\ref{fig:filtradoPasoBajo}.
+Eliminando las frecuencias bajas conseguimos eliminar el ruido de la corriente continua que se cuela en la señal, \textit{drift} causado por sudoración o cambios en las impedancias de los electrodos, artefactos asociados a la respiración y otros. Normalmente el valor de lectura del EEG tiene que estar en el rango de 200~$\mu$V, clasificando como saturada la entrada de un canal que supere ese valor. Sin embargo, estos ruidos de mucha más potencia hacen que las lecturas se disparen. Se puede apreciar la efectividad de la eliminación de estas frecuencias en la Figura~\ref{fig:filtradoPasoBajo}.
 
 Por otro lado eliminando las frecuencias altas eliminamos ruidos como el ruido muscular de alta frecuencia, ruido electromagnético y ruido electrónico con poca amplitud pero mucha frecuencia.
 
@@ -78,18 +78,18 @@ El preprocesado se ha implementado mediante un sistema modular compuesto por dos
 
 Con el fin de determinar qué combinación de etapas de preprocesado produce los mejores resultados para el clasificador se ha llevado a cabo una evaluación de todas las posibles combinaciones de los preprocesados mencionados anteriormente. Además se han probado los dos filtros de paso de banda así como no aplicar ninguno. 
 
-En esta prueba solo se han intentado clasificar 2 clases por simplicidad: mano derecha y mano izquierda. Para cada sujeto se ha aplicado la eliminación de trials con demasiados canales saturados o mal conectados como se explica en el Apartado~\ref{subsec:accionesCanalesDefectuosos}, tras ello se han balanceado los trials por clase para que haya el mismo número de trials de cada clase. Y se ha usado validación cruzada de 5 particiones usando un 80\% de los datos para entrenar el modelo y 20\% para validar. 
+En esta prueba solo se han intentado clasificar 2 clases por simplicidad: mano derecha y mano izquierda. Para cada sujeto se ha aplicado la eliminación de \textit{trials} con demasiados canales saturados o mal conectados como se explica en el Apartado~\ref{subsec:accionesCanalesDefectuosos}, tras ello se han balanceado los \textit{trials} por clase para que haya el mismo número de \textit{trials} de cada clase. Y se ha usado validación cruzada de 5 particiones usando un 80\% de los datos para entrenar el modelo y 20\% para validar. 
 
-En cuanto a la normalización se ha utilizado alineamiento euclideo y interpolación de los electrodos. El modelo utilizado ha sido MiRepNet.
+En cuanto a la normalización se ha utilizado alineamiento euclídeo y interpolación de los electrodos. El modelo utilizado ha sido MiRepNet.
 
 
 \subsubsection{Resultados}
 
-La Tabla~\ref{tab:accuracy_filtros} recoge el accuracy obtenido por cada combinación de preprocesado para los ocho sujetos. En negrita se indica el mejor valor de cada sujeto (columna) y el nombre de la combinación con mejor media global.
+La Tabla~\ref{tab:accuracy_filtros} recoge el \textit{accuracy} obtenido por cada combinación de preprocesado para los ocho sujetos. En negrita se indica el mejor valor de cada sujeto (columna) y el nombre de la combinación con mejor media global.
 
 \begin{table}[p]
 \centering
-\caption{Accuracy por combinación de preprocesado y sujeto (5-fold CV). En negrita el mejor valor por columna y la combinación con mayor media.}
+\caption{\textit{Accuracy} por combinación de preprocesado y sujeto (5-fold CV). En negrita el mejor valor por columna y la combinación con mayor media.}
 \label{tab:accuracy_filtros}
 \resizebox{\textwidth}{!}{%
 \renewcommand{\arraystretch}{1.15}

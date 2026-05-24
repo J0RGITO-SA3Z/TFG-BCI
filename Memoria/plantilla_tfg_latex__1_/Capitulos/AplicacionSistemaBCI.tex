@@ -150,31 +150,31 @@ Este módulo automatiza la evaluación del rendimiento del sistema sobre las gra
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{Imagenes/Bitmap/modelo_grafico_1.png}
-    \caption{Gráficos del resultado de evaluación con accuracy, loss y learning rate por época.}
+    \caption{Gráficos del resultado de evaluación con \textit{accuracy}, \textit{loss} y \textit{learning rate} por época.}
     \label{fig:modeloGraficoFinetune}
 \end{figure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{Imagenes/Bitmap/modelo_grafico_2.png}
-    \caption{Matriz de confusión del resultado del \textit{fine-tuning} y validación del modelo MiRepNet, gráfico con accuracy, precision y recall, y diagrama de bigotes o cajas.}
+    \caption{Matriz de confusión del resultado del \textit{fine-tuning} y validación del modelo MiRepNet, gráfico con \textit{accuracy}, \textit{precision} y \textit{recall}, y diagrama de bigotes o cajas.}
     \label{fig:modeloGraficoMatriz}
 \end{figure}
 
 \section{Experimento en Tiempo Real}
 \label{sec:experimentoTiempoReal}
 
-El módulo de Experimento en Tiempo Real constituye la implementación completa del \textit{pipeline} de interfaz cerebro-computador, integrando de las etapas de adquisición de señal EEG, filtrado, normalización e inferencia del modelo predictor. El resultado es un sistema capaz de traducir la imaginación motora del sujeto en acciones concretas sobre un entorno de benchmarking o videojuego. Para garantizar un rendimiento adecuado, el módulo incorpora una fase previa de entrenamiento idéntica a la del Experimento Visual, que permite ajustar el modelo predictor a las características individuales del sujeto antes de iniciar la sesión en tiempo real.
+El módulo de Experimento en Tiempo Real constituye la implementación completa del \textit{pipeline} de interfaz cerebro-computador, integrando de las etapas de adquisición de señal EEG, filtrado, normalización e inferencia del modelo predictor. El resultado es un sistema capaz de traducir la imaginación motora del sujeto en acciones concretas sobre un entorno de \textit{benchmarking} o videojuego. Para garantizar un rendimiento adecuado, el módulo incorpora una fase previa de entrenamiento idéntica a la del Experimento Visual, que permite ajustar el modelo predictor a las características individuales del sujeto antes de iniciar la sesión en tiempo real.
 
 \subsection{Training}
 \label{subsec:training}
 
 Antes de iniciar la fase en tiempo real, el módulo lleva a cabo una fase previa de entrenamiento, imprescindible para adaptar el modelo predictor a las características individuales del sujeto. Durante esta fase, se realiza una grabación siguiendo el mismo protocolo parametrizable del Experimento Visual, adquiriendo así los datos necesarios para realizar el ajuste fino \textit{fine-tuning} del modelo antes de lanzar la sesión en tiempo real.
 
-\subsection{Juegos y benchmarks BCI}
+\subsection{Juegos y \textit{benchmarks} BCI}
 \label{subsec:juegosBCI}
 
-Una vez finalizada la fase de entrenamiento, el sujeto puede interactuar con los entornos BCI desarrollados, que pueden tomar la forma de aplicaciones de benchmarking, orientadas a la evaluación objetiva del rendimiento del sistema, o de entornos de juego, orientados a una experiencia más inmersiva e intuitiva para el usuario. Durante la sesión, el modelo genera de forma continua un elevado número de predicciones que son procesadas y convertidas en acciones mediante filtros de decisión. Adicionalmente, los entornos de juego incorporan mecanismos de asistencia que facilitan la interacción del usuario con el entorno, compensando la variabilidad inherente a la señal EEG y mejorando la experiencia de uso.
+Una vez finalizada la fase de entrenamiento, el sujeto puede interactuar con los entornos BCI desarrollados, que pueden tomar la forma de aplicaciones de \textit{benchmarking}, orientadas a la evaluación objetiva del rendimiento del sistema, o de entornos de juego, orientados a una experiencia más inmersiva e intuitiva para el usuario. Durante la sesión, el modelo genera de forma continua un elevado número de predicciones que son procesadas y convertidas en acciones mediante filtros de decisión. Adicionalmente, los entornos de juego incorporan mecanismos de asistencia que facilitan la interacción del usuario con el entorno, compensando la variabilidad inherente a la señal EEG y mejorando la experiencia de uso.
 
 \section{Visualizador de grabaciones}
 \label{sec:visualizadorGrabaciones}
@@ -212,7 +212,7 @@ Una vez localizada la versión compatible del SDK y la documentación correspond
 
 \item \textbf{PyQt5 / pyqtgraph:} frameworks utilizados para la implementación de la aplicación de visualización TCP en tiempo real, que permite monitorizar las señales EEG desde la misma máquina o desde un dispositivo externo durante el transcurso de una grabación o experimento (véase Sección~\ref{sec:visualizacionTiempoReal}).
 
-\item \textbf{Pygame:} librería empleada con dos propósitos principales: la implementación del experimento visual y la presentación de los estímulos visuales en pantalla (véase Sección~\ref{sec:experimentoVisual}), y el desarrollo de los juegos y benchmarks utilizados en el experimento en tiempo real (véase Sección~\ref{subsec:juegosBCI}).
+\item \textbf{Pygame:} librería empleada con dos propósitos principales: la implementación del experimento visual y la presentación de los estímulos visuales en pantalla (véase Sección~\ref{sec:experimentoVisual}), y el desarrollo de los juegos y \textit{benchmarks} utilizados en el experimento en tiempo real (véase Sección~\ref{subsec:juegosBCI}).
 
 \end{itemize}
 
