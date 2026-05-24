@@ -410,37 +410,37 @@ colores que se muestran en la leyenda.
 
 \begin{figure}[h]
       \centering
+      \includegraphics[width=1\textwidth]{Imagenes/Bitmap/Formulario_Pregunta_6.png}
+      \caption{Distribución de respuestas por nivel de ayuda de la pregunta 6: ``He notado latencia (retardo) desde que trataba de hacer una acción hasta que se tomaba realmente''.}
+      \label{fig:Preguntas_formulario_6}
+\end{figure}
+
+\begin{figure}[h]
+      \centering
       \includegraphics[width=1\textwidth]{Imagenes/Bitmap/Formulario_Pregunta_7.png}
-      \caption{Distribución de respuestas por nivel de ayuda de la pregunta 7: ``He notado latencia (retardo) desde que trataba de hacer una acción hasta que se tomaba realmente''.}
+      \caption{Distribución de respuestas por nivel de ayuda de la pregunta 7: ``Me ha resultado frustrante la latencia (retardo) desde que trataba de hacer una acción hasta que se realizaba realmente''.}
       \label{fig:Preguntas_formulario_7}
 \end{figure}
 
 \begin{figure}[h]
       \centering
       \includegraphics[width=1\textwidth]{Imagenes/Bitmap/Formulario_Pregunta_8.png}
-      \caption{Distribución de respuestas por nivel de ayuda de la pregunta 8: ``Me ha resultado frustrante la latencia (retardo) desde que trataba de hacer una acción hasta que se realizaba realmente''.}
+      \caption{Distribución de respuestas por nivel de ayuda de la pregunta 8: ``Me ha parecido que la velocidad del juego era acorde a la velocidad de las acciones que podía tomar''.}
       \label{fig:Preguntas_formulario_8}
 \end{figure}
 
 \begin{figure}[h]
       \centering
       \includegraphics[width=1\textwidth]{Imagenes/Bitmap/Formulario_Pregunta_9.png}
-      \caption{Distribución de respuestas por nivel de ayuda de la pregunta 9: ``Me ha parecido que la velocidad del juego era acorde a la velocidad de las acciones que podía tomar''.}
+      \caption{Distribución de respuestas por nivel de ayuda de la pregunta 9: ``Me ha resultado demasiado lenta la velocidad del juego, hasta el punto de frustrarme''.}
       \label{fig:Preguntas_formulario_9}
 \end{figure}
 
 \begin{figure}[h]
       \centering
       \includegraphics[width=1\textwidth]{Imagenes/Bitmap/Formulario_Pregunta_10.png}
-      \caption{Distribución de respuestas por nivel de ayuda de la pregunta 10: ``Me ha resultado demasiado lenta la velocidad del juego, hasta el punto de frustrarme''.}
+      \caption{Distribución de respuestas por nivel de ayuda de la pregunta 10: ``En general, estoy satisfecho con el desempeño del sistema y la experiencia de juego''.}
       \label{fig:Preguntas_formulario_10}
-\end{figure}
-
-\begin{figure}[h]
-      \centering
-      \includegraphics[width=1\textwidth]{Imagenes/Bitmap/Formulario_Pregunta_11.png}
-      \caption{Distribución de respuestas por nivel de ayuda de la pregunta 11: ``En general, estoy satisfecho con el desempeño del sistema y la experiencia de juego''.}
-      \label{fig:Preguntas_formulario_11}
 \end{figure}
 
 \subsection{Análisis de los resultados obtenidos}
@@ -614,19 +614,77 @@ filtro de asistencia.
                         respuestas relativas a la mano izquierda, donde la tendencia general es
                         favorable pero persiste cierta discrepancia, probablemente por la misma razón.
             \end{itemize}
-      \item \textbf{Frustración frente al tiempo de respuesta.} Para esta categoría de preguntas se han tomado las preguntas y sus respectivas gráficas en las figuras: \ref{fig:Preguntas_formulario_1} y \ref{fig:Preguntas_formulario_2}.
+      \item \textbf{Frustración frente al tiempo de respuesta.} Para esta categoría de preguntas se han tomado las preguntas y sus respectivas gráficas en las figuras: \ref{fig:Preguntas_formulario_6} y \ref{fig:Preguntas_formulario_7}.
             \begin{itemize}
-                  \item \textbf{Sin ayuda}:
-                  \item \textbf{Ayuda de 0,7}:
-                  \item \textbf{Ayuda de 1}:
+                  \item \textbf{Sin ayuda}: Sin asistencia, la gran mayoría de los 
+    participantes afirma haber percibido latencia durante la sesión, resultado 
+    esperable dada la arquitectura del sistema. No obstante, la presencia de 
+    algunas respuestas discordantes sugiere que la latencia no resulta igualmente 
+    relevante o perceptible en todos los contextos de juego. Las respuestas 
+    relativas a la frustración generada por el retardo siguen una distribución 
+    análoga, reflejando una percepción de malestar coherente con la latencia 
+    reportada.
+                  \item \textbf{Ayuda de 0,7}: Con este nivel de asistencia, las 
+    respuestas sobre la percepción de latencia se distribuyen de forma equilibrada 
+    entre quienes afirman haberla percibido y quienes no. Esta distribución 
+    confirma el correcto funcionamiento de los filtros de ayuda, ya que al 
+    requerir un menor umbral de confianza para ejecutar una acción, la detección 
+    se produce de forma más temprana, reduciendo el retardo percibido por el 
+    usuario. En cuanto a la frustración generada por la latencia, las respuestas 
+    presentan un patrón similar, con una parte de los participantes que indica 
+    no haberse frustrado, mientras que el resto adopta una postura mayoritariamente 
+    neutral, con alguna respuesta que sí reporta frustración.
+
+                  \item \textbf{Ayuda de 1}: Con asistencia total, los resultados 
+    difieren considerablemente respecto a los niveles anteriores. La práctica 
+    totalidad de los participantes indica no haber percibido latencia durante 
+    la sesión, siendo el resto de respuestas neutras al respecto. Este resultado 
+    evidencia que, incluso sin ejercer un control directo sobre el juego, los 
+    participantes percibían las acciones como propias y notablemente más fluidas. 
+    Un patrón idéntico se observa en las respuestas sobre la frustración generada 
+    por la latencia, donde la gran mayoría de los participantes se muestra en 
+    desacuerdo con haberla experimentado.
+
             \end{itemize}
-      \item \textbf{Opinión de cómo de bien se han adaptado los juegos para el uso del sistema.} Para esta categoría de preguntas se han tomado las preguntas y sus respectivas gráficas en las figuras: \ref{fig:Preguntas_formulario_1} y \ref{fig:Preguntas_formulario_2}.
+      \item \textbf{Opinión de cómo de bien se han adaptado los juegos para el uso del sistema.} Para esta categoría de preguntas se han tomado las preguntas y sus respectivas gráficas en las figuras: \ref{fig:Preguntas_formulario_8} y \ref{fig:Preguntas_formulario_9}.
             \begin{itemize}
-                  \item \textbf{Sin ayuda}:
-                  \item \textbf{Ayuda de 0,7}:
-                  \item \textbf{Ayuda de 1}:
+                  \item \textbf{Sin ayuda}: Sin asistencia, las respuestas sobre la 
+    adecuación de la velocidad del juego presentan una distribución dividida 
+    entre la indiferencia y el acuerdo, lo que sugiere que una parte de los 
+    participantes no percibió la velocidad como adecuada mientras que la otra 
+    la valoró positivamente. No obstante, en lo relativo a si la lentitud del 
+    juego resultó frustrante, las respuestas se inclinan de forma clara hacia 
+    el desacuerdo, lo que indica que, pese a las limitaciones de velocidad 
+    inherentes al sistema, estas no generaron una experiencia frustrante para 
+    los participantes.
+                  \item \textbf{Ayuda de 0,7}: Con este nivel de asistencia, las 
+    respuestas sobre la adecuación de la velocidad del juego se desplazan 
+    mayoritariamente hacia el acuerdo, confirmando que este nivel representa 
+    un punto más óptimo en cuanto a la sincronía entre la velocidad de las 
+    acciones y la del juego. En lo relativo a la frustración por lentitud, 
+    las respuestas siguen inclinándose hacia el desacuerdo, aunque con una 
+    mayor dispersión respecto al nivel anterior. Esta tendencia podría 
+    indicar que, al reducirse el retardo de las acciones, los participantes 
+    comienzan a percibir el ritmo del juego como más lento de lo esperado.
+                  \item \textbf{Ayuda de 1}: Con asistencia total, las respuestas 
+    sobre la adecuación de la velocidad se mantienen mayoritariamente 
+    favorables, aunque con una mayor presencia de valoraciones discordantes 
+    respecto al nivel anterior. Esta divergencia puede atribuirse a que, con 
+    el máximo nivel de asistencia, los participantes logran sobrevivir durante 
+    períodos considerablemente más prolongados, lo que, combinado con el 
+    incremento progresivo de la dificultad inherente a cada juego —mayor 
+    frecuencia de aparición de enemigos en \textit{Project Arrows} y 
+    estrechamiento progresivo del camino en \textit{Endless Wave Runner}— 
+    resulta en una mayor variabilidad en la percepción de la velocidad, ya 
+    que a mayor tiempo de supervivencia, menor margen temporal para ejecutar 
+    acciones o tomar decisiones. Esta misma dinámica se ve reflejada en las 
+    respuestas sobre la frustración percibida por la lentitud del juego, donde 
+    la gran mayoría de los participantes afirma no haberse sentido frustrada 
+    por la velocidad, lo que sugiere que, pese a la mayor exigencia del juego 
+    en etapas avanzadas, la experiencia en términos de fluidez sigue siendo 
+    valorada positivamente.
             \end{itemize}
-      \item \textbf{Niveles de satisfacción general.} Para esta categoría de preguntas se ha tomado la pregunta y sus respectivas gráficas en la figura: \ref{fig:Preguntas_formulario_11}.
+      \item \textbf{Niveles de satisfacción general.} Para esta categoría de preguntas se ha tomado la pregunta y sus respectivas gráficas en la figura: \ref{fig:Preguntas_formulario_10}.
             \begin{itemize}
                   \item \textbf{Sin ayuda}: Sin aplicar asistencia, los usuarios se han sentido satisfechos por lo general. Sin embargo, un tercio de las respuestas muestran indiferencia.
                   \item \textbf{Ayuda de 0,7}: Aplicando un nivel de ayuda moderado, los usuarios expresan mayor satisfacción, reduciendo la cantidad de respuestas de indiferencia a una.
