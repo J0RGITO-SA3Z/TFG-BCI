@@ -14,7 +14,7 @@ Uno de los métodos más básicos de normalización intersujeto en sistemas BCI 
 
 Por ello, antes de comenzar una grabación o una sesión de uso del sistema BCI, se realiza una fase de calibración en reposo, cuya duración puede variar desde varios segundos hasta varios minutos. Durante este periodo se registran señales EEG del sujeto y se calcula una señal media de referencia. Posteriormente, esta señal basal se resta del resto de la grabación con el objetivo de reducir la variabilidad entre sujetos y hacer que las señales obtenidas presenten características más homogéneas entre distintos individuos.
 
-En un principio se iba a utilizar este método por ser uno de lo más utilizados pero tras la elección del modelo MiRepNet y debido a que los pesos de dicho modelo vienen preentrenados utilizando la normalización de alineamiento euclídeo acabamos desechando este método.
+En un principio se iba a utilizar este método por ser uno de los más utilizados pero tras la elección del modelo MiRepNet y debido a que los pesos de dicho modelo vienen preentrenados utilizando la normalización de alineamiento euclídeo acabamos desechando este método.
 
 \subsection{Alineamiento Euclídeo}
 \label{subsec:alineamiento_euclideo}
@@ -40,7 +40,7 @@ Tras aplicar esta transformación la covarianza media de los \textit{trials} tra
     \frac{1}{n} \sum_{i=1}^{n} \tilde{X}_i \tilde{X}_i^\top = I.
 \end{equation}
 
-En el gráfico \ref{fig:proyeccion_alineamiento_euclideo} se proyecta en un espacio de 2 dimensiones, mediante t-SNE, los datos de EEG de diferentes sujetos antes y después del alineamiento euclídeo. En él se observa como, efectivamente, el alineamiento Euclídeo alinea los datos de los diferentes sujetos.
+En el gráfico \ref{fig:proyeccion_alineamiento_euclideo} se proyecta en un espacio de 2 dimensiones, mediante t-SNE, los datos de EEG de diferentes sujetos antes y después del alineamiento euclídeo. En él se observa cómo, efectivamente, el alineamiento Euclídeo alinea los datos de los diferentes sujetos.
 
 \begin{figure}[h]
     \centering

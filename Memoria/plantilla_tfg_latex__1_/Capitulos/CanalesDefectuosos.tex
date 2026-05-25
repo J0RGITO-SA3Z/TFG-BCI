@@ -1,7 +1,7 @@
 \section{Detección e interpolación de canales defectuosos}
 \label{sec:canales_defectuosos}
 
-En el preprocesado se han intentado eliminar el ruido con la intención de hacer que la parte de la señal relevante y que realmente procede de la actividad cerebral sea mas fácilmente identificable y esté lo menos mezclada posible con otras señales externas a la actividad cerebral. No obstante en ocasiones es imposible recuperar dicha señal cerebral si los electrodos no han sido capaces de capturarla. Esto puede deberse principalmente a la saturación de un electrodo por un artefacto de amplitud demasiado grande, por la mala conexión de un electrodo, fallos del hardware, etc. 
+En el preprocesado se han intentado eliminar el ruido con la intención de hacer que la parte de la señal relevante y que realmente procede de la actividad cerebral sea más fácilmente identificable y esté lo menos mezclada posible con otras señales externas a la actividad cerebral. No obstante en ocasiones es imposible recuperar dicha señal cerebral si los electrodos no han sido capaces de capturarla. Esto puede deberse principalmente a la saturación de un electrodo por un artefacto de amplitud demasiado grande, por la mala conexión de un electrodo, fallos del hardware, etc. 
 
 El objetivo de este apartado es identificar electrodos defectuosos y utilizar esta información para aplicar estrategias que mejoren la calidad de los datos y, en consecuencia, el rendimiento del modelo.
 
@@ -63,7 +63,7 @@ Un aspecto clave es que la detección no se aplica sobre la señal filtrada con 
 
     \item \textbf{Detector de gradiente:} analiza la variación brusca entre muestras consecutivas de la señal. Se calcula la diferencia absoluta entre cada par de muestras adyacentes y se toma el valor máximo de dichas diferencias a lo largo del \textit{trial}. Este detector es particularmente eficaz para identificar transiciones abruptas en la señal que no corresponden a actividad cerebral, como los producidos por la saturación del amplificador o por artefactos musculares de corta duración.
     
-    Este detector únicamente cuenta con un parámetro que es el la diferencia máxima de lectura entre una muestra y otra para el cual hemos utilizado 50\,\textmu V
+    Este detector únicamente cuenta con un parámetro que es la diferencia máxima de lectura entre una muestra y otra para el cual hemos utilizado 50\,\textmu V.
 
     \item \textbf{Detector de varianza:} evalúa la dispersión estadística de la señal dentro de cada \textit{trial}. Un canal con varianza excesivamente alta puede indicar la presencia de ruido de alta frecuencia o artefactos de amplitud variable, mientras que una varianza excesivamente baja puede ser indicativa de un electrodo desconectado o saturado que produce una señal plana. 
 

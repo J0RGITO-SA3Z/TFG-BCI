@@ -15,7 +15,7 @@ Por este motivo, resulta útil aplicar filtrado en frecuencia para centrarse en 
 
 El filtro \textit{notch} es un tipo de filtro diseñado para atenuar de forma selectiva una frecuencia concreta o un rango muy estrecho del espectro, sin afectar significativamente al resto de la señal. Este tipo de filtrado resulta especialmente útil cuando se desea eliminar interferencias bien localizadas en frecuencia.
 
-Para el este caso se ha utilizado un filtro \textit{notch} centrado en 50 Hz para suprimir la interferencia introducida por la red eléctrica que aparece en dicha frecuencia.
+Para este caso se ha utilizado un filtro \textit{notch} centrado en 50 Hz para suprimir la interferencia introducida por la red eléctrica que aparece en dicha frecuencia.
 
 \subsubsection{Filtro paso de banda}
 
@@ -32,7 +32,7 @@ Por otro lado eliminando las frecuencias altas eliminamos ruidos como el ruido m
     \label{fig:filtradoPasoBajo}
 \end{figure}
 
-En cuanto a los rangos de frecuencia a seleccionar hemos valorado dos opciones implementado ambas con un filtro de banda FIR ofrecido por la librería MNE.
+En cuanto a los rangos de frecuencia a seleccionar hemos valorado dos opciones implementando ambas con un filtro de banda FIR ofrecido por la librería MNE.
 
 \begin{itemize}
     \item \textbf{1--40~Hz}: Este rango abarca prácticamente toda la actividad EEG relevante, incluyendo las bandas delta, theta, alfa y beta. Permite conservar una visión general de la señal cerebral, al tiempo que atenúa tanto las componentes de muy baja frecuencia como el ruido de alta frecuencia. Se trata de una banda amplia y de uso general cuando no se busca un fenómeno específico.
@@ -139,11 +139,11 @@ A partir de los resultados mostrados en la tabla, se pueden extraer las siguient
 
 \begin{itemize}
 
-\item \textbf{Filtro de paso de banda:} Se observa claramente la eficacia del filtro de paso de banda en el rango de 8--30 Hz, que presenta un rendimiento significativamente superior. Por otro lado, el bajo \textit{accuracy} obtenido con el filtro de 1--40 Hz resulta llamativo. Una posible explicación es que el modelo utilizado ha sido entrenado previamente con datos filtrados en un rango más específico, por lo que los pesos aprendidos no están optimizados para un espectro más amplio. Por ello hemos decidido usar el filtro de 8--30 HZ.
+\item \textbf{Filtro de paso de banda:} Se observa claramente la eficacia del filtro de paso de banda en el rango de 8--30 Hz, que presenta un rendimiento significativamente superior. Por otro lado, el bajo \textit{accuracy} obtenido con el filtro de 1--40 Hz resulta llamativo. Una posible explicación es que el modelo utilizado ha sido entrenado previamente con datos filtrados en un rango más específico, por lo que los pesos aprendidos no están optimizados para un espectro más amplio. Por ello hemos decidido usar el filtro de 8-30 HZ.
 
 \item \textbf{Filtro notch:} La aplicación del filtro notch no muestra variaciones apreciables en el rendimiento del modelo, manteniéndose valores de \textit{accuracy} similares a los obtenidos sin su uso. No obstante, la literatura reporta de forma consistente que, incluso en presencia de un filtrado de paso de banda, el uso de un filtro \textit{notch} resulta útil para atenuar de manera más precisa interferencias en frecuencias específicas, como el ruido de la red eléctrica (50 Hz). En este caso, aunque su impacto no se refleja directamente en las métricas de rendimiento, debido a la simplicidad de implementarlo en tiempo real se ha decidido mantenerlo en el \textit{pipeline} de preprocesado como medida de robustez frente a este tipo de artefactos.
 
-\item \textbf{Referencia común promedio (CAR):} La aplicación de CAR produce una degradación del rendimiento del modelo. Este comportamiento puede deberse, por un lado, a la presencia de ruido de baja frecuencia o componentes de corriente continua, como se muestra en la Figura~\ref{fig:filtradoPasoBajo}. Por otro lado, dado que el dispositivo EEG empleado presenta una baja densidad de electrodos y estos se encuentran concentrados en áreas relacionadas con la imaginación motora, es posible que CAR esté eliminando información relevante. Por estas razones se ha dedidico prescindir de el. 
+\item \textbf{Referencia común promedio (CAR):} La aplicación de CAR produce una degradación del rendimiento del modelo. Este comportamiento puede deberse, por un lado, a la presencia de ruido de baja frecuencia o componentes de corriente continua, como se muestra en la Figura~\ref{fig:filtradoPasoBajo}. Por otro lado, dado que el dispositivo EEG empleado presenta una baja densidad de electrodos y estos se encuentran concentrados en áreas relacionadas con la imaginación motora, es posible que CAR esté eliminando información relevante. Por estas razones se ha decidido prescindir de el. 
 
 \item \textbf{Análisis de Componentes Independientes (ICA):} El uso de ICA no muestra mejoras apreciables en el rendimiento del modelo. Esto puede explicarse por la ausencia de canales específicos para registrar actividad muscular (EMG), lo que limita su capacidad para aislar este tipo de artefactos. Además, el filtrado previo en el rango de 8--30 Hz ya atenúa significativamente el ruido muscular, que suele encontrarse en frecuencias más altas. Por tanto, ICA no aporta un beneficio adicional en este caso. Dado su elevado coste computacional y la complejidad de su implementación en tiempo real, se ha optado por prescindir de esta técnica en el sistema final.
 
