@@ -12,15 +12,93 @@ Fue el encargado de pensar, diseñar y revisar a conciencia los videojuegos expe
 En las últimas fases del proyecto, colaboró estrechamente en el diseño del protocolo definitivo seguido durante los experimentos en tiempo real (véase el Capítulo \ref{cap:experimentoTiempoReal}), participando también en la creación del formulario de evaluación que respondieron los sujetos. Finalmente, participó activamente en el análisis de las grabaciones en vídeo generadas durante las sesiones de juego, encargándose de la recolección de métricas y del posterior análisis e interpretación de los resultados obtenidos.
 
 \section*{Jorge Sáez Salto}
-Jorge llevó a cabo una investigación inicial sobre técnicas de extracción de características de señales (ICA, Fourier, Wavelet), estudio de los distintos paradigmas EEG, rangos de frecuencia del cerebro humano, filtros de frecuencia, búsqueda de repositorios con \textit{datasets}, modelos de clasificación especializados en este campo, y posteriormente técnicas de detección y corrección de \textit{trials} ruidosos y métodos de filtrado de predicciones de modelos de clasificación.
+Jorge llevó a cabo una investigación inicial sobre técnicas de extracción de 
+características de señales, como el análisis de componentes independientes (ICA), 
+la transformada de Fourier y la transformada Wavelet, así como el estudio de los 
+distintos paradigmas EEG (MI, P300 y SSVEP), los filtros de preprocesamiento de 
+señal, incluyendo filtros \textit{bandpass} y \textit{notch} y técnicas de 
+rereferenciado como el rereferenciado CAR, los rangos de frecuencia del cerebro 
+humano y sus aplicaciones en el contexto de la imaginación motora, la búsqueda 
+de repositorios con \textit{datasets} y modelos de clasificación especializados 
+en este campo, así como el estudio de publicaciones y trabajos previos 
+relacionados con el paradigma de imaginación motora. Posteriormente amplió dicha 
+investigación hacia técnicas de detección y corrección de \textit{trials} 
+ruidosos y métodos de filtrado de predicciones y tolerancia al error de modelos 
+de clasificación orientados al uso en tiempo real.
 
-En las primeras fases del proyecto, Jorge se dedicó especialmente a la búsqueda y preparación en Python de un modelo de clasificación, siendo MiRepNet la opción finalmente escogida. Asimismo, se encargó de la resolución de dependencias de librerías y entornos, logrando realizar el primer \textit{test} de funcionamiento del modelo.
+En las primeras fases del proyecto, Jorge se dedicó a la búsqueda y configuración 
+del repositorio de trabajo y a la preparación en Python de un modelo de 
+clasificación, siendo MiRepNet la opción finalmente escogida. Asimismo, se encargó 
+de la resolución de dependencias de librerías y entornos, logrando realizar el 
+primer \textit{test} básico de funcionamiento del modelo.
 
-Jorge desempeñó un rol multifunción durante las fases siguientes: participó en el desarrollo de la aplicación, concretamente en los módulos de configuración de electrodos y experimento visual con \textit{pygame}, y el \textit{SDK} del \textit{BrainAccess MIDI} (véase el Capítulo~\ref{cap:aplicacionBCI}), y asistió a dos de las cuatro sesiones de grabación piloto, supervisando el transcurso de las mismas. Posteriormente, se encargó de la integración de las grabaciones obtenidas con el modelo de clasificación, llevando a cabo numerosas pruebas con distintos filtros y normalizaciones hasta su correcta implementación, así como del desarrollo de la fase de entrenamiento para la extracción de la matriz de alineamiento euclidiano y el modelo preentrenado previo al experimento en tiempo real.
+Jorge desempeñó un rol multifunción durante las fases siguientes, participando 
+en el desarrollo de varios módulos de la aplicación BCI 
+(véase el Capítulo~\ref{cap:aplicacionBCI}). En primer lugar, junto con Julián 
+Reguera Peñalosa, llevó a cabo el estudio del \textit{SDK} del dispositivo 
+\textit{BrainAccess MIDI}, lo que sentó las bases para el desarrollo de los 
+módulos de adquisición de señal. A partir de este conocimiento, desarrolló el 
+módulo de grabación manual, que permite realizar grabaciones registrando los 
+eventos de forma manual, y posteriormente el módulo de experimento visual, que 
+constituye una evolución del anterior al implementar una comunicación multiproceso 
+entre el visor gráfico y el proceso de grabación, permitiendo llevar a cabo las 
+sesiones de forma automatizada siguiendo los protocolos definidos. Asimismo, 
+participó en el desarrollo del módulo de configuración de electrodos, que permite 
+guardar, modificar y cargar configuraciones con distintas distribuciones de 
+electrodos, y del módulo de visualización de grabaciones en formato \textit{FIF}, 
+que representa gráficamente la señal de cada electrodo junto con las marcas 
+temporales del protocolo, facilitando la detección visual de artefactos y 
+anomalías. Asistió a dos de las cuatro sesiones de grabación piloto, supervisando 
+el transcurso de las mismas y recopilando las propuestas y conclusiones derivadas 
+de la opinión de los participantes para su incorporación en mejoras posteriores (véase el Capítulo~\ref{cap:experimentosPreliminares}). 
+Posteriormente, se encargó de la integración de las grabaciones con el modelo de 
+clasificación, llevando a cabo numerosas pruebas con distintos filtros y 
+normalizaciones a lo largo de varias iteraciones de diseño hasta su 
+implementación final. Paralelamente, participó en el estudio de técnicas de 
+normalización como el alineamiento euclidiano, necesarias para el correcto uso 
+del modelo de predicción, encargándose del diseño e implementación de la fase de 
+entrenamiento basada en el protocolo del experimento visual, para la extracción 
+de la matriz de alineamiento euclidiano y el ajuste del modelo preentrenado 
+previo al experimento en tiempo real.
 
-Realizó investigaciones y pruebas sobre detección de \textit{trials} ruidosos e interpolación de canales, estudiando métodos como FASTER y Autoreject, y participó en la toma de decisiones sobre los criterios de detección de \textit{trials} ruidosos a aplicar en la arquitectura final.
+Realizó investigaciones y pruebas sobre detección de \textit{trials} ruidosos e 
+interpolación de canales, evaluando el rendimiento, la eficiencia y los resultados 
+obtenidos con métodos como FASTER, \textit{Autoreject} y \textit{Riemannian Potato} 
+sobre grabaciones existentes y valorando su adecuación a la arquitectura del 
+sistema. Posteriormente participó en la toma de decisiones e implementación de 
+los criterios de detección de \textit{trials} ruidosos aplicados en la arquitectura 
+final, basados en los métodos mencionados previamente 
+(véase el Sección~\ref{sec:canales_defectuosos}).
 
-En las últimas fases del proyecto, Jorge tuvo un papel importante en el desarrollo del experimento en tiempo real, realizando simulaciones \textit{offline}, prueba de procesos intérpretes, e implementación y pruebas con los distintos filtros de decisión, y colaborando en la creación de los sistemas de ayuda para los diferentes juegos, así como su integración en la aplicación del sistema BCI. Por último, se encargó de redactar el protocolo, preparar el entorno y realizar las grabaciones en vídeo de los tres experimentos con videojuegos, así como participar en la extracción de datos y métricas de los mismos y la elaboración de conclusiones (véase el Capítulo~\ref{cap:experimentoTiempoReal}).
+En las últimas fases del proyecto, Jorge tuvo un papel destacado en el desarrollo 
+del experimento en tiempo real, realizando simulaciones \textit{offline} y pruebas 
+con distintos procesos intérpretes, basados tanto en acumulación de predicciones 
+como en ventana deslizante. Asimismo, llevó a cabo pruebas comparativas de los 
+distintos filtros de decisión \textit{score} ponderado, alisado exponencial e 
+integrador con fuga— sobre simulaciones de tiempo real a partir de grabaciones 
+reales, lo que permitió visualizar y comparar el comportamiento de cada filtro y 
+fundamentar las decisiones de diseño de la arquitectura final en tiempo real. 
+Colaboró junto con Miguel Xuclá Herrero en la creación de los sistemas de ayuda 
+y control para los diferentes juegos y en su integración en la aplicación del 
+sistema BCI, definiendo además una estructura de interfaces que facilita la 
+implementación e integración de nuevos juegos con el flujo de acciones mediante 
+eventos, sentando así las bases para una arquitectura extensible y modular 
+(véase el Capítulo~\ref{cap:experimentoTiempoReal}).
+
+Por último, se encargó de redactar el protocolo e instrucciones para los 
+participantes, así como de preparar el entorno antes de cada experimento 
+—incluyendo la disposición de la pantalla, la iluminación, la puesta a punto de 
+la videocámara y los formularios— y de realizar las grabaciones en vídeo de los 
+tres experimentos con videojuegos. Gestionó los consentimientos informados y el 
+almacenamiento de los vídeos grabados, y participó en las decisiones relativas 
+a las métricas empleadas para evaluar el rendimiento del sistema y de los 
+participantes, llevando a cabo su extracción a partir de los vídeos grabados. 
+Asimismo, se encargó de la generación de gráficos a partir de los datos obtenidos 
+en los cuestionarios sobre la experiencia del jugador y del análisis e 
+interpretación de los resultados, prestando especial atención al impacto de cada 
+nivel de asistencia sobre la jugabilidad, un análisis que arrojó conclusiones de 
+notable interés tanto desde una perspectiva técnica como psicológica 
+(véase el Capítulo~\ref{cap:rt_resultados_y_analisis}).
 
 \section*{Julián Reguera Peñalosa}
 Julián se encargó, en una primera fase del proyecto, de realizar una revisión bibliográfica orientada a comprender el estado actual de las interfaces cerebro-computador y las posibilidades reales de aplicación de este tipo de sistemas. Para ello, llevó a cabo una investigación sobre los principales paradigmas BCI, las limitaciones habituales presentes en este tipo de tecnologías y los métodos más utilizados para mejorar el rendimiento de los sistemas basados en señales EEG. Asimismo, estudió diferentes librerías y herramientas empleadas en el ámbito del procesamiento de señal y aprendizaje automático aplicado a BCI, así como conceptos fisiológicos y técnicos relacionados con la adquisición y tratamiento de señales electroencefalográficas. Durante esta etapa también analizó los rendimientos esperados en tareas de imaginación motora y los factores que condicionan la precisión de estos sistemas. Tras comparar distintas alternativas, participó en la selección de la librería MNE como base principal para el procesamiento EEG, profundizando posteriormente en su funcionamiento interno y en las herramientas que proporciona para el tratamiento de señales biomédicas.
