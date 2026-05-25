@@ -1,7 +1,45 @@
 \chapter*{Conclusions and Future Work}
-\label{cap:conclusions}
+\label{cap:conclusionsAndFutureWork}
 \addcontentsline{toc}{chapter}{Conclusions and Future Work}
 
-Conclusions and future lines of work. This chapter contains the translation of Chapter \ref{cap:conclusiones}.
+\section*{Conclusions}
+\label{sec:conclusiones}
+\addcontentsline{toc}{section}{Conclusions}
 
+The objective of this work was the design and implementation of a modular brain-computer interface (BCI) capable of translating brain activity recorded through an EEG device into actions within an interactive system. This objective has materialized into a BCI applied to video games, capable of translating the user's motor imagery into actions executed in real time. To this end, the work has encompassed a wide range of stages: from the correct data acquisition from the EEG device, analysis and evaluation of different signal preprocessing methods, including normalization techniques and detection of artifacts and low-quality epochs, to conducting data acquisition experiments with real participants, going through the \textit{fine-tuning} and inference of the predictive model, the emulation of real-time tests, and, finally, the validation of the complete system through real-time experiments with participants and video games.
 
+The comparison of the different preprocessing methods has shown that, despite the low electrode density (14 channels) and the use of an EEG device with dry electrodes, the binary classification of motor imagery tasks in users with no prior experience can achieve accuracies of up to 97\% in an \textit{offline} environment.
+
+Despite the different methods used to try to improve the system's performance, such as applying different preprocessing filters, more precise spatial interpolation techniques, or detecting and removing defective channels, no significant improvements in the model's performance were observed. This suggests that the \textit{tokenizer} used by the model has sufficient capability to detect artifacts and adapt to noisier EEG signals.
+
+It is worth noting the discrepancy found between the code in the official MiRepNet repository~\cite{liu2025mirepnetpipelinefoundationmodel} and the description presented in the original article. Although the \textit{paper} indicates that spatial interpolation is applied before Euclidean alignment, in the official implementation of the model, training is performed following the reverse order: Euclidean alignment is applied first, followed by interpolation. Consequently, in order to properly reuse the model's pre-trained weights, it is necessary to maintain this processing order.
+
+On the other hand, the obtained results show a high variability between subjects. In particular, subjects 2, 4, and 6 barely managed to exceed 50\% accuracy in classification. This suggests that these participants might not have correctly understood how to perform the motor imagery tasks or, alternatively, that the low quality of the EEG recordings negatively affected the model's performance.
+
+In the context of real time, thanks to the model's classification accuracy and the different filtering mechanisms developed, performances around 80\% have been achieved with an assistance mechanism applied in the video game.
+
+Due to the nature of EEG waves and the model, the developed system presents relatively high response times, approximately between 2 to 4 seconds. However, this is not a problem if the video game is properly adapted. Furthermore, users generally did not find the latency frustrating, according to the questionnaires.
+
+Among the different users who played using the interface, there are high variations. This leads to the thought that the results depend heavily on the player and their ability to deal with MI. With the assistance filters, these differences are smoothed out, making the results of the different users equalize.
+
+It is worth mentioning that, with the assistance at maximum (the system playing automatically), users enjoyed the experience but at the same time had doubts about whether they were really controlling the video game themselves. However, with moderate assistance, they found the experience pleasant and felt they were mostly in control, making this level of assistance the best option among those tested.
+
+As a final conclusion, it has been demonstrated that it is possible to control a video game in real time using accessible hardware and systems, with the system relying on assistance mechanisms and adapting the video game properly.
+
+\section*{Future Work}
+\label{sec:trabajo_futuro}
+\addcontentsline{toc}{section}{Future Work}
+
+Looking ahead to future work, with the aim of improving the user experience, it would be advisable to incorporate a model, prior to the BCI classifier, responsible for detecting when the user is actually performing a motor imagery task and when they are not. This would help prevent the execution of unwanted actions caused by predictions made outside periods of intentional control. As well as facilitating the possibility of including the ``nothing'' or ``rest'' class more accurately.
+
+On the other hand, it would be interesting to expand the number of motor imagery classes used, in order to increase the set of actions the user can execute within the video game. Likewise, combining the motor imagery paradigm with other BCI paradigms or \textit{eye tracking} techniques could significantly increase interaction possibilities and enrich the gaming experience.
+
+A simple but potentially useful example would consist of estimating the user's level of fatigue or tiredness and, based on this, dynamically adjusting the video game's assistance mechanisms, such as the \textit{auto-aim} system.
+
+It would be necessary, later on, to scale the research and test the system with more users. For this, the code should be adapted to automatically collect metrics following established methods and gather participants by applying diversity criteria to obtain a representative sample.
+
+The possibility of exploring different decision filters is also considered, such as the Bayesian one described in ~\cite{perdikis2011evidence}, which presents an improvement over exponential smoothing by correcting the model's possible bias towards a specific class. Likewise, the decision filter used for real-time experiments could be compared against the other proposed smoothing methods and newly investigated ones (such as the Bayesian).
+
+Furthermore, it would be of interest to see the participants' progress if they trained to play the proposed games solely with MI. In this way, the importance of experience in this field could be verified, and how the evolution of different people varies could be analyzed.
+
+On the other hand, it would be useful to explore different assistance filters, investigating the possibility of maximizing assistance without the user noticing, improving the experience and reducing latencies. Finally, it would be worthwhile to devise a general adaptation applicable to any game, with assistance mechanisms external to the video game.
