@@ -157,6 +157,6 @@ Finalmente, se decidió utilizar 10 épocas durante el proceso de \textit{fine-t
 
 Tanto la arquitectura del modelo como sus pesos iniciales fueron obtenidos a partir del repositorio oficial de MiRepNet. Con el objetivo de facilitar la extensibilidad del sistema y permitir la sustitución del modelo por alternativas en el futuro, se diseñó una interfaz denominada ModelInterface, encargada de encapsular la funcionalidad principal del modelo.
 
-Esta interfaz define un conjunto de métodos comunes, entre los que se incluyen: \texttt{predict}, \texttt{predict\_batch}, \texttt{finetune}, \texttt{save} y \texttt{get\_constructor\_params}. De este modo, se establece una capa de abstracción que desacopla el uso del modelo de su implementación concreta.
+Esta interfaz define un conjunto de métodos comunes, entre los que se incluyen: \texttt{predict}, \texttt{predict\_batch}, \texttt{fine-tune}, \texttt{save} y \texttt{get\_constructor\_params}. De este modo, se establece una capa de abstracción que desacopla el uso del modelo de su implementación concreta.
 
 La implementación de estos métodos se llevó a cabo en ausencia de documentación detallada, basándose en el análisis del código disponible en el repositorio oficial de MiRepNet.
