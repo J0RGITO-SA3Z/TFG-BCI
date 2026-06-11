@@ -20,7 +20,7 @@ capacidad suficiente para detectar artefactos y adaptarse a señales EEG más
 ruidosas.
 
 Cabe destacar la discrepancia encontrada entre el código del repositorio
-oficial de MiRepNet~\cite{liu2025mirepnetpipelinefoundationmodel} y la
+oficial de MiRepNet (\cite{liu2025mirepnetpipelinefoundationmodel}) y la
 descripción presentada en el artículo original. Aunque en el \textit{paper} se indica que la interpolación espacial se aplica antes del alineamiento euclídeo, en la implementación oficial del modelo el entrenamiento se realiza siguiendo el orden inverso: primero se aplica el alineamiento euclídeo y posteriormente la interpolación. En consecuencia, para poder reutilizar correctamente los pesos preentrenados del modelo, es necesario mantener dicho orden de procesamiento.
 
 Por otro lado, los resultados obtenidos muestran una elevada variabilidad entre
@@ -87,7 +87,7 @@ participantes aplicando criterios de diversidad para tener una muestra
 representativa.
 
 También se plantea la posibilidad de explorar distintos filtros de decisión,
-como el Bayesiano descrito en ~\cite{perdikis2011evidence} que presenta una
+como el Bayesiano descrito en~\cite{perdikis2011evidence} que presenta una
 mejora frente al alisado exponencial, corrigiendo el posible sesgo del modelo
 hacia una clase concreta. Asimismo, se podría comparar el filtro de decisión,
 utilizado para los experimentos en tiempo real, frente a los demás métodos de
