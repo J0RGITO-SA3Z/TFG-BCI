@@ -7,7 +7,7 @@ Uno de los principales problemas al aplicar estos métodos a señales EEG es la 
 
 Esta heterogeneidad dificulta significativamente la integración de múltiples \textit{datasets}, limitando la posibilidad de reunir grandes volúmenes de datos para el entrenamiento. Como consecuencia, suele ser necesaria una adaptación manual o semiautomática de cada conjunto de datos, con el fin de unificarlos y permitir que un mismo modelo pueda aprender de todos ellos de manera coherente.
 
-Por esta razón se optó por MiRepNet~\cite{liu2025mirepnetpipelinefoundationmodel}, un modelo fundacional especializado en imaginación motora que proporciona pesos preentrenados sobre 50.355 \textit{trials} y requiere únicamente un \textit{fine-tuning} con una cantidad reducida de datos para adaptarse a un sujeto concreto. El modelo clasifica cuatro clases de imaginación motora: mano izquierda, mano derecha, pies y lengua.
+Por esta razón se optó por MiRepNet (\cite{liu2025mirepnetpipelinefoundationmodel}), un modelo fundacional especializado en imaginación motora que proporciona pesos preentrenados sobre 50.355 \textit{trials} y requiere únicamente un \textit{fine-tuning} con una cantidad reducida de datos para adaptarse a un sujeto concreto. El modelo clasifica cuatro clases de imaginación motora: mano izquierda, mano derecha, pies y lengua.
 
 \subsection{Arquitectura basada en transformer}
 \label{subsec:arquitecturaModelo}
@@ -76,7 +76,7 @@ El proceso de \textit{fine-tuning} consiste en realizar un segundo entrenamiento
 \subsubsection{Congelación del \textit{transformer}}
 \label{subsubsec:congelacionTransformer}
 
-El modelo MiRepNet proporciona la posibilidad de congelar los pesos del \textit{encoder} y realizar \textit{fine-tuning} únicamente sobre el \textit{tokenizador} y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el \textit{paper} original \cite{liu2025mirepnetpipelinefoundationmodel}, ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
+El modelo MiRepNet proporciona la posibilidad de congelar los pesos del \textit{encoder} y realizar \textit{fine-tuning} únicamente sobre el \textit{tokenizador} y la capa lineal de salida. Sin embargo, esta posibilidad no se menciona en ningún momento en el \textit{paper} original (\cite{liu2025mirepnetpipelinefoundationmodel}), ni tampoco se utiliza en los experimentos incluidos en el repositorio oficial del modelo.
 
 Con el objetivo de evaluar el impacto de esta técnica sobre el rendimiento final, se llevó a cabo un experimento comparando ambos enfoques: realizar \textit{fine-tuning} completo del modelo y realizar \textit{fine-tuning} manteniendo congelado el \textit{encoder}.
 
